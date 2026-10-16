@@ -58,3 +58,29 @@
   * Wektorowy komponent SVG renderowany w 100% lokalnie, z możliwością nałożenia profilu wzorcowego stylu sera na profil uzyskany przez użytkownika.
 * **Persona:** P1, P3, P6, P7.
 * **Priorytet:** SHOULD | **Etap:** MVP.
+
+---
+
+### **BR-SENS-010: Silnik Oceny Sensorycznej i Balansu Organoleptycznego (Sensory Evaluation & Artisan Critique Engine)**
+* **Opis:** 6-osiowy model punktacji sensorycznej i diagnostyki wad rzemieślniczych dla wszystkich kategorii wyrobów (`sensory-evaluation.ts`).
+* **Osie sensoryczne (skala 1–10):**
+  1. Kwasowość (*Acidity*).
+  2. Słoność (*Salinity*).
+  3. Zwartość / Chrupkość (*Firmness / Crispness*).
+  4. Kremowość / Tekstura (*Creaminess / Texture*).
+  5. Pikantność / Ostrość (*Pungency / Sharpness*).
+  6. Orzechowość / Czystość (*Nuttiness / Cleanliness*).
+* **Klasyfikacja punktowa (0–100 pkt):**
+  * $90 - 100\text{ pkt}$: `EXEMPLARY` (Wybitna harmonia smakowa, wzorcowa równowaga).
+  * $75 - 89\text{ pkt}$: `GOOD` (Bardzo dobry, zbalansowany wyrób rzemieślniczy).
+  * $55 - 74\text{ pkt}$: `ACCEPTABLE` (Wyrób poprawny z drobnymi odchyleniami).
+  * Poniżej $55\text{ pkt}$: `FLAWED` (Wada technologiczna / błąd fermentacji).
+* **Diagnostyka wad i rekomendacje naprawcze:**
+  * Ser: wykrywanie kredowości/nadkwasowości (rekomendacja: washing the curd), przesolenia, zjełczenia tłuszczów (lipoliza).
+  * Kiszonki: utrata chrupkości i rozkład pektyn (rekomendacja: liście dębu/chrzanu bogate w garbniki, obniżenie temp. fermentacji < 20°C).
+  * Kombucha/Octy: mdły posmak i brak kwasowości (rekomendacja: wydłużenie 1F, lepszy dostęp tlenu).
+* **Kryteria akceptacji:**
+  1. Integracja w widoku partii z możliwością 1-tap zapisu oceny do tabeli `sensory_evaluations`.
+  2. Wyświetlanie wykrytych wad i konkretnych porad rzemieślniczych.
+* **Persona:** P1, P2, P3, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.

@@ -64,6 +64,17 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
 13. **Kinetyka Kwasowa LAB & Miareczkowanie Octu (`src/core/fermentation-kinetics.ts`):**
     - Modelowanie kinetyki spadku pH w fermentacji mlekowej (faza *Leuconostoc* $\to$ *Lactobacillus plantarum* $\to$ plateau).
     - Laboratoryjny kalkulator miareczkowania kwasowości octu (TA z roztworem $0.1\text{ M NaOH}$) wyliczający rzeczywisty $\% \text{ kwasu octowego}$ z klasyfikacją spożywczą.
+14. **Bufor Kwasowo-Wapniowy Solanki & Ochrona Przed Rozmiękaniem Skórki (`src/core/brine-acidification.ts`):**
+    - Zapobieganie zjawisku obślizgłej skórki (*slimy rind*) poprzez stabilizację równowagi osmotycznej wapnia ($2.0\text{ g/L } CaCl_2$) oraz miareczkowanie kwasem mlekowym do docelowego pH 5.20–5.40.
+15. **Mieszanie Owocowe 2F & Dynamika Wysycenia Kombuchy (`src/core/kombucha-blending.ts`):**
+    - Precyzyjne modelowanie objętości $CO_2$ i ciśnienia w barach (20°C) z uwzględnieniem ekstraktów cukrów owocowych (°Brix) oraz typu butelki.
+    - Bezwzględna blokada i alarm bezpieczeństwa przed użyciem butelek kwadratowych/ozdobnych (zagrożenie eksplozją szkła).
+16. **Rejestr Czynności Pielęgnacyjnych Affinage (`src/core/cave-log-actions.ts`):**
+    - Pełny audyt zabiegów leżakowania (obracanie, przemywanie solanką, szczotkowanie, woskowanie, bandażowanie, ważenie).
+    - Analiza trajektorii ubytku wagi (% shrinkage) z wbudowanym ostrzeżeniem przy przekroczeniu 20% masy.
+17. **6-Osiowy Silnik Oceny Sensorycznej & Balansu Organoleptycznego (`src/core/sensory-evaluation.ts`):**
+    - Standaryzowana skala 0–100 pkt i klasyfikacja (EXEMPLARY, GOOD, ACCEPTABLE, FLAWED).
+    - Analiza kwasowości, słoności, zwartości/chrupkości, kremowości, pikantności i orzechowości z automatycznym wykrywaniem wad technologicznych i poradami naprawczymi.
 
 ---
 
@@ -76,7 +87,7 @@ npm run typecheck
 # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
 npm run check:i18n
 
-# 3. Wykonanie 20 pakietów testowych Jest
+# 3. Wykonanie 24 pakietów testowych Jest
 npm test
 
 # 4. Uruchomienie całościowej bramki
@@ -84,9 +95,9 @@ npm run verify
 ```
 
 Stan testów na dzień 16.10.2026:
-- **20 test suites PASS** (100%)
-- **85 unit & integration tests PASS** (100%)
-- **347 tekstów przetłumaczonych na PL i EN** (100% parytet)
+- **24 test suites PASS** (100%)
+- **95 unit & integration tests PASS** (100%)
+- **401 tekstów UI w kodzie przetłumaczonych na PL i EN** (100% parytet)
 
 ---
 
@@ -100,19 +111,23 @@ Stan testów na dzień 16.10.2026:
      - Stoper Berridge'a i cięcie skrzepu.
      - Dobór i geometria formy serowarskiej (standardowe szablony Kadova, Korycin, Camembert, Feta).
      - Holenderska prasa dźwigniowa z tarą ramienia i 3-etapowym programem kaskadowym (ochrona przed rind entrapment).
-     - Buforowana solanka serowarska z $CaCl_2$ i pH 5.2–5.4.
+     - Zbuforowana solanka serowarska z $CaCl_2$ (2 g/L) i kwasem mlekowym (pH 5.20).
      - Dogrzewanie gęstwy i Case Hardening Guard.
      - Regeneracja i wzmocnienie stężenia solanki bez wylewania roztworu.
      - Odzysk słodkiej serwatki na tradycyjną Ricottę (Ziger) i napój izotoniczny Rivella.
      - Botulinum Guard (bariera pH 4.60) i Monitor Kinetyki Zakwaszania LAB.
      - Asystent tradycyjnego Kimchi (proporcje kleiku, gochugaru, soli).
-     - Kombucha 2F Bottle Pressure Guard (ochrona przed wybuchem butelek).
-     - Żywe octy owocowe i miareczkowanie kwasowości całkowitej TA z $0.1\text{ M NaOH}$.
+     - Kombucha 2F Fruit Blending & Bottle Pressure Guard (ochrona przed wybuchem butelek).
+     - Żywe octy owocowe i laboratoryjne miareczkowanie kwasowości całkowitej TA z $0.1\text{ M NaOH}$.
 2. **Partie & Dojrzewalnia (`app/(tabs)/batches.tsx`):**
    - Lista partii i dziennik piwniczki (Cave Log).
+   - Sterowanie cyklem życia partii: `PREPARING` $\to$ `COAGULATING` $\to$ `PRESSING` $\to$ `BRINING` $\to$ `AGING` $\to$ `COMPLETED`.
+   - 6-osiowa ocena sensoryczna partii (0–100 pkt) z wykrywaniem wad i rekomendacjami naprawczymi zapisywana do SQLite.
    - Psychrometr piwniczki z pomiarem VPD, punktu rosy i alarmem Case Hardening vs Kondensacja.
    - Harmonogram pielęgnacji skórki (Affinage Care) dla serów twardych i maziowych.
-   - Rejestracja obracania krążków, przemywania solanką i monitorowanie ubytku wagi (% shrinkage).
+   - Rejestracja 5 akcji affinage (Obrócenie, Przemycie solanką, Szczotkowanie, Woskowanie, Ważenie z alertem shrinkage > 20%).
+   - Rozwijana historia pielęgnacji dla każdego krążka.
+   - Usuwanie partii i krążków z potwierdzeniem.
    - Skaner kodów QR partii i krążków.
 3. **Spiżarnia & Etykiety (`app/(tabs)/pantry.tsx`):**
    - Stany magazynowe, kalkulator wydajności i kosztów partii.

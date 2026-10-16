@@ -22,6 +22,8 @@ import {
   getSqliteStore,
   Batch,
   CaveWheel,
+  CaveActionLog,
+  SensoryEvaluation,
 } from '../../src/data/sqlite-store';
 import { createAutoBackup } from '../../src/lib/backup';
 import { triggerHapticFeedback } from '../../src/lib/timer-audio';
@@ -30,6 +32,14 @@ import {
   getAffinageSchedule,
   CheeseCaveType,
 } from '../../src/core/cave-environment';
+import {
+  recordAffinageAction,
+  CaveActionType,
+} from '../../src/core/cave-log-actions';
+import {
+  evaluateSensoryProfile,
+  SensoryProfileScores,
+} from '../../src/core/sensory-evaluation';
 
 export default function BatchesScreen() {
   const {
@@ -56,6 +66,23 @@ export default function BatchesScreen() {
   const [caveRh, setCaveRh] = useState<number>(85);
   const [caveType, setCaveType] = useState<CheeseCaveType>('HARD_GOUDA_CHEDDAR');
 
+  // Sensory Evaluation State
+  const [evaluatingBatch, setEvaluatingBatch] = useState<Batch | null>(null);
+  const [sensoryScores, setSensoryScores] = useState<SensoryProfileScores>({
+    acidity: 5,
+    salinity: 5,
+    firmness: 5,
+    creaminess: 5,
+    pungency: 2,
+    nuttiness: 5,
+  });
+  const [sensoryNotes, setSensoryNotes] = useState<string>('');
+  const [sensoryEvaluationsMap, setSensoryEvaluationsMap] = useState<Record<string, SensoryEvaluation>>({});
+
+  // Cave Action History state
+  const [expandedWheelHistoryId, setExpandedWheelHistoryId] = useState<string | null>(null);
+  const [wheelActionsMap, setWheelActionsMap] = useState<Record<string, CaveActionLog[]>>({});
+
   const caveEnvResult = analyzeCaveEnvironment({
     tempCelsius: caveTemp,
     relativeHumidityPct: caveRh,
@@ -69,69 +96,173 @@ export default function BatchesScreen() {
     const w = await store.getCaveWheels();
     setBatches(b);
     setCaveWheels(w);
+
+    const sMap: Record<string, SensoryEvaluation> = {};
+    for (const batch of b) {
+      const evalObj = await store.getSensoryEvaluation(batch.id);
+      if (evalObj) sMap[batch.id] = evalObj;
+    }
+    setSensoryEvaluationsMap(sMap);
   }, []);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  const handleTurnWheel = (wheel: CaveWheel) => {
-    requireActionAccess(async () => {
-      triggerHapticFeedback();
+  const toggleWheelHistory = async (wheelId: string) => {
+    triggerHapticFeedback();
+    if (expandedWheelHistoryId === wheelId) {
+      setExpandedWheelHistoryId(null);
+    } else {
       const store = getSqliteStore();
-      const updated: CaveWheel = {
-        ...wheel,
-        lastTurnedAt: Date.now(),
-      };
-      await store.saveCaveWheel(updated);
-      await createAutoBackup();
-      await loadData();
-      Alert.alert(t('Krążek Obrócony'), `${wheel.wheelTag}: ${t('Zapisano datę obrócenia.')}`);
-    });
+      const acts = await store.getCaveActions(wheelId);
+      setWheelActionsMap((prev) => ({ ...prev, [wheelId]: acts }));
+      setExpandedWheelHistoryId(wheelId);
+    }
   };
 
-  const handleWashWheel = (wheel: CaveWheel) => {
+  const handleAffinageAction = (
+    wheel: CaveWheel,
+    actionType: CaveActionType,
+    weight?: number,
+    notes?: string
+  ) => {
     requireActionAccess(async () => {
       triggerHapticFeedback();
+      const { updatedWheel, actionLog, alert } = recordAffinageAction(
+        wheel,
+        actionType,
+        weight,
+        notes,
+        Date.now()
+      );
       const store = getSqliteStore();
-      const updated: CaveWheel = {
-        ...wheel,
-        lastWashedAt: Date.now(),
-      };
-      await store.saveCaveWheel(updated);
+      await store.saveCaveWheel(updatedWheel);
+      await store.logCaveAction(actionLog);
       await createAutoBackup();
       await loadData();
-      Alert.alert(t('Krążek Przemyty'), `${wheel.wheelTag}: ${t('Przemyto solanką.')}`);
+
+      if (expandedWheelHistoryId === wheel.id) {
+        const acts = await store.getCaveActions(wheel.id);
+        setWheelActionsMap((prev) => ({ ...prev, [wheel.id]: acts }));
+      }
+
+      if (alert) {
+        Alert.alert(t('Ostrzeżenie o ubytku wagi'), alert);
+      } else {
+        const titles: Record<CaveActionType, string> = {
+          TURN: t('Krążek Obrócony'),
+          WASH_BRINE: t('Krążek Przemyty'),
+          DRY_BRUSH: t('Krążek Oczyszczony'),
+          WAX_COATING: t('Krążek Zawoskowany'),
+          CLOTHBOUND: t('Bandażowanie Zapisane'),
+          WEIGH: t('Ważenie Zapisane!'),
+        };
+        Alert.alert(
+          titles[actionType] || t('Akcja Zapisana'),
+          `${wheel.wheelTag}: ${t('Zapisano wpis w dzienniku piwniczki.')}`
+        );
+      }
     });
   };
 
   const handleSaveWeight = (wheel: CaveWheel) => {
-    requireActionAccess(async () => {
-      const weightNum = parseFloat(newWeightInput);
-      if (!weightNum || weightNum <= 0) {
-        Alert.alert(t('Błąd'), t('Wpisz prawidłową wagę w gramach.'));
-        return;
-      }
+    const weightNum = parseFloat(newWeightInput);
+    if (!weightNum || weightNum <= 0) {
+      Alert.alert(t('Błąd'), t('Wpisz prawidłową wagę w gramach.'));
+      return;
+    }
+    setWeighWheelId(null);
+    setNewWeightInput('');
+    handleAffinageAction(wheel, 'WEIGH', weightNum);
+  };
 
+  const handleDeleteWheel = (wheel: CaveWheel) => {
+    requireActionAccess(() => {
+      Alert.alert(
+        t('Usuń krążek z piwniczki'),
+        `${t('Czy na pewno chcesz usunąć krążek')} ${wheel.wheelTag}?`,
+        [
+          { text: t('Anuluj'), style: 'cancel' },
+          {
+            text: t('Usuń'),
+            style: 'destructive',
+            onPress: async () => {
+              triggerHapticFeedback();
+              const store = getSqliteStore();
+              await store.deleteCaveWheel(wheel.id);
+              await createAutoBackup();
+              await loadData();
+            },
+          },
+        ]
+      );
+    });
+  };
+
+  const handleUpdateBatchStatus = (batch: Batch, newStatus: Batch['status']) => {
+    requireActionAccess(async () => {
       triggerHapticFeedback();
       const store = getSqliteStore();
-      const shrinkagePct = Math.round(((wheel.initialWeightGrams - weightNum) / wheel.initialWeightGrams) * 1000) / 10;
-
-      const updated: CaveWheel = {
-        ...wheel,
-        currentWeightGrams: weightNum,
-        shrinkagePct: Math.max(0, shrinkagePct),
-      };
-
-      await store.saveCaveWheel(updated);
+      await store.updateBatchStatus(batch.id, newStatus);
       await createAutoBackup();
-      setWeighWheelId(null);
-      setNewWeightInput('');
       await loadData();
+      Alert.alert(t('Status Zaktualizowany'), `${batch.batchNumber}: ${newStatus}`);
+    });
+  };
 
+  const handleDeleteBatch = (batch: Batch) => {
+    requireActionAccess(() => {
       Alert.alert(
-        t('Ważenie Zapisane!'),
-        `${wheel.wheelTag}\n${t('Ubytek wagi (shrinkage):')} ${shrinkagePct}%`
+        t('Usuń Partię'),
+        `${t('Czy na pewno chcesz usunąć partię')} ${batch.batchNumber} (${batch.styleName})?`,
+        [
+          { text: t('Anuluj'), style: 'cancel' },
+          {
+            text: t('Usuń'),
+            style: 'destructive',
+            onPress: async () => {
+              triggerHapticFeedback();
+              const store = getSqliteStore();
+              await store.deleteBatch(batch.id);
+              await createAutoBackup();
+              await loadData();
+            },
+          },
+        ]
+      );
+    });
+  };
+
+  const handleSaveSensory = () => {
+    if (!evaluatingBatch) return;
+    requireActionAccess(async () => {
+      triggerHapticFeedback();
+      const result = evaluateSensoryProfile(evaluatingBatch.category, sensoryScores);
+      const store = getSqliteStore();
+      const evaluation: SensoryEvaluation = {
+        id: `sensory_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+        batchId: evaluatingBatch.id,
+        evaluatedAt: Date.now(),
+        acidity: sensoryScores.acidity,
+        salinity: sensoryScores.salinity,
+        firmness: sensoryScores.firmness,
+        creaminess: sensoryScores.creaminess,
+        pungency: sensoryScores.pungency,
+        nuttiness: sensoryScores.nuttiness,
+        overallScore: result.overallScore,
+        grade: result.grade,
+        flawsIdentified: JSON.stringify(result.identifiedFlaws),
+        notes: sensoryNotes || result.balanceAssessment,
+      };
+      await store.saveSensoryEvaluation(evaluation);
+      await createAutoBackup();
+      setEvaluatingBatch(null);
+      setSensoryNotes('');
+      await loadData();
+      Alert.alert(
+        t('Ocena Sensoryczna Zapisana!'),
+        `${result.overallScore}/100 pkt (${result.grade})\n${result.balanceAssessment}`
       );
     });
   };
@@ -143,6 +274,10 @@ export default function BatchesScreen() {
     if (selectedFilter === 'BEV') return b.category === 'KOMBUCHA' || b.category === 'VINEGAR';
     return true;
   });
+
+  const liveSensoryResult = evaluatingBatch
+    ? evaluateSensoryProfile(evaluatingBatch.category, sensoryScores)
+    : null;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -232,24 +367,207 @@ export default function BatchesScreen() {
                 </Text>
               </View>
             ) : (
-              filteredBatches.map((b) => (
-                <View key={b.id} style={styles.batchCard}>
-                  <View style={styles.cardHeader}>
-                    <Text style={styles.batchCode}>{b.batchNumber}</Text>
-                    <View style={styles.categoryBadge}>
-                      <Text style={styles.categoryBadgeText}>{b.category}</Text>
+              filteredBatches.map((b) => {
+                const isEvaluating = evaluatingBatch?.id === b.id;
+                const existingSensory = sensoryEvaluationsMap[b.id];
+                const statuses: Batch['status'][] = [
+                  'PREPARING',
+                  'COAGULATING',
+                  'PRESSING',
+                  'BRINING',
+                  'AGING',
+                  'COMPLETED',
+                ];
+
+                return (
+                  <View key={b.id} style={styles.batchCard}>
+                    <View style={styles.cardHeader}>
+                      <Text style={styles.batchCode}>{b.batchNumber}</Text>
+                      <View style={styles.categoryBadge}>
+                        <Text style={styles.categoryBadgeText}>{b.category}</Text>
+                      </View>
                     </View>
+                    <Text style={styles.batchTitle}>{b.styleName}</Text>
+                    <Text style={styles.batchDate}>
+                      {t('Data nastawienia:')} {new Date(b.createdAt).toLocaleDateString()}
+                    </Text>
+
+                    {/* Status Row & Switcher */}
+                    <View style={styles.statusRow}>
+                      <Text style={styles.statusLabel}>{t('Status:')}</Text>
+                      <Text style={styles.statusValue}>{b.status}</Text>
+                    </View>
+
+                    <Text style={[styles.statusLabel, { marginTop: 8, marginBottom: 4 }]}>
+                      {t('Zmień status:')}
+                    </Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statusPillsScroll}>
+                      {statuses.map((st) => (
+                        <TouchableOpacity
+                          key={st}
+                          style={[styles.statusPill, b.status === st && styles.statusPillActive]}
+                          onPress={() => handleUpdateBatchStatus(b, st)}
+                        >
+                          <Text style={[styles.statusPillText, b.status === st && styles.statusPillTextActive]}>
+                            {st}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    {/* Existing Sensory Summary */}
+                    {existingSensory && !isEvaluating && (
+                      <View style={styles.sensorySummaryBadge}>
+                        <Text style={styles.sensorySummaryText}>
+                          ⭐ {t('Ocena sensoryczna:')} {existingSensory.overallScore}/100 pkt
+                        </Text>
+                        {existingSensory.notes ? (
+                          <Text style={styles.sensorySummaryNotes}>{existingSensory.notes}</Text>
+                        ) : null}
+                      </View>
+                    )}
+
+                    {/* Action Buttons for Batch: Sensory & Delete */}
+                    <View style={styles.batchActionsRow}>
+                      <TouchableOpacity
+                        style={[styles.batchSmallBtn, isEvaluating && styles.batchSmallBtnActive]}
+                        onPress={() => {
+                          triggerHapticFeedback();
+                          if (isEvaluating) {
+                            setEvaluatingBatch(null);
+                          } else {
+                            setEvaluatingBatch(b);
+                            if (existingSensory) {
+                              setSensoryScores({
+                                acidity: existingSensory.acidity,
+                                salinity: existingSensory.salinity,
+                                firmness: existingSensory.firmness,
+                                creaminess: existingSensory.creaminess,
+                                pungency: existingSensory.pungency,
+                                nuttiness: existingSensory.nuttiness,
+                              });
+                              setSensoryNotes(existingSensory.notes || existingSensory.tastingNotes || '');
+                            }
+                          }
+                        }}
+                        accessibilityRole="button"
+                      >
+                        <Text style={[styles.batchSmallBtnText, isEvaluating && styles.batchSmallBtnTextActive]}>
+                          {isEvaluating ? t('⭐ Zamknij ocenę') : t('⭐ Ocena sensoryczna')}
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.batchDeleteBtn}
+                        onPress={() => handleDeleteBatch(b)}
+                        accessibilityRole="button"
+                      >
+                        <Text style={styles.batchDeleteBtnText}>🗑️ {t('Usuń')}</Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    {/* Inline Sensory Scorecard when evaluating this batch */}
+                    {isEvaluating && liveSensoryResult && (
+                      <View style={styles.sensoryScorecard}>
+                        <Text style={styles.sensoryTitle}>
+                          🔬 {t('Profil Sensoryczny & Balans Organoleptyczny')}
+                        </Text>
+                        <Text style={styles.sensorySub}>
+                          {t('6-osiowy profil smakowo-teksturalny i analiza wad rzemieślniczych')}
+                        </Text>
+
+                        <View style={styles.sensoryScoreBanner}>
+                          <Text style={styles.sensoryScoreLarge}>
+                            {liveSensoryResult.overallScore}/100 pkt
+                          </Text>
+                          <Text style={styles.sensoryGradeBadge}>
+                            {liveSensoryResult.grade}
+                          </Text>
+                          <Text style={styles.sensoryAssessment}>
+                            {liveSensoryResult.balanceAssessment}
+                          </Text>
+                        </View>
+
+                        {/* 6 Stepper Rows */}
+                        {[
+                          { key: 'acidity' as const, label: t('Kwasowość (1-10):') },
+                          { key: 'salinity' as const, label: t('Słoność (1-10):') },
+                          { key: 'firmness' as const, label: t('Zwartość / Chrupkość (1-10):') },
+                          { key: 'creaminess' as const, label: t('Kremowość / Tekstura (1-10):') },
+                          { key: 'pungency' as const, label: t('Pikantność / Ostrość (1-10):') },
+                          { key: 'nuttiness' as const, label: t('Orzechowość / Czystość (1-10):') },
+                        ].map(({ key, label }) => (
+                          <View key={key} style={styles.sensoryStepperRow}>
+                            <Text style={styles.sensoryStepperLabel}>{label}</Text>
+                            <View style={styles.stepperCtrl}>
+                              <TouchableOpacity
+                                style={styles.stepperMiniBtn}
+                                onPress={() => {
+                                  triggerHapticFeedback();
+                                  setSensoryScores((prev) => ({
+                                    ...prev,
+                                    [key]: Math.max(1, prev[key] - 1),
+                                  }));
+                                }}
+                              >
+                                <Text style={styles.stepperMiniBtnText}>-</Text>
+                              </TouchableOpacity>
+                              <Text style={styles.stepperMiniVal}>{sensoryScores[key]}</Text>
+                              <TouchableOpacity
+                                style={styles.stepperMiniBtn}
+                                onPress={() => {
+                                  triggerHapticFeedback();
+                                  setSensoryScores((prev) => ({
+                                    ...prev,
+                                    [key]: Math.min(10, prev[key] + 1),
+                                  }));
+                                }}
+                              >
+                                <Text style={styles.stepperMiniBtnText}>+</Text>
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        ))}
+
+                        {/* Flaws / recommendations */}
+                        {liveSensoryResult.identifiedFlaws.length > 0 && (
+                          <View style={styles.flawsBox}>
+                            <Text style={styles.flawsTitle}>⚠️ {t('Zidentyfikowane wady:')}</Text>
+                            {liveSensoryResult.identifiedFlaws.map((flaw, idx) => (
+                              <Text key={idx} style={styles.flawsText}>• {flaw}</Text>
+                            ))}
+                            <Text style={[styles.flawsTitle, { marginTop: 6 }]}>💡 {t('Rekomendacje technologiczne:')}</Text>
+                            {liveSensoryResult.craftRecommendations.map((rec, idx) => (
+                              <Text key={idx} style={styles.recText}>• {rec}</Text>
+                            ))}
+                          </View>
+                        )}
+
+                        <Text style={[styles.inputLabelMini, { marginTop: 8 }]}>
+                          {t('Notatki degustacyjne (opcjonalnie):')}
+                        </Text>
+                        <TextInput
+                          style={styles.sensoryNotesInput}
+                          value={sensoryNotes}
+                          onChangeText={setSensoryNotes}
+                          placeholder={t('Wpisz własne spostrzeżenia...')}
+                          placeholderTextColor="#A8A29E"
+                        />
+
+                        <TouchableOpacity
+                          style={styles.saveSensoryBtn}
+                          onPress={handleSaveSensory}
+                          accessibilityRole="button"
+                        >
+                          <Text style={styles.saveSensoryBtnText}>
+                            💾 {t('Zapisz profil sensoryczny')}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
                   </View>
-                  <Text style={styles.batchTitle}>{b.styleName}</Text>
-                  <Text style={styles.batchDate}>
-                    {t('Data nastawienia:')} {new Date(b.createdAt).toLocaleDateString()}
-                  </Text>
-                  <View style={styles.statusRow}>
-                    <Text style={styles.statusLabel}>{t('Status:')}</Text>
-                    <Text style={styles.statusValue}>{b.status}</Text>
-                  </View>
-                </View>
-              ))
+                );
+              })
             )}
           </View>
         )}
@@ -415,7 +733,7 @@ export default function BatchesScreen() {
                   <View style={styles.wheelActionsRow}>
                     <TouchableOpacity
                       style={styles.actionBtn}
-                      onPress={() => handleTurnWheel(w)}
+                      onPress={() => handleAffinageAction(w, 'TURN')}
                       accessibilityRole="button"
                     >
                       <Text style={styles.actionBtnText}>🔄 {t('Obróć')}</Text>
@@ -423,10 +741,26 @@ export default function BatchesScreen() {
 
                     <TouchableOpacity
                       style={styles.actionBtn}
-                      onPress={() => handleWashWheel(w)}
+                      onPress={() => handleAffinageAction(w, 'WASH_BRINE')}
                       accessibilityRole="button"
                     >
                       <Text style={styles.actionBtnText}>🧽 {t('Solanka')}</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.actionBtn}
+                      onPress={() => handleAffinageAction(w, 'DRY_BRUSH')}
+                      accessibilityRole="button"
+                    >
+                      <Text style={styles.actionBtnText}>🧹 {t('Szczotkuj')}</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.actionBtn}
+                      onPress={() => handleAffinageAction(w, 'WAX_COATING')}
+                      accessibilityRole="button"
+                    >
+                      <Text style={styles.actionBtnText}>🕯️ {t('Woskuj')}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -458,6 +792,67 @@ export default function BatchesScreen() {
                       >
                         <Text style={styles.inlineWeighSaveText}>{t('Zapisz')}</Text>
                       </TouchableOpacity>
+                    </View>
+                  )}
+
+                  {/* Care History Toggle & Delete Wheel */}
+                  <View style={[styles.rowBetween, { marginTop: 10, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#F5F5F4' }]}>
+                    <TouchableOpacity
+                      style={styles.historyToggleBtn}
+                      onPress={() => toggleWheelHistory(w.id)}
+                      accessibilityRole="button"
+                    >
+                      <Text style={styles.historyToggleText}>
+                        📜 {expandedWheelHistoryId === w.id ? t('Ukryj historię') : `${t('Historia pielęgnacji')} (${(wheelActionsMap[w.id] || []).length} ${t('wpisów')})`}
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.batchDeleteBtn}
+                      onPress={() => handleDeleteWheel(w)}
+                      accessibilityRole="button"
+                    >
+                      <Text style={styles.batchDeleteBtnText}>🗑️ {t('Usuń')}</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Care History Timeline */}
+                  {expandedWheelHistoryId === w.id && (
+                    <View style={styles.historyTimelineBox}>
+                      {(wheelActionsMap[w.id] || []).length === 0 ? (
+                        <Text style={styles.historyEmptyText}>{t('Brak wpisów historii pielęgnacji.')}</Text>
+                      ) : (
+                        (wheelActionsMap[w.id] || []).map((a) => (
+                          <View key={a.id} style={styles.historyTimelineItem}>
+                            <View style={styles.rowBetween}>
+                              <Text style={styles.historyActionTitle}>
+                                {a.actionType === 'TURN'
+                                  ? `🔄 ${t('Obrócenie')}`
+                                  : a.actionType === 'WASH_BRINE'
+                                  ? `🧽 ${t('Przemycie solanką')}`
+                                  : a.actionType === 'DRY_BRUSH'
+                                  ? `🧹 ${t('Szczotkowanie')}`
+                                  : a.actionType === 'WAX_COATING'
+                                  ? `🕯️ ${t('Woskowanie')}`
+                                  : a.actionType === 'CLOTHBOUND'
+                                  ? `🧵 ${t('Bandażowanie')}`
+                                  : `⚖️ ${t('Ważenie')}`}
+                              </Text>
+                              <Text style={styles.historyActionDate}>
+                                {new Date(a.loggedAt).toLocaleDateString()} {new Date(a.loggedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </Text>
+                            </View>
+                            {a.weightGrams !== undefined && (
+                              <Text style={styles.historyActionDetails}>
+                                {t('Waga obecna')}: {a.weightGrams} g | {t('Ubytek (Shrinkage)')}: {a.shrinkagePct || 0}%
+                              </Text>
+                            )}
+                            {a.notes ? (
+                              <Text style={styles.historyActionNotes}>"{a.notes}"</Text>
+                            ) : null}
+                          </View>
+                        ))
+                      )}
                     </View>
                   )}
                 </View>
@@ -795,5 +1190,276 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 13,
     fontWeight: '700',
+  },
+  statusPillsScroll: {
+    flexDirection: 'row',
+    marginVertical: 6,
+  },
+  statusPill: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: '#F5F5F4',
+    borderRadius: 8,
+    marginRight: 6,
+  },
+  statusPillActive: {
+    backgroundColor: '#15803D',
+  },
+  statusPillText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#57534E',
+  },
+  statusPillTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  sensorySummaryBadge: {
+    backgroundColor: '#FEF3C7',
+    padding: 8,
+    borderRadius: 8,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  sensorySummaryText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#92400E',
+  },
+  sensorySummaryNotes: {
+    fontSize: 11,
+    color: '#78350F',
+    marginTop: 2,
+  },
+  batchActionsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 10,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#F5F5F4',
+    alignItems: 'center',
+  },
+  batchSmallBtn: {
+    flex: 1,
+    height: 44,
+    backgroundColor: '#FEF3C7',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  batchSmallBtnActive: {
+    backgroundColor: '#D97706',
+  },
+  batchSmallBtnText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#B45309',
+  },
+  batchSmallBtnTextActive: {
+    color: '#FFFFFF',
+  },
+  batchDeleteBtn: {
+    height: 44,
+    paddingHorizontal: 12,
+    backgroundColor: '#FEE2E2',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  batchDeleteBtnText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#DC2626',
+  },
+  sensoryScorecard: {
+    marginTop: 12,
+    backgroundColor: '#FAF8F5',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+  },
+  sensoryTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#78350F',
+  },
+  sensorySub: {
+    fontSize: 11,
+    color: '#78716C',
+    marginBottom: 8,
+  },
+  sensoryScoreBanner: {
+    backgroundColor: '#FFFFFF',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#D6D3D1',
+  },
+  sensoryScoreLarge: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#78350F',
+  },
+  sensoryGradeBadge: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#15803D',
+    marginVertical: 2,
+  },
+  sensoryAssessment: {
+    fontSize: 11,
+    color: '#44403C',
+    textAlign: 'center',
+  },
+  sensoryStepperRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+  sensoryStepperLabel: {
+    fontSize: 12,
+    color: '#44403C',
+    flex: 1,
+  },
+  stepperCtrl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  stepperMiniBtn: {
+    width: 34,
+    height: 34,
+    backgroundColor: '#E7E5E4',
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepperMiniBtnText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1C1917',
+  },
+  stepperMiniVal: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#1C1917',
+    minWidth: 20,
+    textAlign: 'center',
+  },
+  flawsBox: {
+    backgroundColor: '#FEF2F2',
+    padding: 8,
+    borderRadius: 8,
+    marginVertical: 6,
+    borderWidth: 1,
+    borderColor: '#FCA5A5',
+  },
+  flawsTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#991B1B',
+  },
+  flawsText: {
+    fontSize: 11,
+    color: '#B91C1C',
+    marginTop: 2,
+  },
+  recText: {
+    fontSize: 11,
+    color: '#166534',
+    marginTop: 2,
+  },
+  inputLabelMini: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#57534E',
+    marginBottom: 2,
+  },
+  sensoryNotesInput: {
+    height: 40,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D6D3D1',
+    paddingHorizontal: 10,
+    fontSize: 12,
+    color: '#1C1917',
+    marginBottom: 10,
+  },
+  saveSensoryBtn: {
+    height: 48,
+    backgroundColor: '#78350F',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  saveSensoryBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  rowBetween: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  historyToggleBtn: {
+    height: 44,
+    paddingHorizontal: 12,
+    backgroundColor: '#F5F5F4',
+    borderRadius: 8,
+    justifyContent: 'center',
+  },
+  historyToggleText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#57534E',
+  },
+  historyTimelineBox: {
+    marginTop: 8,
+    backgroundColor: '#FAF8F5',
+    padding: 8,
+    borderRadius: 8,
+    gap: 6,
+  },
+  historyEmptyText: {
+    fontSize: 11,
+    color: '#A8A29E',
+    textAlign: 'center',
+    paddingVertical: 4,
+  },
+  historyTimelineItem: {
+    backgroundColor: '#FFFFFF',
+    padding: 8,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+  },
+  historyActionTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#1C1917',
+  },
+  historyActionDate: {
+    fontSize: 10,
+    color: '#A8A29E',
+  },
+  historyActionDetails: {
+    fontSize: 11,
+    color: '#78350F',
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  historyActionNotes: {
+    fontSize: 11,
+    fontStyle: 'italic',
+    color: '#57534E',
+    marginTop: 2,
   },
 });

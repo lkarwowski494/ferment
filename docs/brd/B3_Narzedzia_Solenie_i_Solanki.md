@@ -71,3 +71,20 @@
 * **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
+---
+
+### **BR-SOL-025: Bufor Kwasowo-Wapniowy Solanki i Ochrona Przed Rozmiękaniem Skórki (Brine Acidification & Calcium Buffer)**
+* **Opis:** Zapobieganie zjawisku rozmiękania i oślizgłości skórki (*slimy rind*) w solance poprzez chemiczną stabilizację równowagi osmotycznej wapnia i kwasowości (`brine-acidification.ts`).
+* **Zasada chemiczna:**
+  Czysta solanka przygotowana na bazie surowej wody kranowej (pH ~7.5) gwałtownie wyciąga jony wapnia ($Ca^{2+}$) z sieci kazeinowej sera do roztworu. Skórka staje się śluzowata, galaretowata i nie tworzy prawidłowej warstwy ochronnej.
+* **Formuła buforowania:**
+  1. **Bufor wapniowy:** Dodatek $2.0\text{ g}$ czystego bezwodnego $CaCl_2$ na każdy litr wody w solance (lub $6.0\text{ ml}$ roztworu 33%).
+  2. **Miareczkowanie kwasowości (kwas mlekowy 80%):**
+     $$V_{kwas}\text{ [ml]} = V_{wody}\text{ [L]} \times \frac{\max(0, pH_{wody} - 5.20)}{2.3} \times 2.2$$
+     Pozwala to na precyzyjne zbicie pH solanki do optymalnego przedziału 5.20–5.40, identycznego z pH krążka sera.
+* **Kryteria akceptacji:**
+  1. Kalkulator w zakładce Solanki wylicza objętość kwasu mlekowego oraz wagę chlorku wapnia.
+  2. Komunikat edukacyjny wyjaśniający mechanizm wymiany jonowej i zapobiegania usterkom mikrobiologicznym.
+* **Persona:** P1, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+

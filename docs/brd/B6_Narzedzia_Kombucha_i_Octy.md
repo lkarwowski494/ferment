@@ -63,3 +63,25 @@
   2. Ostrzeżenie przy zbyt niskiej kwasowości o obniżonej trwałości mikrobiologicznej octu.
 * **Persona:** P3, P6, P7.
 * **Priorytet:** MUST | **Etap:** 1.1.
+
+---
+
+### **BR-KOM-020: Mieszanie Owocowe 2F & Dynamika Wysycenia (Fruit Blending & Bottle Pressure Rating)**
+* **Opis:** Fizykochemiczne modelowanie ciśnienia i objętości rozpuszczonego $CO_2$ w butelkach podczas refermentacji 2F z owocami i sokami (`kombucha-blending.ts`).
+* **Wzorcowe profile ekstraktu cukrów (°Brix):**
+  * Sok jabłkowy 100% tłoczony: $11.5^\circ\text{Bx}$
+  * Sok malinowy / puree: $7.5^\circ\text{Bx}$
+  * Ekstrakt imbirowo-cytrynowy z miodem: $14.0^\circ\text{Bx}$
+  * Sok z granatu: $13.0^\circ\text{Bx}$
+  * Cukier trzcinowy (syrop): $65.0^\circ\text{Bx}$
+* **Klasyfikacja odporności ciśnieniowej butelek:**
+  * Butelka z pałąkiem (Heavy Swing-Top Amber): limit $4.5\text{ vol } CO_2$ (~3.8 bar).
+  * Butelka do piwa kapslowana (Crown Cap): limit $3.5\text{ vol } CO_2$ (~2.8 bar).
+  * Ciężka butelka do szampana: limit $6.0\text{ vol } CO_2$.
+  * **Butelka kwadratowa / ozdobna (Square Decorative):** limit $1.8\text{ vol } CO_2$ — **BEZWZGLĘDNY ZAKAZ UŻYCIA / ZAGROŻENIE EKSPLOZJĄ SZKŁA!**
+* **Kryteria akceptacji:**
+  1. Wyliczenie stężenia cukru dodanego z sokiem oraz przewidywanych vol $CO_2$ i ciśnienia w barach przy 20°C.
+  2. Krytyczny alert w przypadku wyboru butelki kwadratowej lub przekroczenia limitu ciśnienia.
+  3. Zalecenie schłodzenia butelek do 4°C przed otwarciem (zwiększenie rozpuszczalności $CO_2$ i zapobieganie gushingowi).
+* **Persona:** P2, P3, P5.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.

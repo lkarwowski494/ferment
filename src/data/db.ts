@@ -101,6 +101,24 @@ export interface CaveCheeseWheel {
   shrinkagePct: number;
 }
 
+export type CaveActionType =
+  | 'WEIGH'
+  | 'TURN'
+  | 'WASH_BRINE'
+  | 'DRY_BRUSH'
+  | 'WAX_COATING'
+  | 'CLOTHBOUND';
+
+export interface CaveActionLog {
+  id: string;
+  wheelId: string;
+  actionType: CaveActionType;
+  loggedAt: number;
+  weightGrams?: number;
+  shrinkagePct?: number;
+  notes?: string;
+}
+
 export interface CaveEnvironmentLog {
   id: string;
   timestamp: number;
@@ -158,7 +176,11 @@ export interface SensoryEvaluation {
   creaminess: number; // 1-10
   pungency: number; // 1-10
   nuttiness: number; // 1-10
+  overallScore?: number;
+  grade?: string;
+  flawsIdentified?: string;
   tastingNotes?: string;
+  notes?: string;
 }
 
 export interface StoredAppAccess {

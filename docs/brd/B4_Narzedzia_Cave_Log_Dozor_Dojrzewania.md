@@ -85,3 +85,20 @@
   3. Harmonogram affinage: generowanie etapów (obracanie, przemywanie solanką 4–18%, szczotkowanie, woskowanie) dla wybranego stylu sera.
 * **Persona:** P1, P2, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-CAVE-030: Rejestr Czynności Pielęgnacyjnych Affinage & Trajektoria Ubytku Wagi (Affinage Actions & Shrinkage Tracker)**
+* **Opis:** Kompleksowa rejestracja zabiegów pielęgnacyjnych na pojedynczych krążkach serów leżakujących w dojrzewalni oraz nadzór nad ubytkiem masy (`cave-log-actions.ts`).
+* **Katalog akcji affinage:**
+  1. `TURN` (Obrócenie krążka o 180°).
+  2. `WASH_BRINE` (Przemycie roztworem solanki, wina, piwa lub zaszczepki *B. linens*).
+  3. `DRY_BRUSH` (Wyszczotkowanie na sucho ze zbyt grubej warstwy pleśni *Penicillium* lub pyłu).
+  4. `WAX_COATING` (Nałożenie ochronnej warstwy wosku serowarskiego lub parafiny).
+  5. `CLOTHBOUND` (Bandażowanie krążka tkaniną bawełnianą nasączoną tłuszczem).
+  6. `WEIGH` (Zważenie krążka i wyliczenie bieżącego ubytku wagi).
+* **Inwarianty ochronne utraty wilgoci:**
+  * Jeśli całkowity ubytek masy $\text{Shrinkage} > 20\%$, system generuje ostrzeżenie o krytycznym przesuszeniu miąższu i stwardnieniu skórki.
+  * Historia czynności zapisywana w relacyjnej tabeli SQLite `cave_action_logs` i prezentowana w osi czasu krążka.
+* **Persona:** P1, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.

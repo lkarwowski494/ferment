@@ -16,6 +16,7 @@ import {
   SymbioticBeverageDetails,
   PantryItem,
   SensoryEvaluation,
+  CaveActionLog,
   StoredAppAccess,
   SubscriptionTier,
 } from './db';
@@ -30,6 +31,7 @@ let memCheeseDetails: Map<string, CheeseBatchDetails> = new Map();
 let memPressingStages: Map<string, PressingStage[]> = new Map();
 let memBriningLogs: Map<string, BriningLog> = new Map();
 let memCaveWheels: CaveCheeseWheel[] = [];
+let memCaveActions: CaveActionLog[] = [];
 let memEnvLogs: CaveEnvironmentLog[] = [];
 let memVegDetails: Map<string, VegFermentDetails> = new Map();
 let memBeverageDetails: Map<string, SymbioticBeverageDetails> = new Map();
@@ -51,6 +53,7 @@ export function _resetMemStore(): void {
   memPressingStages = new Map();
   memBriningLogs = new Map();
   memCaveWheels = [];
+  memCaveActions = [];
   memEnvLogs = [];
   memVegDetails = new Map();
   memBeverageDetails = new Map();
@@ -158,6 +161,16 @@ export async function initDatabase(): Promise<void> {
           last_brushed_at INTEGER,
           pierced_for_blue_at INTEGER,
           shrinkage_pct REAL DEFAULT 0.0
+        );
+
+        CREATE TABLE IF NOT EXISTS cave_action_logs (
+          id TEXT PRIMARY KEY NOT NULL,
+          wheel_id TEXT NOT NULL REFERENCES cave_cheese_wheels(id) ON DELETE CASCADE,
+          action_type TEXT NOT NULL,
+          logged_at INTEGER NOT NULL,
+          weight_grams REAL,
+          shrinkage_pct REAL,
+          notes TEXT
         );
 
         CREATE TABLE IF NOT EXISTS cave_environment_logs (
@@ -578,6 +591,165 @@ export interface WeighLog {
   loggedAt: number;
 }
 
+export async function getCaveActions(wheelId: string): Promise<CaveActionLog[]> {
+  const db = await getDb();
+  if (db) {
+    try {
+      const rows = await db.getAllAsync<{
+        id: string;
+        wheel_id: string;
+        action_type: string;
+        logged_at: number;
+        weight_grams: number | null;
+        shrinkage_pct: number | null;
+        notes: string | null;
+      }>('SELECT * FROM cave_action_logs WHERE wheel_id = ? ORDER BY logged_at DESC', [wheelId]);
+      return rows.map((r) => ({
+        id: r.id,
+        wheelId: r.wheel_id,
+        actionType: r.action_type as any,
+        loggedAt: r.logged_at,
+        weightGrams: r.weight_grams || undefined,
+        shrinkagePct: r.shrinkage_pct || undefined,
+        notes: r.notes || undefined,
+      }));
+    } catch {
+      // Fallback
+    }
+  }
+  return memCaveActions.filter((a) => a.wheelId === wheelId);
+}
+
+export async function logCaveAction(action: CaveActionLog): Promise<void> {
+  const db = await getDb();
+  if (db) {
+    try {
+      await db.runAsync(
+        `INSERT OR REPLACE INTO cave_action_logs (id, wheel_id, action_type, logged_at, weight_grams, shrinkage_pct, notes)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          action.id,
+          action.wheelId,
+          action.actionType,
+          action.loggedAt,
+          action.weightGrams || null,
+          action.shrinkagePct || null,
+          action.notes || null,
+        ]
+      );
+      return;
+    } catch {
+      // Fallback
+    }
+  }
+  memCaveActions.unshift(action);
+}
+
+export async function getSensoryEvaluation(batchId: string): Promise<SensoryEvaluation | null> {
+  const db = await getDb();
+  if (db) {
+    try {
+      const row = await db.getFirstAsync<{
+        id: string;
+        batch_id: string;
+        evaluated_at: number;
+        acidity: number | null;
+        salinity: number | null;
+        firmness: number | null;
+        creaminess: number | null;
+        pungency: number | null;
+        nuttiness: number | null;
+        tasting_notes: string | null;
+      }>('SELECT * FROM sensory_evaluations WHERE batch_id = ?', [batchId]);
+      if (row) {
+        return {
+          id: row.id,
+          batchId: row.batch_id,
+          evaluatedAt: row.evaluated_at,
+          acidity: row.acidity || 5,
+          salinity: row.salinity || 5,
+          firmness: row.firmness || 5,
+          creaminess: row.creaminess || 5,
+          pungency: row.pungency || 5,
+          nuttiness: row.nuttiness || 5,
+          tastingNotes: row.tasting_notes || undefined,
+        };
+      }
+    } catch {
+      // Fallback
+    }
+  }
+  return memSensory.get(batchId) || null;
+}
+
+export async function saveSensoryEvaluation(ev: SensoryEvaluation): Promise<void> {
+  const db = await getDb();
+  if (db) {
+    try {
+      await db.runAsync(
+        `INSERT OR REPLACE INTO sensory_evaluations (id, batch_id, evaluated_at, acidity, salinity, firmness, creaminess, pungency, nuttiness, tasting_notes)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          ev.id,
+          ev.batchId,
+          ev.evaluatedAt,
+          ev.acidity,
+          ev.salinity,
+          ev.firmness,
+          ev.creaminess,
+          ev.pungency,
+          ev.nuttiness,
+          ev.tastingNotes || null,
+        ]
+      );
+      return;
+    } catch {
+      // Fallback
+    }
+  }
+  memSensory.set(ev.batchId, ev);
+}
+
+export async function updateBatchStatus(batchId: string, status: Batch['status']): Promise<void> {
+  const db = await getDb();
+  if (db) {
+    try {
+      await db.runAsync('UPDATE batches SET status = ? WHERE id = ?', [status, batchId]);
+      return;
+    } catch {
+      // Fallback
+    }
+  }
+  const b = memBatches.find((item) => item.id === batchId);
+  if (b) b.status = status;
+}
+
+export async function deleteBatch(batchId: string): Promise<void> {
+  const db = await getDb();
+  if (db) {
+    try {
+      await db.runAsync('DELETE FROM batches WHERE id = ?', [batchId]);
+      return;
+    } catch {
+      // Fallback
+    }
+  }
+  memBatches = memBatches.filter((b) => b.id !== batchId);
+}
+
+export async function deleteCaveWheel(wheelId: string): Promise<void> {
+  const db = await getDb();
+  if (db) {
+    try {
+      await db.runAsync('DELETE FROM cave_cheese_wheels WHERE id = ?', [wheelId]);
+      return;
+    } catch {
+      // Fallback
+    }
+  }
+  memCaveWheels = memCaveWheels.filter((w) => w.id !== wheelId);
+}
+
 export interface AppSettings {
   app_lang: 'pl' | 'en';
   unit_system: 'metric' | 'imperial';
@@ -586,7 +758,7 @@ export interface AppSettings {
   updated_at: string;
 }
 
-export { Batch, PantryItem };
+export { Batch, PantryItem, CaveCheeseWheel, CaveActionLog, SensoryEvaluation };
 
 export function getSqliteStore() {
   return {
@@ -604,12 +776,42 @@ export function getSqliteStore() {
       };
       return saveBatch(normalizedBatch, details);
     },
+    updateBatchStatus,
+    deleteBatch,
     getCaveWheels,
     saveCaveWheel,
+    deleteCaveWheel,
+    getCaveActions,
+    logCaveAction,
+    getSensoryEvaluation,
+    saveSensoryEvaluation,
     getPantryItems: getPantry,
     savePantryItem,
-    getWeighLogs: async (): Promise<WeighLog[]> => [],
-    logWeight: async (_log: WeighLog): Promise<void> => {},
+    getWeighLogs: async (wheelId?: string): Promise<WeighLog[]> => {
+      if (wheelId) {
+        const actions = await getCaveActions(wheelId);
+        return actions
+          .filter((a) => a.actionType === 'WEIGH' && a.weightGrams !== undefined)
+          .map((a) => ({
+            id: a.id,
+            wheelId: a.wheelId,
+            weightGrams: a.weightGrams!,
+            shrinkagePct: a.shrinkagePct || 0,
+            loggedAt: a.loggedAt,
+          }));
+      }
+      return [];
+    },
+    logWeight: async (log: WeighLog): Promise<void> => {
+      await logCaveAction({
+        id: log.id,
+        wheelId: log.wheelId,
+        actionType: 'WEIGH',
+        loggedAt: log.loggedAt,
+        weightGrams: log.weightGrams,
+        shrinkagePct: log.shrinkagePct,
+      });
+    },
     getAppSettings: async (): Promise<AppSettings> => {
       const lang = ((await getAppSetting('app_lang')) as 'pl' | 'en') || 'pl';
       const unit = ((await getAppSetting('unit_system')) as 'metric' | 'imperial') || 'metric';

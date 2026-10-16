@@ -995,6 +995,23 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-SOL-025: Bufor Kwasowo-Wapniowy Solanki i Ochrona Przed Rozmiękaniem Skórki (Brine Acidification & Calcium Buffer)**
+* **Opis:** Zapobieganie zjawisku rozmiękania i oślizgłości skórki (*slimy rind*) w solance poprzez chemiczną stabilizację równowagi osmotycznej wapnia i kwasowości (`brine-acidification.ts`).
+* **Zasada chemiczna:**
+  Czysta solanka przygotowana na bazie surowej wody kranowej (pH ~7.5) gwałtownie wyciąga jony wapnia ($Ca^{2+}$) z sieci kazeinowej sera do roztworu. Skórka staje się śluzowata, galaretowata i nie tworzy prawidłowej warstwy ochronnej.
+* **Formuła buforowania:**
+  1. **Bufor wapniowy:** Dodatek $2.0\text{ g}$ czystego bezwodnego $CaCl_2$ na każdy litr wody w solance (lub $6.0\text{ ml}$ roztworu 33%).
+  2. **Miareczkowanie kwasowości (kwas mlekowy 80%):**
+     $$V_{kwas}\text{ [ml]} = V_{wody}\text{ [L]} \times \frac{\max(0, pH_{wody} - 5.20)}{2.3} \times 2.2$$
+     Pozwala to na precyzyjne zbicie pH solanki do optymalnego przedziału 5.20–5.40, identycznego z pH krążka sera.
+* **Kryteria akceptacji:**
+  1. Kalkulator w zakładce Solanki wylicza objętość kwasu mlekowego oraz wagę chlorku wapnia.
+  2. Komunikat edukacyjny wyjaśniający mechanizm wymiany jonowej i zapobiegania usterkom mikrobiologicznym.
+* **Persona:** P1, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B4_Narzedzia_Cave_Log_Dozor_Dojrzewania.md -->
@@ -1086,6 +1103,23 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
   2. $RH > 94\%$ lub delta do punktu rosy $< 1.0^\circ\text{C}$: **Alarm Kondensacji** (krople na krążku, rozwój dzikich pleśni Mucor/Aspergillus).
   3. Harmonogram affinage: generowanie etapów (obracanie, przemywanie solanką 4–18%, szczotkowanie, woskowanie) dla wybranego stylu sera.
 * **Persona:** P1, P2, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-CAVE-030: Rejestr Czynności Pielęgnacyjnych Affinage & Trajektoria Ubytku Wagi (Affinage Actions & Shrinkage Tracker)**
+* **Opis:** Kompleksowa rejestracja zabiegów pielęgnacyjnych na pojedynczych krążkach serów leżakujących w dojrzewalni oraz nadzór nad ubytkiem masy (`cave-log-actions.ts`).
+* **Katalog akcji affinage:**
+  1. `TURN` (Obrócenie krążka o 180°).
+  2. `WASH_BRINE` (Przemycie roztworem solanki, wina, piwa lub zaszczepki *B. linens*).
+  3. `DRY_BRUSH` (Wyszczotkowanie na sucho ze zbyt grubej warstwy pleśni *Penicillium* lub pyłu).
+  4. `WAX_COATING` (Nałożenie ochronnej warstwy wosku serowarskiego lub parafiny).
+  5. `CLOTHBOUND` (Bandażowanie krążka tkaniną bawełnianą nasączoną tłuszczem).
+  6. `WEIGH` (Zważenie krążka i wyliczenie bieżącego ubytku wagi).
+* **Inwarianty ochronne utraty wilgoci:**
+  * Jeśli całkowity ubytek masy $\text{Shrinkage} > 20\%$, system generuje ostrzeżenie o krytycznym przesuszeniu miąższu i stwardnieniu skórki.
+  * Historia czynności zapisywana w relacyjnej tabeli SQLite `cave_action_logs` i prezentowana w osi czasu krążka.
+* **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
 ---
@@ -1250,6 +1284,28 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-KOM-020: Mieszanie Owocowe 2F & Dynamika Wysycenia (Fruit Blending & Bottle Pressure Rating)**
+* **Opis:** Fizykochemiczne modelowanie ciśnienia i objętości rozpuszczonego $CO_2$ w butelkach podczas refermentacji 2F z owocami i sokami (`kombucha-blending.ts`).
+* **Wzorcowe profile ekstraktu cukrów (°Brix):**
+  * Sok jabłkowy 100% tłoczony: $11.5^\circ\text{Bx}$
+  * Sok malinowy / puree: $7.5^\circ\text{Bx}$
+  * Ekstrakt imbirowo-cytrynowy z miodem: $14.0^\circ\text{Bx}$
+  * Sok z granatu: $13.0^\circ\text{Bx}$
+  * Cukier trzcinowy (syrop): $65.0^\circ\text{Bx}$
+* **Klasyfikacja odporności ciśnieniowej butelek:**
+  * Butelka z pałąkiem (Heavy Swing-Top Amber): limit $4.5\text{ vol } CO_2$ (~3.8 bar).
+  * Butelka do piwa kapslowana (Crown Cap): limit $3.5\text{ vol } CO_2$ (~2.8 bar).
+  * Ciężka butelka do szampana: limit $6.0\text{ vol } CO_2$.
+  * **Butelka kwadratowa / ozdobna (Square Decorative):** limit $1.8\text{ vol } CO_2$ — **BEZWZGLĘDNY ZAKAZ UŻYCIA / ZAGROŻENIE EKSPLOZJĄ SZKŁA!**
+* **Kryteria akceptacji:**
+  1. Wyliczenie stężenia cukru dodanego z sokiem oraz przewidywanych vol $CO_2$ i ciśnienia w barach przy 20°C.
+  2. Krytyczny alert w przypadku wyboru butelki kwadratowej lub przekroczenia limitu ciśnienia.
+  3. Zalecenie schłodzenia butelek do 4°C przed otwarciem (zwiększenie rozpuszczalności $CO_2$ i zapobieganie gushingowi).
+* **Persona:** P2, P3, P5.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B7_Narzedzia_Spizarnia_Naczynia_Etykiety.md -->
@@ -1390,6 +1446,32 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
   * Wektorowy komponent SVG renderowany w 100% lokalnie, z możliwością nałożenia profilu wzorcowego stylu sera na profil uzyskany przez użytkownika.
 * **Persona:** P1, P3, P6, P7.
 * **Priorytet:** SHOULD | **Etap:** MVP.
+
+---
+
+### **BR-SENS-010: Silnik Oceny Sensorycznej i Balansu Organoleptycznego (Sensory Evaluation & Artisan Critique Engine)**
+* **Opis:** 6-osiowy model punktacji sensorycznej i diagnostyki wad rzemieślniczych dla wszystkich kategorii wyrobów (`sensory-evaluation.ts`).
+* **Osie sensoryczne (skala 1–10):**
+  1. Kwasowość (*Acidity*).
+  2. Słoność (*Salinity*).
+  3. Zwartość / Chrupkość (*Firmness / Crispness*).
+  4. Kremowość / Tekstura (*Creaminess / Texture*).
+  5. Pikantność / Ostrość (*Pungency / Sharpness*).
+  6. Orzechowość / Czystość (*Nuttiness / Cleanliness*).
+* **Klasyfikacja punktowa (0–100 pkt):**
+  * $90 - 100\text{ pkt}$: `EXEMPLARY` (Wybitna harmonia smakowa, wzorcowa równowaga).
+  * $75 - 89\text{ pkt}$: `GOOD` (Bardzo dobry, zbalansowany wyrób rzemieślniczy).
+  * $55 - 74\text{ pkt}$: `ACCEPTABLE` (Wyrób poprawny z drobnymi odchyleniami).
+  * Poniżej $55\text{ pkt}$: `FLAWED` (Wada technologiczna / błąd fermentacji).
+* **Diagnostyka wad i rekomendacje naprawcze:**
+  * Ser: wykrywanie kredowości/nadkwasowości (rekomendacja: washing the curd), przesolenia, zjełczenia tłuszczów (lipoliza).
+  * Kiszonki: utrata chrupkości i rozkład pektyn (rekomendacja: liście dębu/chrzanu bogate w garbniki, obniżenie temp. fermentacji < 20°C).
+  * Kombucha/Octy: mdły posmak i brak kwasowości (rekomendacja: wydłużenie 1F, lepszy dostęp tlenu).
+* **Kryteria akceptacji:**
+  1. Integracja w widoku partii z możliwością 1-tap zapisu oceny do tabeli `sensory_evaluations`.
+  2. Wyświetlanie wykrytych wad i konkretnych porad rzemieślniczych.
+* **Persona:** P1, P2, P3, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
 
 ---
 

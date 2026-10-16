@@ -79,6 +79,13 @@ import {
   evaluateLabFermentation,
   calculateVinegarTitration,
 } from '../../src/core/fermentation-kinetics';
+import {
+  calculateBrineAcidification,
+} from '../../src/core/brine-acidification';
+import {
+  calculateKombucha2FBlending,
+  KombuchaBottleType,
+} from '../../src/core/kombucha-blending';
 
 export default function CalculatorScreen() {
   const {
@@ -142,6 +149,17 @@ export default function CalculatorScreen() {
   // --- VINEGAR TITRATION STATE ---
   const [vinegarSampleMl, setVinegarSampleMl] = useState<number>(1);
   const [naohTiterMl, setNaohTiterMl] = useState<number>(8.5);
+
+  // --- BRINE ACIDIFICATION & BUFFER ---
+  const [brineWaterPh, setBrineWaterPh] = useState<number>(7.5);
+  const [targetBrinePh, setTargetBrinePh] = useState<number>(5.2);
+  const [lacticAcidConc, setLacticAcidConc] = useState<number>(80);
+
+  // --- KOMBUCHA 2F BLENDING & BOTTLE DYNAMICS ---
+  const [selectedJuiceId, setSelectedJuiceId] = useState<string>('apple');
+  const [juiceVolumeMl, setJuiceVolumeMl] = useState<number>(150);
+  const [kombuchaBottleType, setKombuchaBottleType] = useState<KombuchaBottleType>('HEAVY_SWING_TOP_AMBER');
+  const [kombuchaTemp, setKombuchaTemp] = useState<number>(22);
 
   // Active Flocculation Timer
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
@@ -284,6 +302,21 @@ export default function CalculatorScreen() {
   );
   const labKineticsCalc = evaluateLabFermentation(fermentHours, measuredPh);
   const vinegarTitrationCalc = calculateVinegarTitration(vinegarSampleMl, naohTiterMl);
+  const brineAcidCalc = calculateBrineAcidification({
+    brineWaterLiters,
+    initialWaterPh: brineWaterPh,
+    targetPh: targetBrinePh,
+    lacticAcidConcentrationPct: lacticAcidConc,
+    targetSalinityPct: brineSalinityPct,
+  });
+  const kombuchaBlendingCalc = calculateKombucha2FBlending({
+    baseKombuchaLiters: kombuchaWaterLiters,
+    juiceProfileId: selectedJuiceId,
+    juiceVolumeMl,
+    bottleType: kombuchaBottleType,
+    temperatureC: kombuchaTemp,
+    daysAtRoomTemp: daysIn2F,
+  });
 
   const handleSaveBatch = () => {
     requireActionAccess(async () => {
@@ -858,21 +891,33 @@ export default function CalculatorScreen() {
                   )}
                 </View>
 
-                {/* 3. Saturated Brine Buffer */}
+                {/* 3. Saturated Brine Buffer & Acidification */}
                 <View style={styles.proCard}>
                   <Text style={styles.proCardTitle}>🧂 {t('Zbuforowana Solanka Serowarska')}</Text>
                   <Text style={styles.proCardDesc}>
                     {t('Woda:')} {brineWaterLiters}L | {t('Stężenie:')} {brineSalinityPct}% NaCl
                   </Text>
+                  <View style={styles.rowBetween}>
+                    <Text style={styles.inlineLabel}>{t('pH wody kranowej:')}</Text>
+                    <TextInput
+                      style={styles.numInput}
+                      keyboardType="numeric"
+                      value={String(brineWaterPh)}
+                      onChangeText={(v) => setBrineWaterPh(parseFloat(v) || 7.0)}
+                    />
+                  </View>
                   <View style={styles.brineResultBox}>
                     <Text style={styles.brineText}>
-                      • {t('Ilość soli:')} <Text style={styles.boldText}>{brineCalc.saltKg} kg</Text>
+                      • {t('Ilość soli:')} <Text style={styles.boldText}>{brineAcidCalc.saltKg} kg</Text>
                     </Text>
                     <Text style={styles.brineText}>
-                      • {t('Dodatek CaCl2:')} <Text style={styles.boldText}>{brineCalc.cacl2DryGrams}g</Text> ({t('zapobiega mięknięciu skórki')})
+                      • {t('Wymagany CaCl2 (2 g/L):')} <Text style={styles.boldText}>{brineAcidCalc.cacl2GramsNeeded}g</Text> ({t('zapobiega mięknięciu skórki')})
                     </Text>
                     <Text style={styles.brineText}>
-                      • {t('Docelowe pH:')} <Text style={styles.boldText}>5.20 – 5.40</Text>
+                      • {t('Kwas mlekowy 80% (do pH 5.20):')} <Text style={styles.boldText}>{brineAcidCalc.lacticAcidMlNeeded} {t('ml kwasu')}</Text>
+                    </Text>
+                    <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                      💡 {brineAcidCalc.equilibriumExplanation}
                     </Text>
                   </View>
                 </View>
@@ -1193,18 +1238,75 @@ export default function CalculatorScreen() {
 
             {isProExpanded && (
               <View style={styles.proAccordionBody}>
-                {/* 2F Pressure Guard */}
-                <View style={[styles.proCard, kombucha2F.riskLevel === 'EXPLOSION_HAZARD' && styles.cardDanger]}>
-                  <Text style={styles.proCardTitle}>🍾 {t('Kombucha 2F Bottle Pressure Guard')}</Text>
+                {/* 2F Pressure & Fruit Blending Guard */}
+                <View style={[styles.proCard, kombuchaBlendingCalc.isExplosionHazard && styles.cardDanger]}>
+                  <Text style={styles.proCardTitle}>🍾 {t('Mieszanie Owocowe 2F & Dynamika Wysycenia')}</Text>
+
+                  <Text style={styles.inputLabelMini}>{t('Profil soku / owocu:')}</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                    {[
+                      { id: 'apple', label: t('Sok jabłkowy (11.5°Bx)') },
+                      { id: 'raspberry', label: t('Sok malinowy (7.5°Bx)') },
+                      { id: 'ginger_lemon', label: t('Imbir-cytryna z miodem (14°Bx)') },
+                      { id: 'pomegranate', label: t('Sok z granatu (13°Bx)') },
+                      { id: 'pure_cane_sugar', label: t('Syrop cukrowy (65°Bx)') },
+                    ].map((j) => (
+                      <TouchableOpacity
+                        key={j.id}
+                        style={[styles.presetPill, selectedJuiceId === j.id && styles.presetPillActive]}
+                        onPress={() => {
+                          triggerHapticFeedback();
+                          setSelectedJuiceId(j.id);
+                        }}
+                      >
+                        <Text style={[styles.presetPillText, selectedJuiceId === j.id && styles.presetPillTextActive]}>
+                          {j.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+
                   <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Cukier resztkowy / owocowy (g/L):')}</Text>
+                    <Text style={styles.inlineLabel}>{t('Ilość soku owocowego (ml):')}</Text>
                     <TextInput
                       style={styles.numInput}
                       keyboardType="numeric"
-                      value={String(residualSugar)}
-                      onChangeText={(v) => setResidualSugar(parseFloat(v) || 0)}
+                      value={String(juiceVolumeMl)}
+                      onChangeText={(v) => setJuiceVolumeMl(parseFloat(v) || 0)}
                     />
                   </View>
+
+                  <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Typ butelki:')}</Text>
+                  <View style={{ gap: 4, marginVertical: 4 }}>
+                    {[
+                      { id: 'HEAVY_SWING_TOP_AMBER' as const, label: t('Butelka z pałąkiem (Swing-Top) [max 4.5 vol]') },
+                      { id: 'CROWN_CAP_BEER_BOTTLE' as const, label: t('Kapslowana butelka do piwa [max 3.5 vol]') },
+                      { id: 'CHAMPAGNE_HEAVY' as const, label: t('Ciężka butelka do szampana [max 6.0 vol]') },
+                      { id: 'SQUARE_DECORATIVE' as const, label: t('Kwadratowa ozdobna [ZAGROŻENIE EKSPLOZJĄ! max 1.8 vol]') },
+                    ].map((bType) => (
+                      <TouchableOpacity
+                        key={bType.id}
+                        style={[
+                          styles.presetPill,
+                          kombuchaBottleType === bType.id && styles.presetPillActive,
+                          bType.id === 'SQUARE_DECORATIVE' && { borderColor: '#EF4444' }
+                        ]}
+                        onPress={() => {
+                          triggerHapticFeedback();
+                          setKombuchaBottleType(bType.id);
+                        }}
+                      >
+                        <Text style={[
+                          styles.presetPillText,
+                          kombuchaBottleType === bType.id && styles.presetPillTextActive,
+                          bType.id === 'SQUARE_DECORATIVE' && { color: '#DC2626', fontWeight: '700' }
+                        ]}>
+                          {bType.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
                   <View style={styles.rowBetween}>
                     <Text style={styles.inlineLabel}>{t('Dni w temp. pokojowej:')}</Text>
                     <TextInput
@@ -1214,12 +1316,22 @@ export default function CalculatorScreen() {
                       onChangeText={(v) => setDaysIn2F(parseFloat(v) || 0)}
                     />
                   </View>
+
                   <View style={styles.pressureBox}>
                     <Text style={styles.pressureVolText}>
-                      {t('Szacowane CO2:')} <Text style={styles.boldText}>{kombucha2F.estimatedCo2Volumes} vol</Text>
+                      {t('Szacowane CO2:')} <Text style={styles.boldText}>{kombuchaBlendingCalc.estimatedCo2Volumes} vol</Text> | {t('Szacowane ciśnienie (20°C):')} <Text style={styles.boldText}>{kombuchaBlendingCalc.estimatedPressureBarAt20C} bar</Text>
                     </Text>
-                    <Text style={[styles.riskAlertText, kombucha2F.riskLevel === 'EXPLOSION_HAZARD' && styles.riskAlertDanger]}>
-                      {kombucha2F.message}
+                    <Text style={styles.recipeDetailText}>
+                      • {t('Cukier dodany z owoców:')} <Text style={styles.boldText}>{kombuchaBlendingCalc.sugarAddedGrams} g</Text> ({kombuchaBlendingCalc.effectiveSugarGramsPerLiter} g/L)
+                    </Text>
+                    <Text style={[
+                      styles.riskAlertText,
+                      kombuchaBlendingCalc.isExplosionHazard && styles.riskAlertDanger
+                    ]}>
+                      {kombuchaBlendingCalc.warningMessage}
+                    </Text>
+                    <Text style={[styles.recipeDetailText, { marginTop: 4, color: '#15803D' }]}>
+                      💡 {kombuchaBlendingCalc.refrigerationAdvice}
                     </Text>
                   </View>
                 </View>
