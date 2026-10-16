@@ -192,6 +192,36 @@
 * **Persona:** P3, P5, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
+---
+
+### **BR-KOM-028: Standaryzacja Kwasowości Octu & Natlenianie Lustra Cieczy (Vinegar Grain Strength & Surface Aeration Engine)**
+* **Opis:** Narzędzie standaryzacji mocy kwasowej octu rzemieślniczego w stopniach Grain ($10\text{ Grain} = 1.0\%\text{ kwasu octowego}$), bilansu rozcieńczania kwadratem Pearsona, stechiometrii konwersji etanolu oraz aeracji naczynia w zależności od stosunku powierzchni do objętości ($A/V$) (`vinegar-standardization.ts`).
+* **Kluczowe moduły i reguły biochemiczne:**
+  1. **Skala mocy Grain Strength & Klasyfikacja Handlowa:**
+     * 40 Grain (4.0%): minimalna dopuszczalna norma spożywcza (poniżej: alert `SUB_STANDARD_LOW` — ryzyko rozwoju pleśni i drożdży kożuchujących).
+     * 50 Grain (5.0%): wzorcowy stołowy ocet żywy jabłkowy / winny (`STANDARD_TABLE_50_GRAIN`).
+     * 60 Grain (6.0%): ocet marynatowy do trwałych przetworów i pikli (`PICKLING_PRESERVE_60_GRAIN`).
+  2. **Rozcieńczanie Kwadratem Pearsona (Pearson Square Dilution):**
+     * Precyzyjne wyliczanie ilości wody niechlorowanej lub soku owocowego wymaganej do zredukowania wysokiej kwasowości wyjściowej (np. 7.5% $\to$ 5.0%):
+       $$V_{rozc} = V_{surowy} \times \frac{C_{surowy} - C_{docelowy}}{C_{docelowy} - C_{rozc}}$$
+     * Rekomendacja zachowania 15–20% surowego nierościeńczonego octu jako aktywnego inokulantu (starter mother liquor) przed dolewką wody.
+  3. **Stechiometria Pastera (Etanol $\to$ Kwas Octowy):**
+     * Teoretyczna wydajność: $1.0\text{ g etanolu} \to 1.303\text{ g kwasu octowego}$ ($1\% \text{ ABV} \approx 1.05\%\text{ kwasu}$).
+     * Uwzględnienie 85% sprawności biologicznej *Acetobacter*.
+     * Alerty stężenia alkoholu: $>8.0\%$ ABV generuje ostrzeżenie o inhibicji bakterii octowych i zepsuciu wsadu zapachem rozpuszczalnika (octan etylu); $<4.0\%$ ABV generuje ostrzeżenie o zbyt słabym occie (<3.5% kwasowości).
+  4. **Kinetyka Natleniania Powierzchniowego ($A/V$ Ratio):**
+     * Bakterie octowe są bezwzględnymi tlenowcami tworzącymi błonkę matki na powierzchni cieczy.
+     * Stosunek powierzchni do objętości $A/V\text{ [cm}^2/\text{L]}$:
+       * $< 25\text{ cm}^2/\text{L}$ (wąskoszyjkowy gąsior): `STAGNANT_SUFFOCATION` — dławienie bakterii, fermentacja przeciąga się do 4–6 miesięcy lub zatrzymuje.
+       * $60 - 160\text{ cm}^2/\text{L}$ (szeroki słój / płytka kamionka): `OPTIMAL_ARTISAN` — dynamiczna fermentacja w 3–5 tygodni.
+       * $> 180\text{ cm}^2/\text{L}$: `EXCESSIVE_EVAPORATION` — ryzyko nadmiernego odparowania lotnych estrów.
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w akordeonie Pro napojów w [`app/(tabs)/index.tsx`](file:///c:/Users/lukas/Documents/antigravity/calm-planck/app/(tabs)/index.tsx).
+  2. Pełne testy jednostkowe (`tests/core/vinegar-standardization.test.ts`).
+* **Persona:** P3, P5, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+
 
 
 

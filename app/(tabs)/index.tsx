@@ -122,6 +122,17 @@ import {
   PASTEURIZATION_TARGETS,
   PasteurizationTargetCategory,
 } from '../../src/core/pasteurization-units';
+import {
+  calculateMilkSpeciesKinetics,
+  MilkSpeciesId,
+  MILK_SPECIES_DATABASE,
+} from '../../src/core/milk-species-profile';
+import {
+  calculateVinegarStandardization,
+  calculateVinegarStoichiometry,
+  calculateVesselAeration,
+} from '../../src/core/vinegar-standardization';
+
 
 
 export default function CalculatorScreen() {
@@ -140,7 +151,8 @@ export default function CalculatorScreen() {
 
   // --- CHEESE STATE ---
   const [milkLiters, setMilkLiters] = useState<number>(10);
-  const [milkType, setMilkType] = useState<'COW' | 'GOAT' | 'SHEEP'>('COW');
+  const [milkType, setMilkType] = useState<MilkSpeciesId>('COW');
+
   const [flocSecInput, setFlocSecInput] = useState<number>(720); // 12 min
   const [flocMultiplier, setFlocMultiplier] = useState<number>(3.5);
   const [pressWeightKg, setPressWeightKg] = useState<number>(8);
@@ -275,6 +287,13 @@ export default function CalculatorScreen() {
   const [puWaterBathTempC, setPuWaterBathTempC] = useState<number>(65);
   const [puHoldMinutes, setPuHoldMinutes] = useState<number>(15);
   const [puBottleVolumeMl, setPuBottleVolumeMl] = useState<number>(500);
+
+  // --- VINEGAR STANDARDIZATION & SURFACE AERATION ---
+  const [vinRawAcidity, setVinRawAcidity] = useState<number>(7.2);
+  const [vinRawVolumeL, setVinRawVolumeL] = useState<number>(5.0);
+  const [vinTargetAcidity, setVinTargetAcidity] = useState<number>(5.0);
+  const [vinVesselDiameterCm, setVinVesselDiameterCm] = useState<number>(24);
+  const [vinInitialAbv, setVinInitialAbv] = useState<number>(6.5);
 
   // Active Flocculation Timer
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
@@ -648,6 +667,56 @@ export default function CalculatorScreen() {
     }
   })();
 
+  const milkSpeciesCalc = (() => {
+    try {
+      return calculateMilkSpeciesKinetics({
+        speciesId: milkType,
+        milkVolumeLiters: milkLiters,
+        baseRennetImcuPerLiter: 38,
+        baseFlocculationMultiplier: flocMultiplier,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const vinegarStdCalc = (() => {
+    try {
+      return calculateVinegarStandardization({
+        rawAcidityPct: vinRawAcidity,
+        rawVolumeLiters: vinRawVolumeL,
+        targetAcidityPct: vinTargetAcidity,
+        dilutionLiquid: 'DISTILLED_WATER',
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const vinegarStoichCalc = (() => {
+    try {
+      return calculateVinegarStoichiometry({
+        initialAbvPct: vinInitialAbv,
+        batchVolumeLiters: vinRawVolumeL,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const vinegarAerationCalc = (() => {
+    try {
+      return calculateVesselAeration({
+        vesselType: 'WIDE_CROCK',
+        surfaceDiameterCm: vinVesselDiameterCm,
+        liquidVolumeLiters: vinRawVolumeL,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+
 
   const handleSaveBatch = () => {
     requireActionAccess(async () => {
@@ -699,10 +768,13 @@ export default function CalculatorScreen() {
                 ? t('Mleko Krowie')
                 : milkType === 'GOAT'
                 ? t('Mleko Kozie')
-                : t('Mleko Owcze'),
+                : milkType === 'SHEEP'
+                ? t('Mleko Owcze')
+                : t('Mleko Bawole'),
             category: 'MILK',
             quantity: milkLiters,
             unit: 'L',
+
           });
           if (rennetCalc.volumeMl > 0) {
             requirements.push({
@@ -1073,7 +1145,7 @@ export default function CalculatorScreen() {
 
               {/* Milk Type Selector */}
               <View style={styles.typeSelectorRow}>
-                {(['COW', 'GOAT', 'SHEEP'] as const).map((type) => (
+                {(['COW', 'GOAT', 'SHEEP', 'BUFFALO'] as const).map((type) => (
                   <TouchableOpacity
                     key={type}
                     style={[styles.typePill, milkType === type && styles.typePillActive]}
@@ -1083,11 +1155,18 @@ export default function CalculatorScreen() {
                     }}
                   >
                     <Text style={[styles.typePillText, milkType === type && styles.typePillTextActive]}>
-                      {type === 'COW' ? t('Krowie') : type === 'GOAT' ? t('Kozie') : t('Owcze')}
+                      {type === 'COW'
+                        ? t('Krowie')
+                        : type === 'GOAT'
+                        ? t('Kozie')
+                        : type === 'SHEEP'
+                        ? t('Owcze')
+                        : t('Bawole')}
                     </Text>
                   </TouchableOpacity>
                 ))}
               </View>
+
             </View>
 
             {/* Instant 1-Tap Result Cards */}
@@ -1989,6 +2068,52 @@ export default function CalculatorScreen() {
                       {curdSyneresisCalc.recommendations.map((rec, i) => (
                         <Text key={i} style={[styles.recipeDetailText, { marginTop: 4 }]}>
                           💡 {rec}
+                        </Text>
+                      ))}
+                    </View>
+                  </View>
+                )}
+
+                {/* Milk Species Coagulation & Proteolysis Profile */}
+                {milkSpeciesCalc && (
+                  <View style={styles.proCard}>
+                    <Text style={styles.proCardTitle}>
+                      🐑 {t('Morfologia Gatunkowa Mleka & Kazeina')}
+                    </Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Frakcje kazeiny, średnica kuleczek tłuszczu, dynamika enzymatyczna i szacowany uzysk sera')}
+                    </Text>
+
+                    <View style={styles.brineResultBox}>
+                      <Text style={[styles.safetyStatus, { color: '#15803D' }]}>
+                        • {milkSpeciesCalc.species.namePl} ({milkSpeciesCalc.species.scientificName})
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Dominująca frakcja kazeiny:')} <Text style={styles.boldText}>{milkSpeciesCalc.species.dominantCaseinFraction}</Text>
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Średnia kuleczek tłuszczowych:')} <Text style={styles.boldText}>{milkSpeciesCalc.species.meanFatGlobuleDiameterMicrons} µm</Text> | {t('Wapń:')} {milkSpeciesCalc.species.calciumMgPer100g} mg/100g
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Doza podpuszczki:')} <Text style={styles.boldText}>{milkSpeciesCalc.recommendedRennetImcuPerLiter} IMCU/L</Text> ({milkSpeciesCalc.rennetVolumeMlLiquid200Imcu} ml {t('na')} {milkLiters}L)
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Skorygowany mnożnik flokulacji:')} <Text style={styles.boldText}>{milkSpeciesCalc.effectiveFlocculationMultiplier}x</Text>
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Oczekiwany uzysk sera:')} <Text style={styles.boldText}>{milkSpeciesCalc.expectedCheeseYieldKg} kg</Text> ({milkSpeciesCalc.yieldRatioPct}%)
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Odzysk Ricotty z serwatki:')} <Text style={styles.boldText}>~{milkSpeciesCalc.wheyProteinRecoveryPotentialGrams} g</Text>
+                      </Text>
+
+                      <Text style={[styles.recipeDetailText, { marginTop: 6 }]}>
+                        💡 {milkSpeciesCalc.species.lipolysisAndFlavorNotesPl}
+                      </Text>
+
+                      {milkSpeciesCalc.craftNotes.map((note, idx) => (
+                        <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 3 }}>
+                          • {note}
                         </Text>
                       ))}
                     </View>
@@ -2955,6 +3080,118 @@ export default function CalculatorScreen() {
                       {puPlanCalc.recommendedWaterBathProtocol.map((step, idx) => (
                         <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 3 }}>
                           {idx + 1}. {step}
+                        </Text>
+                      ))}
+                    </View>
+                  </View>
+                )}
+
+                {/* Vinegar Standardization & Surface Aeration Engine */}
+                {vinegarStdCalc && vinegarStoichCalc && vinegarAerationCalc && (
+                  <View style={[styles.proCard, (vinegarStoichCalc.isAlcoholTooHighWarning || vinegarAerationCalc.aerationRating === 'STAGNANT_SUFFOCATION') && styles.cardDanger]}>
+                    <Text style={styles.proCardTitle}>🧪 {t('Standaryzacja Octu & Aeracja Lustra (Grain Strength)')}</Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Moc w stopniach Grain (10 grain = 1%), rozcieńczanie kwadratem Pearsona i aeracja naczynia')}
+                    </Text>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Kwasowość surowa (% / Grain):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(vinRawAcidity)}
+                        onChangeText={(v) => setVinRawAcidity(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Objętość surowego octu (L):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(vinRawVolumeL)}
+                        onChangeText={(v) => setVinRawVolumeL(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Docelowa kwasowość (% / Grain):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(vinTargetAcidity)}
+                        onChangeText={(v) => setVinTargetAcidity(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Średnica lustra cieczy (cm):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(vinVesselDiameterCm)}
+                        onChangeText={(v) => setVinVesselDiameterCm(parseFloat(v) || 1)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Początkowy alkohol cydru/wina (% ABV):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(vinInitialAbv)}
+                        onChangeText={(v) => setVinInitialAbv(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.safetyBox}>
+                      <Text style={[
+                        styles.safetyStatus,
+                        vinegarStdCalc.legalFoodGradeClassification === 'SUB_STANDARD_LOW' ? styles.safetyDanger : { color: '#15803D' }
+                      ]}>
+                        • {t('Moc:')} {vinegarStdCalc.rawGrainStrength} Grain ({vinRawAcidity}%) &rarr; {vinegarStdCalc.targetGrainStrength} Grain ({vinTargetAcidity}%) — {vinegarStdCalc.classificationLabelPl}
+                      </Text>
+
+                      {vinegarStdCalc.isDilutionNeeded ? (
+                        <Text style={styles.proCardDesc}>
+                          • {t('Dolewka wody niechlorowanej:')} <Text style={styles.boldText}>{vinegarStdCalc.dilutionLiquidVolumeLiters} L</Text> ({t('objętość końcowa:')} {vinegarStdCalc.totalFinishedVolumeLiters} L)
+                        </Text>
+                      ) : (
+                        <Text style={styles.proCardDesc}>
+                          • {t('Rozcieńczenie zbędne (kwasowość &le; docelowej)')}
+                        </Text>
+                      )}
+
+                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                        💡 {vinegarStdCalc.motherPreservationAdvice}
+                      </Text>
+
+                      {/* Stoichiometry */}
+                      <Text style={[styles.proCardDesc, { marginTop: 6 }]}>
+                        • {t('Potencjał kwasowy z')} {vinInitialAbv}% ABV: <Text style={styles.boldText}>{vinegarStoichCalc.expectedActualAcidityPct}%</Text> ({vinegarStoichCalc.expectedGrainStrength} Grain, {t('max teor.')} {vinegarStoichCalc.theoreticalMaxAcidityPct}%)
+                      </Text>
+
+                      {vinegarStoichCalc.potentialSpoilageRisk && (
+                        <Text style={[styles.safetyStatus, styles.safetyDanger, { marginTop: 4 }]}>
+                          ⚠️ {vinegarStoichCalc.potentialSpoilageRisk}
+                        </Text>
+                      )}
+
+                      {/* Aeration */}
+                      <Text style={[
+                        styles.safetyStatus,
+                        vinegarAerationCalc.aerationRating === 'STAGNANT_SUFFOCATION' ? styles.safetyDanger : { color: '#15803D' },
+                        { marginTop: 6 }
+                      ]}>
+                        • {t('Wskaźnik natlenienia A/V:')} {vinegarAerationCalc.surfaceToVolumeRatioCm2PerLiter} cm²/L — {vinegarAerationCalc.ratingLabelPl} ({vinegarAerationCalc.estimatedFermentationWeeks.min}–{vinegarAerationCalc.estimatedFermentationWeeks.max} {t('tyg.')})
+                      </Text>
+                      <Text style={styles.recipeDetailText}>
+                        🧫 {vinegarAerationCalc.motherPellicleHealthAdvice}
+                      </Text>
+
+                      {vinegarAerationCalc.actionableRecommendations.map((rec, idx) => (
+                        <Text key={idx} style={[styles.recipeDetailText, { marginTop: 2 }]}>
+                          💡 {rec}
                         </Text>
                       ))}
                     </View>

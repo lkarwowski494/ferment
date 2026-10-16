@@ -154,4 +154,38 @@
 * **Persona:** P1, P2, P5, P6.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
+---
+
+### **BR-SER-036: Morfologia Gatunkowa Mleka & Kinetyka Koagulacji (Milk Species Coagulation & Proteolysis Profile Engine)**
+* **Opis:** Fizykochemiczny model różnic gatunkowych mleka (krowie, kozie, owcze, bawole) wpływających na strukturę żelu kazeinowego, wielkość miceli i kuleczek tłuszczowych, dawkę podpuszczki, mnożnik flokulacji i uzysk sera (`milk-species-profile.ts`).
+* **Profile gatunkowe w modelu:**
+  1. **Mleko krowie (*Bos taurus*):**
+     * Tłuszcz: 3.8–4.4%, Białko: 3.2–3.5%, Stosunek kazeina/serwatka: 80:20.
+     * Frakcja wiodąca: $\alpha_{s1}$-kazeina (mocny, sprężysty żel).
+     * Średnica kuleczek tłuszczu: 4.0 µm. Wydajność świeża: ~10.5%.
+     * Mnożnik podpuszczki: 1.0x, Mnożnik flokulacji: 1.0x, Temp. optymalna: 31–33°C.
+  2. **Mleko kozie (*Capra hircus*):**
+     * Tłuszcz: 3.6–4.6%, Białko: 3.1–3.6%, Stosunek kazeina/serwatka: 78:22.
+     * Frakcja wiodąca: $\beta$-kazeina (brak lub znikoma ilość $\alpha_{s1}$, co daje bardzo miękki, podatny na rozpad skrzep *friable curd*).
+     * Średnica kuleczek tłuszczu: 3.2 µm (naturalna homogenizacja, brak wyraźnej warstwy śmietanki).
+     * Wysoka lipoliza: obfitość kwasów C6 (kapronowy), C8 (kaprylowy) i C10 (kaprynowy).
+     * Mnożnik flokulacji: 1.15x (wydłużenie czasu wiązania żelu), Temp. optymalna: 29–31°C (ochrona przed zacięciem termicznym).
+  3. **Mleko owcze (*Ovis aries*):**
+     * Tłuszcz: 6.5–8.5%, Białko: 5.5–6.8%, Sucha masa: 18–20% (podwójny ekstrakt!).
+     * Ekstremalnie bogate w micele kazeinowe i wapń koloidalny (190 mg/100g).
+     * Błyskawiczna koagulacja: zalecana redukcja dawki podpuszczki o 25% (26.3 IMCU/L zamiast 35 IMCU/L) oraz obniżony mnożnik flokulacji 0.85x w celu uniknięcia gumowatości.
+     * Wybitny uzysk sera: ~20.0% świeżego skrzepu (prawie dwukrotnie więcej niż z mleka krowiego).
+  4. **Mleko bawole (*Bubalus bubalis*):**
+     * Tłuszcz: 7.5–9.2%, Białko: 4.2–4.8%, Wapń: 180 mg/100g.
+     * Średnica kuleczek: 5.0 µm. Porcelanowo-biały miąższ (brak $\beta$-karotenu).
+     * Niezrównana termoplastyczność struktury micelarnej (idealna do ugniatania i wyciągania w gorącej wodzie dla Mozzarella di Bufala / pasta filata).
+     * Wydajność świeża: ~17.0%, Temp. optymalna zaprawiania: 34–36°C.
+* **Kryteria akceptacji:**
+  1. Wybór gatunku mleka w głównym selektorze trybu serowarskiego (Krowie, Kozie, Owcze, Bawole).
+  2. Karta profilu w akordeonie Pro z dynamicznymi wskazówkami technologicznymi i wyliczeniem odzysku Ricotty.
+  3. Testy jednostkowe (`tests/core/milk-species-profile.test.ts`).
+* **Persona:** P1, P4, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+
 

@@ -3,7 +3,8 @@
 > **Ekosystem:** Apps4Brew Studio  
 > **Repozytorium:** `lkarwowski494/ferment`  
 > **Technologia:** Expo 57, React Native 0.86, TypeScript Strict, SQLite (tryb WAL)  
-> **Piramida Jakości:** 44 zestawy testów (100% PASS, 220 testów), pełna zgodność i18n (PL/EN, 674 klucze w kodzie / 728 w EN), `npm run verify` zielony  
+> **Piramida Jakości:** 46 zestawów testów (100% PASS, 232 testy), pełna zgodność i18n (PL/EN, 700 kluczy w kodzie / 754 w EN), `npm run verify` zielony  
+
 
 ---
 
@@ -162,6 +163,16 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
     - Modelowanie dynamiki kurczenia ziaren kazeinowych wg standardów krojenia (3 mm parmezan, 8 mm gouda, 18 mm camembert, 28 mm feta).
     - Złota zasada tempa dogrzewania (Cooking Ramp Rate $\le 0.5^\circ\text{C/min}$) z alarmem `CRITICAL_CASE_HARDENING` przed zasklepieniem porów kazeinowych i uwięzieniem serwatki.
     - Kontrola równowagi micelarnej wapnia w zależności od pH przy ocieku (zapobieganie strukturze gumowatej vs kredowej/kruchej).
+42. **Profile Gatunkowe Mleka & Kinetyka Koagulacji (`src/core/milk-species-profile.ts`):**
+    - Kompleksowa baza kazeinowo-tłuszczowa 4 gatunków ssaków: Krowa (Holstein/Jersey), Koza, Owca, Bawoł (*Bubalus bubalis*).
+    - Uwzględnianie braku lub deficytu frakcji $\alpha_{s1}$-kazeiny u kóz (kruchy, delikatny skrzep, konieczność dłuższego mnożnika flokulacji $+15\%$).
+    - Wysoka zawartość suchej masy u owiec (18–20% ekstraktu ogólnego, redukcja dawki podpuszczki o $-25\%$ przed uformowaniem gumiastego skrzepu i mnożnik $M \times 0.85$).
+    - Morfologia kuleczek tłuszczowych (od 3.2 µm u kóz z naturalną homogenizacją do 5.0 µm u bawołów pod mozzarellę di bufala) i predykcja uzysku serowarskiego.
+43. **Standaryzacja Ziarna Octowego, Rozcieńczanie Kwasowości Pearsona & Aeracja Powierzchniowa (`src/core/vinegar-standardization.ts`):**
+    - Konwersja skali ziaren octowych (Grain Strength: $10\text{ grain} = 1\%\text{ kwasowości octowej}$).
+    - Reguła krzyża Pearsona do standaryzacji kwasowości octów rzemieślniczych (np. z 7.2% do 5.0% z zachowaniem minimum 20% octu macierzystego chroniącego przed pleśnią).
+    - Stechiometria utleniania alkoholu do kwasu octowego wg Pasteura ($1\%\text{ ABV} \approx 1.05\%\text{ kwasu octowego}$ przy 85% sprawności biologicznej *Acetobacter*).
+    - Optymalizacja stosunku powierzchni cieczy do objętości ($A/V\text{ w cm}^2/\text{L}$) determinująca tempo dostępu tlenu i zapobiegająca duszeniu bakterii octowych w wąskich gąsiorach.
 
 ---
 
@@ -174,7 +185,7 @@ npm run typecheck
 # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
 npm run check:i18n
 
-# 3. Wykonanie 44 pakietów testowych Jest
+# 3. Wykonanie 46 pakietów testowych Jest
 npm test
 
 # 4. Uruchomienie całościowej bramki
@@ -182,10 +193,10 @@ npm run verify
 ```
 
 Stan testów na dzień 16.10.2026:
-- **44 test suites PASS** (100%)
-- **220 unit & integration tests PASS** (100%)
-- **674 teksty UI w kodzie przetłumaczone na PL i EN (728 w słowniku EN, 100% parytet)**
-- **BRD: 104.8 stron znormalizowanych (188,702 znaków ze spacjami, 24,528 słów, 25 modularnych rozdziałów)**
+- **46 test suites PASS** (100%)
+- **232 unit & integration tests PASS** (100%)
+- **700 tekstów UI w kodzie przetłumaczone na PL i EN (754 w słowniku EN, 100% parytet)**
+- **BRD: 107.9 stron znormalizowanych (194,152 znaków ze spacjami, 25,166 słów, 25 modularnych rozdziałów)**
 
 ---
 
