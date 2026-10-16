@@ -84,3 +84,20 @@
   2. Wyświetlanie wykrytych wad i konkretnych porad rzemieślniczych.
 * **Persona:** P1, P2, P3, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-SENS-015: Doktor Fermentacji — Drzewo Decyzyjne Diagnostyki Wad i Triage Bezpieczeństwa Biologicznego (Fermentation Doctor)**
+* **Opis:** Interaktywny asystent diagnozowania anomalii wizualnych, zapachowych i teksturalnych we wszystkich 4 rzemiosłach (serowarstwo, kiszonki, kombucha, żywe octy) z automatyczną klasyfikacją ryzyka biologicznego (`fermentation-diagnostics.ts`, `FermentationDoctorModal.tsx`).
+* **Kategorie bezpieczeństwa (Safety Verdicts):**
+  1. `SAFE_EDIBLE`: wyrób w pełni bezpieczny biologicznie, obecna jedynie kosmetyczna lub przejściowa wada smakowa (np. goryczka kazeinowa w młodym serze, papkowate ogórki z rozpadem pektyn nadające się na zupę).
+  2. `COSMETIC_FLAW`: wada powierzchniowa nieszkodliwa po usunięciu (np. drożdże kożuchujące Kahm *Pichia* / *Debaryomyces* — usunięcie łyżką i przemycie ścianek octem).
+  3. `REPAIRABLE_RISK`: aktywne zagrożenie technologiczne wymagające natychmiastowej interwencji krok po kroku (np. zapach acetonu w kombuchy, zapach siarkowodoru $H_2S$ w occie usuwany drucikiem miedzianym i napowietrzaniem, zasklepienie skórki *case hardening*).
+  4. `BIOHAZARD_DISCARD`: bezwzględny nakaz natychmiastowej utylizacji wyrobu (zagrożenie mykotoksynami pleśni *Aspergillus*, jadem kiełbasianym *Clostridium botulinum*, wczesnym wzdęciem coliformami *E. coli* czy zgnilizną beztlenową przy $pH > 4.60$).
+* **Kryteria akceptacji:**
+  1. Wyszukiwarka objawów po słowach kluczowych (np. "gąbka", "pleśń", "gorzki", "kahm", "smród").
+  2. Podział na rzemiosła (Sery, Kiszonki, Kombucha, Octy).
+  3. Szczegółowe wyjaśnienie mikrobiologiczne z łacińskimi nazwami gatunków bakterii i grzybów.
+  4. Instrukcja naprawcza krok po kroku oraz zalecenia profilaktyczne na przyszłość.
+* **Persona:** P1, P2, P3, P5, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.

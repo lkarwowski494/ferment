@@ -112,4 +112,26 @@
 * **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
+---
+
+### **BR-SOL-025: Dyfuzja Soli & Czas Przenikania Solanki wg Prawa Ficka (Fickian Salt Diffusion & Core Penetration Engine)**
+* **Opis:** Fizykochemiczny model nieustalonej dyfuzji jonów $Na^+$ i $Cl^-$ w porowatym żelu kazeinowym oparty na II Prawie Ficka oraz modelach Geurtsa i Guinee (`brine-diffusion.ts`).
+* **Zasady modelowania i parametry:**
+  1. **Geometria i droga dyfuzji:**
+     * Najkrótsza droga do rdzenia geometrycznego: $x_{core} = \min(r, h/2)$.
+     * Czas dyfuzji skaluje się z kwadratem odległości ($t \propto x^2$), przez co krążki wysokie wymagają nieproporcjonalnie dłuższego leżakowania do wyrównania stężenia niż krążki płaskie.
+  2. **Efektywny współczynnik dyfuzji ($D_{eff}$):**
+     * Bazowy $D_0 \approx 0.28\text{ cm}^2/\text{dzień}$ w $12^\circ\text{C}$ dla wilgotności 42% i tłuszczu 48% FDM.
+     * Wyższa wilgotność przyspiesza dyfuzję; wyższy tłuszcz działa jak geometryczna zawada (tortuosity) i ją spowalnia; temperatura wpływa zgodnie z relacją Arrheniusa (~3.5% na każdy $1^\circ\text{C}$).
+  3. **Wyrównanie stężenia w centrum ($C_{core} \ge 1.0\%$):**
+     * Oszacowanie liczby dni w piwniczce do osiągnięcia stężenia ochronnego w rdzeniu: $t_{eq} = \frac{x_{core}^2}{4 D_{eff}}$.
+     * Alerty ochronne: ostrzeżenie o ryzyku zakażenia niedosolonego rdzenia przy $t_{eq} > 40\text{ dni}$ oraz zalecenie obniżenia temperatury dojrzewalni $<12^\circ\text{C}$.
+  4. **Inwarianty solankowe:**
+     * Wykrywanie zbyt słabej solanki ($<16\% \to$ slimy rind) oraz zbyt mocnej ($>23\% \to$ krystalizacja soli na skórce i blokada dyfuzji).
+* **Kryteria akceptacji:**
+  1. Reaktywny kalkulator w akordeonie Pro Serowarstwa wyliczający optymalny czas w solance (godz. i dni) oraz tempo pochłaniania soli (g/godz.).
+  2. Wyliczanie liczby dni leżakowania w piwniczce do wyrównania stężenia soli w całym przekroju krążka.
+* **Persona:** P1, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
 

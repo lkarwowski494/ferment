@@ -18,6 +18,8 @@ import { t } from '../../src/lib/i18n';
 import { useAppAccess } from '../../src/lib/app-access';
 import { Apps4BrewPassModal } from '../../src/components/Apps4BrewPassModal';
 import { QrScannerModal } from '../../src/components/QrScannerModal';
+import { FermentationDoctorModal } from '../../src/components/FermentationDoctorModal';
+import { DefectCategory } from '../../src/core/fermentation-diagnostics';
 import {
   getSqliteStore,
   Batch,
@@ -62,6 +64,8 @@ export default function BatchesScreen() {
   const [caveWheels, setCaveWheels] = useState<CaveWheel[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<'ALL' | 'CHEESE' | 'VEG' | 'BEV'>('ALL');
   const [isScannerVisible, setIsScannerVisible] = useState<boolean>(false);
+  const [isDoctorVisible, setIsDoctorVisible] = useState<boolean>(false);
+  const [doctorCategory, setDoctorCategory] = useState<DefectCategory | undefined>(undefined);
   const [activeTabSection, setActiveTabSection] = useState<'batches' | 'cave'>('batches');
 
   // Weighing modal state
@@ -382,6 +386,18 @@ export default function BatchesScreen() {
 
         <View style={styles.headerBtnRow}>
           <TouchableOpacity
+            style={styles.doctorHeaderBtn}
+            onPress={() => {
+              triggerHapticFeedback();
+              setDoctorCategory(undefined);
+              setIsDoctorVisible(true);
+            }}
+            accessibilityRole="button"
+          >
+            <Text style={styles.doctorHeaderBtnText}>🩺 {t('Doktor')}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
             style={styles.csvButton}
             onPress={handleExportCsv}
             accessibilityRole="button"
@@ -668,6 +684,26 @@ export default function BatchesScreen() {
                         <Text style={[styles.batchSmallBtnText, isEvaluating && styles.batchSmallBtnTextActive]}>
                           {isEvaluating ? t('⭐ Zamknij ocenę') : t('⭐ Ocena sensoryczna')}
                         </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.batchDoctorBtn}
+                        onPress={() => {
+                          triggerHapticFeedback();
+                          const cat: DefectCategory =
+                            b.category === 'CHEESE'
+                              ? 'CHEESE'
+                              : b.category === 'KOMBUCHA'
+                              ? 'KOMBUCHA'
+                              : b.category === 'VINEGAR'
+                              ? 'VINEGAR'
+                              : 'VEG_FERMENT';
+                          setDoctorCategory(cat);
+                          setIsDoctorVisible(true);
+                        }}
+                        accessibilityRole="button"
+                      >
+                        <Text style={styles.batchDoctorBtnText}>🩺 {t('Triage')}</Text>
                       </TouchableOpacity>
 
                       <TouchableOpacity
@@ -1082,6 +1118,13 @@ export default function BatchesScreen() {
         onScanSuccess={handleQrScanResult}
       />
 
+      {/* Fermentation Doctor Diagnostic Modal */}
+      <FermentationDoctorModal
+        visible={isDoctorVisible}
+        onClose={() => setIsDoctorVisible(false)}
+        initialCategory={doctorCategory}
+      />
+
       {/* Apps4Brew Paywall Modal */}
       <Apps4BrewPassModal
         visible={isPaywallVisible}
@@ -1120,6 +1163,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  doctorHeaderBtn: {
+    height: 48,
+    paddingHorizontal: 12,
+    backgroundColor: '#991B1B',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  doctorHeaderBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 13,
   },
   csvButton: {
     height: 48,
@@ -1488,6 +1544,21 @@ const styles = StyleSheet.create({
   },
   batchSmallBtnTextActive: {
     color: '#FFFFFF',
+  },
+  batchDoctorBtn: {
+    height: 44,
+    paddingHorizontal: 12,
+    backgroundColor: '#FEF2F2',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FCA5A5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  batchDoctorBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#991B1B',
   },
   batchDeleteBtn: {
     height: 44,

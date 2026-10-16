@@ -97,6 +97,7 @@ import { calculateCrockHeadspace } from '../../src/core/crock-headspace';
 import { analyzeRefractometerBrix } from '../../src/core/refractometer-alcohol';
 import { calculateCheeseComposition } from '../../src/core/cheese-composition-engine';
 import { analyzeCultureHotel, LiveCultureType } from '../../src/core/culture-hotel-engine';
+import { calculateBrineDiffusion } from '../../src/core/brine-diffusion';
 
 export default function CalculatorScreen() {
   const {
@@ -197,6 +198,14 @@ export default function CalculatorScreen() {
   const [cheeseMoisturePct, setCheeseMoisturePct] = useState<number>(42.0);
   const [cheeseFatPct, setCheeseFatPct] = useState<number>(28.0);
   const [cheeseSaltPct, setCheeseSaltPct] = useState<number>(2.0);
+
+  // --- BRINE DIFFUSION & CORE PENETRATION TIME (FICK'S LAW) ---
+  const [diffWheelWeightKg, setDiffWheelWeightKg] = useState<number>(1.2);
+  const [diffDiameterCm, setDiffDiameterCm] = useState<number>(15.0);
+  const [diffHeightCm, setDiffHeightCm] = useState<number>(6.5);
+  const [diffBrineSalinityPct, setDiffBrineSalinityPct] = useState<number>(20.0);
+  const [diffBrineTempC, setDiffBrineTempC] = useState<number>(12);
+  const [diffTargetSaltPct, setDiffTargetSaltPct] = useState<number>(1.8);
 
   // --- LIVE CULTURE HOTEL & MOTHER COLONY ---
   const [hotelCultureType, setHotelCultureType] = useState<LiveCultureType>('KOMBUCHA_SCOBY_HOTEL');
@@ -459,6 +468,21 @@ export default function CalculatorScreen() {
         moisturePercentage: cheeseMoisturePct,
         fatPercentage: cheeseFatPct,
         saltPercentage: cheeseSaltPct,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const brineDiffusionCalc = (() => {
+    try {
+      return calculateBrineDiffusion({
+        wheelWeightKg: diffWheelWeightKg,
+        diameterCm: diffDiameterCm,
+        heightCm: diffHeightCm,
+        brineSalinityPct: diffBrineSalinityPct,
+        brineTempC: diffBrineTempC,
+        targetSaltInCheesePct: diffTargetSaltPct,
       });
     } catch {
       return null;
@@ -1496,6 +1520,93 @@ export default function CalculatorScreen() {
                       <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
                         💡 {cheeseCompositionCalc.recommendations[0]}
                       </Text>
+                    </View>
+                  </View>
+                )}
+
+                {/* 11. Salt Diffusion & Brining Penetration Time (Fick's Second Law) */}
+                {brineDiffusionCalc && (
+                  <View style={styles.proCard}>
+                    <Text style={styles.proCardTitle}>🧂 {t('Dyfuzja Soli & Czas Solankowania (Prawo Ficka)')}</Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Nieustalona dyfuzja NaCl w głąb kazeiny, penetracja rdzenia krążka i zapobieganie przesoleniu')}
+                    </Text>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Masa krążka sera (kg):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(diffWheelWeightKg)}
+                        onChangeText={(v) => setDiffWheelWeightKg(parseFloat(v) || 0.1)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Średnica krążka (cm):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(diffDiameterCm)}
+                        onChangeText={(v) => setDiffDiameterCm(parseFloat(v) || 1)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Wysokość krążka (cm):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(diffHeightCm)}
+                        onChangeText={(v) => setDiffHeightCm(parseFloat(v) || 1)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Zasolenie solanki (%):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(diffBrineSalinityPct)}
+                        onChangeText={(v) => setDiffBrineSalinityPct(parseFloat(v) || 10)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Temperatura solanki (°C):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(diffBrineTempC)}
+                        onChangeText={(v) => setDiffBrineTempC(parseFloat(v) || 5)}
+                      />
+                    </View>
+
+                    <View style={styles.brineResultBox}>
+                      <Text style={styles.brineText}>
+                        • {t('Optymalny czas w solance:')}{' '}
+                        <Text style={styles.boldText}>{brineDiffusionCalc.recommendedBriningHours} {t('godz.')}</Text> ({brineDiffusionCalc.recommendedBriningDays} {t('dni')})
+                      </Text>
+                      <Text style={styles.brineText}>
+                        • {t('Tempo pochłaniania soli:')}{' '}
+                        <Text style={styles.boldText}>{brineDiffusionCalc.saltUptakeRateGramsPerHour} g/godz.</Text> ({t('łącznie:')} {brineDiffusionCalc.totalSaltAbsorbedGrams}g NaCl)
+                      </Text>
+                      <Text style={styles.brineText}>
+                        • {t('Odległość do rdzenia geometrycznego:')}{' '}
+                        <Text style={styles.boldText}>{brineDiffusionCalc.distanceToCoreCm} cm</Text> ({t('współczynnik dyfuzji:')} {brineDiffusionCalc.diffusionCoefficientCm2PerDay} cm²/d)
+                      </Text>
+                      <Text style={styles.brineText}>
+                        • {t('Czas wyrównania stężenia w rdzeniu:')}{' '}
+                        <Text style={styles.boldText}>{brineDiffusionCalc.daysToCoreEquilibration} {t('dni')}</Text>
+                      </Text>
+                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                        ℹ️ {brineDiffusionCalc.equilibrationSchedulePl}
+                      </Text>
+                      {brineDiffusionCalc.safetyWarningsPl.map((warn, i) => (
+                        <Text key={i} style={[styles.safetyStatus, styles.safetyDanger, { marginTop: 4 }]}>
+                          ⚠️ {warn}
+                        </Text>
+                      ))}
                     </View>
                   </View>
                 )}

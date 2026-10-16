@@ -3,7 +3,7 @@
 > **Ekosystem:** Apps4Brew Studio  
 > **Repozytorium:** `lkarwowski494/ferment`  
 > **Technologia:** Expo 57, React Native 0.86, TypeScript Strict, SQLite (tryb WAL)  
-> **Piramida Jakości:** 35 zestawów testów (100% PASS, 161 testów), pełna zgodność i18n (PL/EN, 575 kluczy), `npm run verify` zielony  
+> **Piramida Jakości:** 37 zestawów testów (100% PASS, 172 testów), pełna zgodność i18n (PL/EN, 604 klucze), `npm run verify` zielony  
 
 ---
 
@@ -124,32 +124,41 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
 32. **Tradycyjny Żywy Niefiltrowany Ocet Jabłkowy — Kanoniczna Receptura Dziedzictwa (`src/core/canonical-recipes.ts`):**
     - 2-fazowy proces: faza dzikich drożdży (alkoholowa 14–21 dni) $\to$ faza tlenowa bakterii *Acetobacter* z matką octową (*Mycoderma aceti*, 4–6 tygodni).
     - Pełna specyfikacja składników, optymalnych warunków (20–25°C, dostęp tlenu, pH < 3.20) i kroków technologicznych.
-127: 
-128: ---
-129: 
-130: ## 🛠️ Weryfikacja i Piramida Testów
-131: Każdy commit w projekcie przechodzi przez zautomatyzowaną bramkę `npm run verify`:
-132: ```bash
-133: # 1. Sprawdzenie typowania TypeScript (Strict Mode)
-134: npm run typecheck
-135: 
-136: # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
-137: npm run check:i18n
-138: 
-139: # 3. Wykonanie 35 pakietów testowych Jest
-140: npm test
-141: 
-142: # 4. Uruchomienie całościowej bramki
-143: npm run verify
-144: ```
-145: 
-146: Stan testów na dzień 16.10.2026:
-147: - **35 test suites PASS** (100%)
-148: - **161 unit & integration tests PASS** (100%)
-149: - **521 tekstów UI w kodzie przetłumaczonych na PL i EN (575 w słowniku EN, 100% parytet)**
-150: - **BRD: 94.1 stron znormalizowanych (169,396 znaków ze spacjami, 25 modularnych rozdziałów)**
-151: 
-152: ---
+33. **Doktor Fermentacji — Drzewo Decyzyjne Diagnostyki Wad i Triage Bezpieczeństwa (`src/core/fermentation-diagnostics.ts`, `src/components/FermentationDoctorModal.tsx`):**
+    - Interaktywny asystent diagnozowania wad sensorycznych, mikrobiologicznych i fizycznych w serach, kiszonkach, kombuchy i occie.
+    - Automatyczna kategoryzacja bezpieczeństwa biologicznego: `SAFE_EDIBLE` (bezpieczne wady smakowe), `COSMETIC_FLAW` (np. drożdże Kahm), `REPAIRABLE_RISK` (zagrożenia naprawialne procedurą ratunkową, np. $H_2S$ w occie lub aceton), `BIOHAZARD_DISCARD` (bezwzględna utylizacja: pleśń na SCOBY, wzdęcie coliformami, jad kiełbasiany).
+    - Wyszukiwarka objawów po słowach kluczowych i procedury naprawcze krok po kroku.
+34. **Dyfuzja Soli & Czas Przenikania Solanki wg Prawa Ficka (`src/core/brine-diffusion.ts`):**
+    - Fizykochemiczne modelowanie nieustalonej dyfuzji NaCl w żelu kazeinowym (II Prawo Ficka, model Geurtsa).
+    - Zależność od geometrii walca (droga do rdzenia $x_{core} = \min(r, h/2)$ ze skalowaniem $t \propto x^2$).
+    - Wyliczanie optymalnego czasu w solance (godziny/dni), tempa pochłaniania soli oraz liczby dni dojrzewania do osiągnięcia stężenia ochronnego w rdzeniu ($C_{core} \ge 1.0\%$).
+    - Alerty ochronne przed zakażeniem niedosolonego centrum oraz szoku osmotycznego przy słabej solance (<16%).
+
+---
+
+## 🛠️ Weryfikacja i Piramida Testów
+Każdy commit w projekcie przechodzi przez zautomatyzowaną bramkę `npm run verify`:
+```bash
+# 1. Sprawdzenie typowania TypeScript (Strict Mode)
+npm run typecheck
+
+# 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
+npm run check:i18n
+
+# 3. Wykonanie 37 pakietów testowych Jest
+npm test
+
+# 4. Uruchomienie całościowej bramki
+npm run verify
+```
+
+Stan testów na dzień 16.10.2026:
+- **37 test suites PASS** (100%)
+- **172 unit & integration tests PASS** (100%)
+- **550 tekstów UI w kodzie przetłumaczonych na PL i EN (604 w słowniku EN, 100% parytet)**
+- **BRD: 96.2 stron znormalizowanych (173,141 znaków ze spacjami, 25 modularnych rozdziałów)**
+
+---
 
 ## 📱 Ekrany Aplikacji
 1. **Kalkulator (`app/(tabs)/index.tsx`):**
