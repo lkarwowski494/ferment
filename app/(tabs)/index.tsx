@@ -98,6 +98,10 @@ import { analyzeRefractometerBrix } from '../../src/core/refractometer-alcohol';
 import { calculateCheeseComposition } from '../../src/core/cheese-composition-engine';
 import { analyzeCultureHotel, LiveCultureType } from '../../src/core/culture-hotel-engine';
 import { calculateBrineDiffusion } from '../../src/core/brine-diffusion';
+import {
+  calculateContinuousBrewPlan,
+  TeaBaseType,
+} from '../../src/core/continuous-brew';
 
 export default function CalculatorScreen() {
   const {
@@ -140,6 +144,14 @@ export default function CalculatorScreen() {
   const [residualSugar, setResidualSugar] = useState<number>(12);
   const [daysIn2F, setDaysIn2F] = useState<number>(3);
   const [vinegarBrix, setVinegarBrix] = useState<number>(12);
+
+  // --- KOMBUCHA CONTINUOUS BREW STATE ---
+  const [cbVesselLiters, setCbVesselLiters] = useState<number>(10);
+  const [cbDrawLiters, setCbDrawLiters] = useState<number>(2.5);
+  const [cbTempCelsius, setCbTempCelsius] = useState<number>(24);
+  const [cbTeaBase, setCbTeaBase] = useState<TeaBaseType>('BLACK');
+  const [cbCyclesSincePurge, setCbCyclesSincePurge] = useState<number>(3);
+  const [cbPreDrawPh, setCbPreDrawPh] = useState<number>(3.0);
 
   // --- SISTER MODULE STATES (napar, piekarz, słoik, oczko) ---
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
@@ -500,6 +512,27 @@ export default function CalculatorScreen() {
         measuredPh: hotelPh,
         currentLiquidVolumeMl: hotelVolumeMl,
         yeastSludgeDepthCm: hotelSludgeDepthCm,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const continuousBrewPlan = (() => {
+    try {
+      return calculateContinuousBrewPlan({
+        system: {
+          id: 'cb_active',
+          name: 'Continuous Brew Vessel',
+          vesselCapacityLiters: cbVesselLiters,
+          currentVolumeLiters: cbVesselLiters,
+          ambientTempCelsius: cbTempCelsius,
+          teaBaseType: cbTeaBase,
+          totalCyclesCompleted: cbCyclesSincePurge + 4,
+          cyclesSinceLastPurge: cbCyclesSincePurge,
+        },
+        drawVolumeLiters: cbDrawLiters,
+        currentPreDrawPh: cbPreDrawPh,
       });
     } catch {
       return null;
@@ -2215,6 +2248,144 @@ export default function CalculatorScreen() {
                       {cultureHotelCalc.actionAlerts.map((alert, idx) => (
                         <Text key={idx} style={[styles.safetyStatus, styles.safetyDanger, { marginTop: 4 }]}>
                           ⚠️ {alert}
+                        </Text>
+                      ))}
+                    </View>
+                  </View>
+                )}
+
+                {/* Kombucha Continuous Brew Siphon & Maintenance Engine */}
+                {continuousBrewPlan && (
+                  <View style={[styles.proCard, !continuousBrewPlan.isDrawSafe && styles.cardDanger]}>
+                    <Text style={styles.proCardTitle}>🚰 {t('Kombucha Ciągła (Continuous Brew Siphon & Serwis)')}</Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Model tygodniowego rozlewu z kranika (20-30%), uzupełnianie słodkiej herbaty i osad')}
+                    </Text>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Pojemność słoja (L):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(cbVesselLiters)}
+                        onChangeText={(v) => setCbVesselLiters(parseFloat(v) || 1)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Pobór do rozlewu (L):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(cbDrawLiters)}
+                        onChangeText={(v) => setCbDrawLiters(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Temperatura otoczenia (°C):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(cbTempCelsius)}
+                        onChangeText={(v) => setCbTempCelsius(parseFloat(v) || 20)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Cykle od czyszczenia dna:')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(cbCyclesSincePurge)}
+                        onChangeText={(v) => setCbCyclesSincePurge(parseInt(v, 10) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Aktualne pH przed zlaniem:')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(cbPreDrawPh)}
+                        onChangeText={(v) => setCbPreDrawPh(parseFloat(v) || 3.0)}
+                      />
+                    </View>
+
+                    {/* Tea Base Type */}
+                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Baza herbaty:')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {[
+                        { id: 'BLACK' as const, label: t('Czarna klasyczna') },
+                        { id: 'GREEN' as const, label: t('Zielona Sencha') },
+                        { id: 'OOLONG' as const, label: t('Oolong / Turkusowa') },
+                        { id: 'WHITE' as const, label: t('Biała Pai Mu Tan') },
+                        { id: 'HERBAL_BLEND' as const, label: t('Mieszanka ziołowa') },
+                      ].map((tea) => (
+                        <TouchableOpacity
+                          key={tea.id}
+                          style={[styles.presetPill, cbTeaBase === tea.id && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setCbTeaBase(tea.id);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, cbTeaBase === tea.id && styles.presetPillTextActive]}>
+                            {tea.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    {/* Calculations / Output */}
+                    <View style={styles.safetyBox}>
+                      <Text style={[
+                        styles.safetyStatus,
+                        !continuousBrewPlan.isDrawSafe ? styles.safetyDanger : { color: '#15803D' }
+                      ]}>
+                        • {t('Wskaźnik poboru:')} {continuousBrewPlan.drawRatioPct}% ({continuousBrewPlan.drawVolumeLiters}L {t('z')} {cbVesselLiters}L) — {continuousBrewPlan.isDrawSafe ? t('BEZPIECZNY') : t('NIEBEZPIECZNY')}
+                      </Text>
+                      {continuousBrewPlan.safetyWarning && (
+                        <Text style={[styles.safetyStatus, styles.safetyDanger, { marginTop: 4 }]}>
+                          ⚠️ {continuousBrewPlan.safetyWarning}
+                        </Text>
+                      )}
+
+                      <Text style={[styles.proCardDesc, { marginTop: 6 }]}>
+                        • {t('Do uzupełnienia:')} <Text style={styles.boldText}>{continuousBrewPlan.sweetTeaVolumeLiters} L</Text> {t('słodkiej herbaty')} ({t('zostaje')} {continuousBrewPlan.reserveVolumeLiters}L {t('bazy starterowej')})
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Składniki słodkiej herbaty:')} <Text style={styles.boldText}>{continuousBrewPlan.sugarTotalGrams} g</Text> {t('cukru')} (70 g/L) + <Text style={styles.boldText}>{continuousBrewPlan.teaLeavesTotalGrams} g</Text> {t('herbaty')} (5 g/L)
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Czas parzenia:')} <Text style={styles.boldText}>{continuousBrewPlan.recommendedSteepTimeMinutes} min</Text> | {t('Chłodzenie do:')} &le; {continuousBrewPlan.recommendedCoolingTempCelsius}°C
+                      </Text>
+                      {continuousBrewPlan.estimatedPostRefillPh !== undefined && (
+                        <Text style={styles.proCardDesc}>
+                          • {t('Szacowane pH po dolaniu:')} <Text style={styles.boldText}>pH {continuousBrewPlan.estimatedPostRefillPh}</Text> ({t('ochrona przed pleśnią')} &le; 4.0)
+                        </Text>
+                      )}
+                      <Text style={styles.proCardDesc}>
+                        • {t('Kolejny rozlew za:')} <Text style={styles.boldText}>{continuousBrewPlan.estimatedCycleDays} {t('dni')}</Text> ({t('w temp.')} {cbTempCelsius}°C)
+                      </Text>
+
+                      {/* Trub Alert */}
+                      {continuousBrewPlan.trubPurgeAlert && continuousBrewPlan.trubPurgeAlert.urgency !== 'NONE' && (
+                        <View style={{ marginTop: 8, padding: 8, borderRadius: 8, backgroundColor: continuousBrewPlan.trubPurgeAlert.urgency === 'OVERDUE' ? '#FEF2F2' : '#FFFBEB' }}>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: continuousBrewPlan.trubPurgeAlert.urgency === 'OVERDUE' ? '#991B1B' : '#92400E' }}>
+                            {continuousBrewPlan.trubPurgeAlert.urgency === 'OVERDUE' ? '🚨' : '⏳'} {continuousBrewPlan.trubPurgeAlert.reason}
+                          </Text>
+                          {continuousBrewPlan.trubPurgeAlert.actionSteps.map((step, idx) => (
+                            <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 3 }}>
+                              {idx + 1}. {step}
+                            </Text>
+                          ))}
+                        </View>
+                      )}
+
+                      {continuousBrewPlan.recommendations.map((rec, idx) => (
+                        <Text key={idx} style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                          💡 {rec}
                         </Text>
                       ))}
                     </View>

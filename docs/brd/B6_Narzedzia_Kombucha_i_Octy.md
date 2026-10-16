@@ -141,4 +141,31 @@
 * **Persona:** P3, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
+---
+
+### **BR-KOM-026: Kombucha Ciągła (Continuous Brew Siphon & Maintenance Engine)**
+* **Opis:** Moduł zarządzania systemem ciągłej fermentacji kombuchy w naczyniu ze stali nierdzewnej lub szkła z kranikiem spustowym (`continuous-brew.ts`).
+* **Kluczowe reguły biochemiczne i serwisowe:**
+  1. **Bezpieczny współczynnik rozlewu (Safe Draw Ratio 20–30%):**
+     * Z naczynia zlewane jest periodycznie od 20% do maksymalnie 33% dojrzałego napoju.
+     * Przekroczenie 35% objętości poboru generuje alarm krytyczny: ryzyko załamania tarczy kwasowej i wzrostu pH powyżej 4.20 przed dogonieniem kwasowości przez *Komagataeibacter*, co stwarza wrota zakażenia dla pleśni.
+     * Pozostawione $\ge 70\%$ objętości stanowi bufor ochronny i aktywny inokulant.
+  2. **Parametry uzupełniania słodkiej herbaty:**
+     * Objętość dolewki równa objętości poboru.
+     * Zrównoważone stężenie sacharozy w ciągłym warzeniu: nominalnie 70 g/L (obniżone względem 80–100 g/L warzenia wsadowego, ze względu na dużą gęstość komórkową SCOBY i zapobieganie zbyt gwałtownemu przekwaszeniu octowemu).
+     * Herbata: 5 g/L (czas parzenia zależny od bazy: 10 min zielona/biała, 12 min oolong, 15 min czarna). Schłodzenie do $\le 28^\circ\text{C}$ przed wlaniem.
+  3. **Logarytmiczne rozcieńczenie pH (Antimicrobial Shield Verification):**
+     * Dynamiczne szacowanie pH po dolaniu: $[H^+]_{mix} = \frac{[H^+]_{res} \cdot V_{res} + [H^+]_{refill} \cdot V_{refill}}{V_{tot}}$.
+     * Wartość docelowa po dolaniu musi spełniać $pH \le 4.00$ (rekomendowane $\le 3.60$).
+  4. **Dozór osadu drożdżowego (Yeast Trub Purge & SCOBY Trimming):**
+     * Gromadzenie pasm drożdżowych przy dnie w tempie ok. 2 mm na cykl.
+     * Po 8 cyklach: status `UPCOMING` (przygotowanie do serwisu).
+     * Po 12 cyklach: status `OVERDUE` (nakaz dekantacji 20% czystego starteru, usunięcia brunatnych warstw z dołu grzybka SCOBY, wypłukania osadu z dna i udrożnienia kranika).
+* **Kryteria akceptacji:**
+  1. Kalkulator zintegrowany w trybie `beverage` Pro Accordion.
+  2. Pełne testy jednostkowe (`tests/core/continuous-brew.test.ts`) pokrywające tempo cyklu, rozcieńczenie pH, granice poboru i alerty serwisu.
+* **Persona:** P3, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+
 

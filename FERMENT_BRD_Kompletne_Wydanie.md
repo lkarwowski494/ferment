@@ -1523,6 +1523,32 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-KOM-026: Kombucha Ciągła (Continuous Brew Siphon & Maintenance Engine)**
+* **Opis:** Moduł zarządzania systemem ciągłej fermentacji kombuchy w naczyniu ze stali nierdzewnej lub szkła z kranikiem spustowym (`continuous-brew.ts`).
+* **Kluczowe reguły biochemiczne i serwisowe:**
+  1. **Bezpieczny współczynnik rozlewu (Safe Draw Ratio 20–30%):**
+     * Z naczynia zlewane jest periodycznie od 20% do maksymalnie 33% dojrzałego napoju.
+     * Przekroczenie 35% objętości poboru generuje alarm krytyczny: ryzyko załamania tarczy kwasowej i wzrostu pH powyżej 4.20 przed dogonieniem kwasowości przez *Komagataeibacter*, co stwarza wrota zakażenia dla pleśni.
+     * Pozostawione $\ge 70\%$ objętości stanowi bufor ochronny i aktywny inokulant.
+  2. **Parametry uzupełniania słodkiej herbaty:**
+     * Objętość dolewki równa objętości poboru.
+     * Zrównoważone stężenie sacharozy w ciągłym warzeniu: nominalnie 70 g/L (obniżone względem 80–100 g/L warzenia wsadowego, ze względu na dużą gęstość komórkową SCOBY i zapobieganie zbyt gwałtownemu przekwaszeniu octowemu).
+     * Herbata: 5 g/L (czas parzenia zależny od bazy: 10 min zielona/biała, 12 min oolong, 15 min czarna). Schłodzenie do $\le 28^\circ\text{C}$ przed wlaniem.
+  3. **Logarytmiczne rozcieńczenie pH (Antimicrobial Shield Verification):**
+     * Dynamiczne szacowanie pH po dolaniu: $[H^+]_{mix} = \frac{[H^+]_{res} \cdot V_{res} + [H^+]_{refill} \cdot V_{refill}}{V_{tot}}$.
+     * Wartość docelowa po dolaniu musi spełniać $pH \le 4.00$ (rekomendowane $\le 3.60$).
+  4. **Dozór osadu drożdżowego (Yeast Trub Purge & SCOBY Trimming):**
+     * Gromadzenie pasm drożdżowych przy dnie w tempie ok. 2 mm na cykl.
+     * Po 8 cyklach: status `UPCOMING` (przygotowanie do serwisu).
+     * Po 12 cyklach: status `OVERDUE` (nakaz dekantacji 20% czystego starteru, usunięcia brunatnych warstw z dołu grzybka SCOBY, wypłukania osadu z dna i udrożnienia kranika).
+* **Kryteria akceptacji:**
+  1. Kalkulator zintegrowany w trybie `beverage` Pro Accordion.
+  2. Pełne testy jednostkowe (`tests/core/continuous-brew.test.ts`) pokrywające tempo cyklu, rozcieńczenie pH, granice poboru i alerty serwisu.
+* **Persona:** P3, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B7_Narzedzia_Spizarnia_Naczynia_Etykiety.md -->
@@ -1755,6 +1781,26 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
   3. Szczegółowe wyjaśnienie mikrobiologiczne z łacińskimi nazwami gatunków bakterii i grzybów.
   4. Instrukcja naprawcza krok po kroku oraz zalecenia profilaktyczne na przyszłość.
 * **Persona:** P1, P2, P3, P5, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-SEN-004: Koło Smaków Mikrobiologicznych (Microbial Flavor Wheel Lexicon & Distribution Engine)**
+* **Opis:** Interaktywny leksykon sensoryczny i koło smaków modelujące 40 standaryzowanych deskryptorów smakowo-zapachowych dla serowarstwa, kiszonek, kombuchy i żywych octów (`flavor-wheel-data.ts`, `FlavorWheelModal.tsx`).
+* **5 Fundamentalnych Wektorów Smakowych:**
+  1. **Mleczne & Maślane (`LACTIC`):** Świeże mleko (laktoza), Świeże masło / Diacetyl (2,3-butanodion), Zsiadłe mleko (kwas L-mlekowy), Słodka serwatka, Mleko skondensowane, Jogurt grecki (acetaldehyd), Twaróg klinkowy, Masło klarowane ghee (laktony gamma).
+  2. **Kwasowo-Owocowe (`FRUITY_ACID`):** Zielone jabłko (kwas jabłkowy), Czysty kwas octowy (*Acetobacter*), Ananas/marakuja (maślan etylu), Skórka cytryny (limonen), Kiszona śliwka (benzaldehyd), Czerwona porzeczka, Kwas winowy, Dojrzała gruszka (octan izoamylu).
+  3. **Orzechowo-Karmelowe (`NUTTY_CARAMEL`):** Prażony orzech laskowy (pirazyny), Palone masło/toffee (reakcja Maillarda), Skórka chleba na zakwasie (2-acetylo-1-pirolina), Prażone migdały (kwas propionowy), Ciemny karmel (maltol), Skórka orzecha włoskiego (taniny), Słód jęczmienny, Miód gryczany.
+  4. **Ziemisto-Grzybowe (`EARTHY_FUNGAL`):** Świeża pieczarka (*1-okten-3-ol*, *P. camemberti*), Wilgotna piwnica (geosmina), Leśna ściółka (2-metyloizoborneol), Błękitna trufla (*P. roqueforti*, dwusiarczek dimetylu), Kora świerkowa (elagotaniny), Wapienna ściana (krzemień), Korzeń pietruszki, Ciemny torf humusowy.
+  5. **Zwierzęco-Pikantne (`ANIMAL_PUNGENT`):** Dojrzały kozi profil (kwasy kapronowy/kaprylowy/kaprynowy), Skóra juchtowa (p-krezol, skatol), Fermentowany czosnek/kimchi (dwusiarczek allilu), Czerwona maź (*Brevibacterium linens*, metanotiol), Ostra gorczyca (alliloizotiocyjanian), Ostry amoniak (deaminacja aminokwasów), Zagroda/siano (kwas izowalerianowy), Wędzarnia olchowa (gwajakol, eugenol).
+* **Kluczowe funkcjonalności:**
+  1. Wyszukiwanie pełnotekstowe po nazwie, opisie i cząsteczce chemicznej.
+  2. Zrównoważenie wektorów smakowych: wykres rozkładu procentowego i liczbowego w zaznaczonej partii.
+  3. 1-tap wklejanie sformatowanego znacznika `[Koło Smaków: ...]` bezpośrednio do notatek degustacyjnych partii w bazie SQLite.
+* **Kryteria akceptacji:**
+  1. Pełne testy jednostkowe (`tests/core/flavor-wheel-data.test.ts`) potwierdzające obecność 40 deskryptorów i 8 na kategorię.
+  2. Dostępność modalnego koła smaków zarówno z nagłówka ekranu partii, jak i wewnątrz karty oceny organoleptycznej.
+* **Persona:** P1, P2, P3, P4, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
 ---

@@ -19,6 +19,7 @@ import { useAppAccess } from '../../src/lib/app-access';
 import { Apps4BrewPassModal } from '../../src/components/Apps4BrewPassModal';
 import { QrScannerModal } from '../../src/components/QrScannerModal';
 import { FermentationDoctorModal } from '../../src/components/FermentationDoctorModal';
+import { FlavorWheelModal } from '../../src/components/FlavorWheelModal';
 import { DefectCategory } from '../../src/core/fermentation-diagnostics';
 import {
   getSqliteStore,
@@ -66,6 +67,7 @@ export default function BatchesScreen() {
   const [isScannerVisible, setIsScannerVisible] = useState<boolean>(false);
   const [isDoctorVisible, setIsDoctorVisible] = useState<boolean>(false);
   const [doctorCategory, setDoctorCategory] = useState<DefectCategory | undefined>(undefined);
+  const [isFlavorWheelVisible, setIsFlavorWheelVisible] = useState<boolean>(false);
   const [activeTabSection, setActiveTabSection] = useState<'batches' | 'cave'>('batches');
 
   // Weighing modal state
@@ -283,6 +285,10 @@ export default function BatchesScreen() {
     });
   };
 
+  const handleApplyFlavorDescriptors = (_selectedIds: string[], formatted: string) => {
+    setSensoryNotes((prev) => (prev ? `${prev}\n${formatted}` : formatted));
+  };
+
   const filteredBatches = batches.filter((b) => {
     if (selectedFilter === 'ALL') return true;
     if (selectedFilter === 'CHEESE') return b.category === 'CHEESE';
@@ -395,6 +401,17 @@ export default function BatchesScreen() {
             accessibilityRole="button"
           >
             <Text style={styles.doctorHeaderBtnText}>🩺 {t('Doktor')}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.flavorWheelHeaderBtn}
+            onPress={() => {
+              triggerHapticFeedback();
+              setIsFlavorWheelVisible(true);
+            }}
+            accessibilityRole="button"
+          >
+            <Text style={styles.flavorWheelHeaderBtnText}>🎯 {t('Koło')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -792,9 +809,23 @@ export default function BatchesScreen() {
                           </View>
                         )}
 
-                        <Text style={[styles.inputLabelMini, { marginTop: 8 }]}>
-                          {t('Notatki degustacyjne (opcjonalnie):')}
-                        </Text>
+                        <View style={styles.flavorWheelRow}>
+                          <Text style={styles.inputLabelMini}>
+                            {t('Notatki degustacyjne (opcjonalnie):')}
+                          </Text>
+                          <TouchableOpacity
+                            style={styles.flavorWheelOpenBtn}
+                            onPress={() => {
+                              triggerHapticFeedback();
+                              setIsFlavorWheelVisible(true);
+                            }}
+                            accessibilityRole="button"
+                          >
+                            <Text style={styles.flavorWheelOpenBtnText}>
+                              🎯 {t('Wybierz z Koła Smaków')}
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
                         <TextInput
                           style={styles.sensoryNotesInput}
                           value={sensoryNotes}
@@ -1125,6 +1156,13 @@ export default function BatchesScreen() {
         initialCategory={doctorCategory}
       />
 
+      {/* Microbial Flavor Wheel Modal */}
+      <FlavorWheelModal
+        visible={isFlavorWheelVisible}
+        onClose={() => setIsFlavorWheelVisible(false)}
+        onApplyDescriptors={handleApplyFlavorDescriptors}
+      />
+
       {/* Apps4Brew Paywall Modal */}
       <Apps4BrewPassModal
         visible={isPaywallVisible}
@@ -1173,6 +1211,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   doctorHeaderBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 13,
+  },
+  flavorWheelHeaderBtn: {
+    height: 48,
+    paddingHorizontal: 12,
+    backgroundColor: '#D97706',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  flavorWheelHeaderBtnText: {
     color: '#FFFFFF',
     fontWeight: '700',
     fontSize: 13,
@@ -1680,6 +1731,28 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#57534E',
     marginBottom: 2,
+  },
+  flavorWheelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  flavorWheelOpenBtn: {
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1,
+    borderColor: '#F59E0B',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    minHeight: 32,
+    justifyContent: 'center',
+  },
+  flavorWheelOpenBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#B45309',
   },
   sensoryNotesInput: {
     height: 40,

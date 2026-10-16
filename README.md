@@ -133,6 +133,15 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
     - Zależność od geometrii walca (droga do rdzenia $x_{core} = \min(r, h/2)$ ze skalowaniem $t \propto x^2$).
     - Wyliczanie optymalnego czasu w solance (godziny/dni), tempa pochłaniania soli oraz liczby dni dojrzewania do osiągnięcia stężenia ochronnego w rdzeniu ($C_{core} \ge 1.0\%$).
     - Alerty ochronne przed zakażeniem niedosolonego centrum oraz szoku osmotycznego przy słabej solance (<16%).
+35. **Koło Smaków Mikrobiologicznych & Wektory Sensoryczne (`src/core/flavor-wheel-data.ts`, `src/components/FlavorWheelModal.tsx`):**
+    - 40 standaryzowanych deskryptorów smakowo-zapachowych w 5 fundamentalnych wektorach: Mleczne & Maślane (`LACTIC`), Kwasowo-Owocowe (`FRUITY_ACID`), Orzechowo-Karmelowe (`NUTTY_CARAMEL`), Ziemisto-Grzybowe (`EARTHY_FUNGAL`), Zwierzęco-Pikantne (`ANIMAL_PUNGENT`).
+    - Każdy deskryptor zawiera precyzyjne pochodzenie chemiczne/mikrobiologiczne (np. Diacetyl, 1-okten-3-ol, Geosmina, Kwas kapronowy, Pirazyny, Brevibacterium linens).
+    - Dynamiczne badanie zrównoważenia profilu (liczba i procentowy udział wektorów) oraz 1-tap aplikowanie wybranych nut bezpośrednio do notatek degustacyjnych partii.
+36. **Kombucha Ciągła — Siphon & Serwis Konsorcjum SCOBY (`src/core/continuous-brew.ts`):**
+    - Modelowanie zrównoważonego ciągłego rozlewu z kranika (bezpieczny pobór 20–30% objętości roboczej słoja).
+    - Ochrona tarczy kwasowej (alarm przekroczenia 35% poboru grożącego wzrostem pH > 4.20 i wrotami dla zarodników pleśni).
+    - Automatyczne wyliczanie zrównoważonej dolewki słodkiej herbaty (70 g/L cukru, 5 g/L herbaty, czas parzenia zależny od bazy), logarytmiczne rozcieńczenie pH oraz estymacja dni do kolejnego zbioru w zależności od temperatury.
+    - System dozoru osadu drożdżowego (trub purge) i przycinania starych warstw grzybka SCOBY po 8–12 cyklach.
 
 ---
 
@@ -145,7 +154,7 @@ npm run typecheck
 # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
 npm run check:i18n
 
-# 3. Wykonanie 37 pakietów testowych Jest
+# 3. Wykonanie 39 pakietów testowych Jest
 npm test
 
 # 4. Uruchomienie całościowej bramki
@@ -153,10 +162,10 @@ npm run verify
 ```
 
 Stan testów na dzień 16.10.2026:
-- **37 test suites PASS** (100%)
-- **172 unit & integration tests PASS** (100%)
-- **550 tekstów UI w kodzie przetłumaczonych na PL i EN (604 w słowniku EN, 100% parytet)**
-- **BRD: 96.2 stron znormalizowanych (173,141 znaków ze spacjami, 25 modularnych rozdziałów)**
+- **39 test suites PASS** (100%)
+- **189 unit & integration tests PASS** (100%)
+- **593 tekstów UI w kodzie przetłumaczonych na PL i EN (647 w słowniku EN, 100% parytet)**
+- **BRD: 98.9 stron znormalizowanych (177,991 znaków ze spacjami, 23,229 słów, 25 modularnych rozdziałów)**
 
 ---
 
