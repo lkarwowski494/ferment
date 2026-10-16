@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "Ferment",
+    "slug": "ferment",
+    "version": "0.1.0",
+    "scheme": "ferment",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1C1917"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.apps4brew.ferment",
+      "appleTeamId": "8NQ9GHY8GF",
+      "buildNumber": "1",
+      "infoPlist": {
+        "UIBackgroundModes": ["audio"],
+        "UIFileSharingEnabled": true,
+        "LSSupportsOpeningDocumentsInPlace": true,
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleAllowMixedLocalizations": true,
+        "NSCameraUsageDescription": "Ferment wymaga dostępu do aparatu, aby natychmiast zeskanować kod QR receptury lub partii sera/kiszonki w 100% offline."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1C1917"
+      },
+      "package": "com.apps4brew.ferment",
+      "permissions": [
+        "CAMERA"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-sqlite",
+        {
+          "enableFTS": true
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Ferment wymaga dostępu do aparatu, aby natychmiast zeskanować kod QR receptury lub partii sera/kiszonki w 100% offline."
+        }
+      ]
+    ]
+  }
+}
