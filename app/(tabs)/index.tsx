@@ -102,6 +102,10 @@ import {
   calculateContinuousBrewPlan,
   TeaBaseType,
 } from '../../src/core/continuous-brew';
+import {
+  calculateWheyLevainPlan,
+  WheyLevainType,
+} from '../../src/core/whey-levain-engine';
 
 export default function CalculatorScreen() {
   const {
@@ -218,6 +222,14 @@ export default function CalculatorScreen() {
   const [diffBrineSalinityPct, setDiffBrineSalinityPct] = useState<number>(20.0);
   const [diffBrineTempC, setDiffBrineTempC] = useState<number>(12);
   const [diffTargetSaltPct, setDiffTargetSaltPct] = useState<number>(1.8);
+
+  // --- MOTHER WHEY LEVAIN STATE ---
+  const [wheyLevainType, setWheyLevainType] = useState<WheyLevainType>('THERMOPHILIC_ALPINE');
+  const [wheyVolumeMl, setWheyVolumeMl] = useState<number>(500);
+  const [wheyIncubationTempC, setWheyIncubationTempC] = useState<number>(43);
+  const [wheyHoursIncubated, setWheyHoursIncubated] = useState<number>(10);
+  const [wheyCurrentPh, setWheyCurrentPh] = useState<number>(3.8);
+  const [wheyGeneration, setWheyGeneration] = useState<number>(3);
 
   // --- LIVE CULTURE HOTEL & MOTHER COLONY ---
   const [hotelCultureType, setHotelCultureType] = useState<LiveCultureType>('KOMBUCHA_SCOBY_HOTEL');
@@ -533,6 +545,22 @@ export default function CalculatorScreen() {
         },
         drawVolumeLiters: cbDrawLiters,
         currentPreDrawPh: cbPreDrawPh,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const wheyLevainCalc = (() => {
+    try {
+      return calculateWheyLevainPlan({
+        levainType: wheyLevainType,
+        wheyVolumeMl,
+        incubationTempCelsius: wheyIncubationTempC,
+        currentPh: wheyCurrentPh,
+        hoursIncubated: wheyHoursIncubated,
+        generationPassage: wheyGeneration,
+        targetMilkVolumeLiters: milkLiters,
       });
     } catch {
       return null;
@@ -1638,6 +1666,122 @@ export default function CalculatorScreen() {
                       {brineDiffusionCalc.safetyWarningsPl.map((warn, i) => (
                         <Text key={i} style={[styles.safetyStatus, styles.safetyDanger, { marginTop: 4 }]}>
                           ⚠️ {warn}
+                        </Text>
+                      ))}
+                    </View>
+                  </View>
+                )}
+
+                {/* 12. Mother Whey Levain & Starter Propagation (Sierroinnesto) */}
+                {wheyLevainCalc && (
+                  <View style={[styles.proCard, wheyLevainCalc.passageHealth.status === 'DEGENERATION_RESET_REQUIRED' && styles.cardDanger]}>
+                    <Text style={styles.proCardTitle}>🫙 {t('Zakwas Serwatkowy & Sierroinnesto (Mother Whey Levain)')}</Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Tradycyjna propagacja kultur matecznych z nieposolonej serwatki z poprzedniego warzenia')}
+                    </Text>
+
+                    {/* Culture Type Selector */}
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {[
+                        { id: 'THERMOPHILIC_ALPINE' as const, label: t('Sierroinnesto Alpejskie (43°C)') },
+                        { id: 'MESOPHILIC_FARMHOUSE' as const, label: t('Mezofilne Zagrodowe (30°C)') },
+                        { id: 'HIGHLAND_SMOKED' as const, label: t('Tatrzańskie / Oscypek (37°C)') },
+                        { id: 'VEGETABLE_BRINE_BACKSLOP' as const, label: t('Zakwas z Kiszonki (20°C)') },
+                      ].map((tItem) => (
+                        <TouchableOpacity
+                          key={tItem.id}
+                          style={[styles.presetPill, wheyLevainType === tItem.id && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setWheyLevainType(tItem.id);
+                            if (tItem.id === 'THERMOPHILIC_ALPINE') setWheyIncubationTempC(43);
+                            else if (tItem.id === 'MESOPHILIC_FARMHOUSE') setWheyIncubationTempC(30);
+                            else if (tItem.id === 'HIGHLAND_SMOKED') setWheyIncubationTempC(37);
+                            else if (tItem.id === 'VEGETABLE_BRINE_BACKSLOP') setWheyIncubationTempC(20);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, wheyLevainType === tItem.id && styles.presetPillTextActive]}>
+                            {tItem.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Objętość serwatki (ml):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(wheyVolumeMl)}
+                        onChangeText={(v) => setWheyVolumeMl(parseFloat(v) || 100)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Temperatura inkubacji (°C):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(wheyIncubationTempC)}
+                        onChangeText={(v) => setWheyIncubationTempC(parseFloat(v) || 20)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Czas inkubacji (godz.):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(wheyHoursIncubated)}
+                        onChangeText={(v) => setWheyHoursIncubated(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Aktualne pH serwatki:')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(wheyCurrentPh)}
+                        onChangeText={(v) => setWheyCurrentPh(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Pasaż / Generacja starteru:')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(wheyGeneration)}
+                        onChangeText={(v) => setWheyGeneration(parseInt(v, 10) || 1)}
+                      />
+                    </View>
+
+                    <View style={styles.brineResultBox}>
+                      <Text style={[
+                        styles.safetyStatus,
+                        wheyLevainCalc.isReadyForInoculation ? { color: '#15803D' } : { color: '#B45309' }
+                      ]}>
+                        • {t('Stan starteru:')} {wheyLevainCalc.statusLabelPl}
+                      </Text>
+
+                      <Text style={styles.brineText}>
+                        • {t('Doza do mleka:')} <Text style={styles.boldText}>{wheyLevainCalc.requiredStarterMl} ml</Text> ({wheyLevainCalc.inoculumRatioPct}% v/v {t('na')} {milkLiters}L {t('mleka')})
+                      </Text>
+
+                      <Text style={styles.brineText}>
+                        • {t('Optymalny czas inkubacji:')} <Text style={styles.boldText}>{wheyLevainCalc.optimalIncubationHours} {t('godz.')}</Text> ({t('pozostało')} {wheyLevainCalc.remainingHours}h {t('do')} pH {wheyLevainCalc.targetPhMin}–{wheyLevainCalc.targetPhMax})
+                      </Text>
+
+                      {wheyLevainCalc.passageHealth.warning && (
+                        <Text style={[styles.safetyStatus, styles.safetyDanger, { marginTop: 4 }]}>
+                          ⚠️ {wheyLevainCalc.passageHealth.warning}
+                        </Text>
+                      )}
+
+                      {wheyLevainCalc.craftRecommendations.map((rec, i) => (
+                        <Text key={i} style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                          💡 {rec}
                         </Text>
                       ))}
                     </View>

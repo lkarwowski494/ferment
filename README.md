@@ -142,6 +142,14 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
     - Ochrona tarczy kwasowej (alarm przekroczenia 35% poboru grożącego wzrostem pH > 4.20 i wrotami dla zarodników pleśni).
     - Automatyczne wyliczanie zrównoważonej dolewki słodkiej herbaty (70 g/L cukru, 5 g/L herbaty, czas parzenia zależny od bazy), logarytmiczne rozcieńczenie pH oraz estymacja dni do kolejnego zbioru w zależności od temperatury.
     - System dozoru osadu drożdżowego (trub purge) i przycinania starych warstw grzybka SCOBY po 8–12 cyklach.
+37. **Propagacja Zakwasu Serwatkowego & Sierroinnesto (`src/core/whey-levain-engine.ts`):**
+    - Autentyczna propagacja naturalnych kultur matecznych ze słodkiej, nieposolonej serwatki z poprzedniego warzenia (sierroinnesto alpejskie 43°C, mezofilne zagrodowe 30°C, tatrzańskie 37°C do oscypka, zakwas z kiszonek 20°C).
+    - Modelowanie kinetyki zakwaszania, szacowanie punktu szczytowej dojrzałości technologicznej (pH 3.40–3.65) oraz precyzyjne wyliczanie dozy inokulacyjnej do mleka (% v/v).
+    - Dozór witalności pasażu i ochrona przed bakteriofagami serowarskimi (ostrzeżenia po 11 i 18 pasażach o konieczności odnowy matki).
+38. **Kalibracja Higrometru Solą wg ASTM E104 (`src/core/hygrometer-calibration.ts`):**
+    - Laboratoryjny standard kalibracji czujników wilgotności względnej (RH %) w komorze ze szczelnego słoika z roztworem nasyconym soli (NaCl 75.3%, KCl 84.3%, K2SO4 97.6%, MgCl2 33.1% przy 20°C).
+    - Wyliczanie offsetu sensora, ocena klasy fabrycznej (błąd $\le 2\%$) oraz detekcja krytycznego dryfu prowadzącego do case hardeningu (gdy miernik zawyża) lub pleśni Mucor / slip skin (gdy zaniża).
+    - Zintegrowana szuflada w karcie Psychrometrii Piwniczki w Dzienniku Partii z 1-tap aplikowaniem offsetu do kalkulacji VPD i punktu rosy.
 
 ---
 
@@ -154,7 +162,7 @@ npm run typecheck
 # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
 npm run check:i18n
 
-# 3. Wykonanie 39 pakietów testowych Jest
+# 3. Wykonanie 41 pakietów testowych Jest
 npm test
 
 # 4. Uruchomienie całościowej bramki
@@ -162,10 +170,10 @@ npm run verify
 ```
 
 Stan testów na dzień 16.10.2026:
-- **39 test suites PASS** (100%)
-- **189 unit & integration tests PASS** (100%)
-- **593 tekstów UI w kodzie przetłumaczonych na PL i EN (647 w słowniku EN, 100% parytet)**
-- **BRD: 98.9 stron znormalizowanych (177,991 znaków ze spacjami, 23,229 słów, 25 modularnych rozdziałów)**
+- **41 test suites PASS** (100%)
+- **202 unit & integration tests PASS** (100%)
+- **618 tekstów UI w kodzie przetłumaczonych na PL i EN (672 w słowniku EN, 100% parytet)**
+- **BRD: 101.3 stron znormalizowanych (182,325 znaków ze spacjami, 23,765 słów, 25 modularnych rozdziałów)**
 
 ---
 

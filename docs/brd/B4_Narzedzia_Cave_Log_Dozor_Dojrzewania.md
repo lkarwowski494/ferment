@@ -124,3 +124,28 @@
   3. Motywujące podsumowania postępów serowara i fermentatora domowego.
 * **Persona:** P1, P4, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-CAV-016: Kalibracja Higrometru Solą wg ASTM E104 (Saturated Salt Hygrometer Calibration & Sensor Drift Guard)**
+* **Opis:** Narządzie precyzyjnej kalibracji laboratoryjnej higrometrów i czujników wilgotności względnej (RH %) stosowanych w domowych dojrzewalniach sera przy użyciu roztworów nasyconych soli wg normy ASTM E104-02 (`hygrometer-calibration.ts`).
+* **Wzorce soli nasyconych i wilgotności równowagowej:**
+  1. **Sól kuchenna ($NaCl$):** $75.3\% \text{ RH}$ (przy 20°C) — podstawowa kalibracja domowa dostępna bez odczynników specjalistycznych.
+  2. **Chlorek potasu ($KCl$):** $84.3\% \text{ RH}$ (przy 20°C) — złoty wzorzec dla serów twardych (Gouda, Cheddar, Gruyère).
+  3. **Siarczan potasu ($K_2SO_4$):** $97.6\% \text{ RH}$ (przy 20°C) — wzorzec wysokiej wilgotności dla serów maziowych i pleśniowych.
+  4. **Chlorek magnezu ($MgCl_2$):** $33.1\% \text{ RH}$ (przy 20°C) — dolny punkt odniesienia do kalibracji dwupunktowej ($y = ax + b$).
+* **Klasyfikacja stanu sensora i alerty ochrony mikroklimatu:**
+  * Błąd $\le \pm 2\%$: `EXCELLENT` (Wzorcowa precyzja sensora).
+  * Błąd $\pm 3\% - \pm 6\%$: `ACCEPTABLE_DRIFT` (Typowy dryf sensora domowego skorygowany offsetem).
+  * Błąd $\pm 7\% - \pm 12\%$: `SIGNIFICANT_DRIFT` (Znaczący błąd pomiaru wymagający stałej korekty programowej).
+  * Błąd $> \pm 12\%$: `DEFECTIVE_SENSOR` (Krytyczne rozkalibrowanie sensora — zalecana wymiana sondy).
+* **Diagnoza zagrożenia technologicznego:**
+  * Gdy sensor zawyża wilgotność ($Offset < -4\%$): fałszywe poczucie wilgoci w piwniczce prowadzące do gwałtownego przesuszenia miąższu, pękania skórki i wady *case hardening*.
+  * Gdy sensor zaniża wilgotność ($Offset > +4\%$): ukryta nadmierna wilgoć prowadząca do zjawiska *slip skin* (rozpływania się skórki) oraz inwazji czarnej pleśni *Mucor*.
+* **Kryteria akceptacji:**
+  1. Zintegrowana szuflada kalibracji solą w karcie Psychrometrii Piwniczki w Dzienniku Partii.
+  2. Możliwość 1-tap zapisania offsetu i automatycznego uwzględniania go przy kalkulacji wskaźnika VPD i punktu rosy.
+  3. Pełne testy jednostkowe (`tests/core/hygrometer-calibration.test.ts`).
+* **Persona:** P1, P2, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+

@@ -130,3 +130,28 @@
 * **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
+---
+
+### **BR-SER-025: Propagacja Zakwasu Serwatkowego & Sierroinnesto (Mother Whey Levain & Starter Propagation Engine)**
+* **Opis:** Moduł modelowania biologicznej propagacji naturalnych kultur matecznych ze słodkiej, nieposolonej serwatki z poprzedniego warzenia (włoskie *sierroinnesto*, tradycyjna serwatka tatrzańska, zakwas zagrodowy) (`whey-levain-engine.ts`).
+* **Kluczowe reguły biochemiczne i technologiczne:**
+  1. **Profile kultur matecznych:**
+     * `THERMOPHILIC_ALPINE` (Sierroinnesto alpejskie, 43°C, 20h nominalnie, $pH \in [3.40, 3.65]$, *S. thermophilus*, *L. delbrueckii*, *L. helveticus*).
+     * `MESOPHILIC_FARMHOUSE` (Zagrodowe mezofilne, 30°C, 24h nominalnie, $pH \in [3.80, 4.10]$, *L. lactis*, *Leuconostoc*).
+     * `HIGHLAND_SMOKED` (Serwatka na Oscypek i Gołkę, 37°C, 18h, $pH \in [3.60, 3.90]$, *L. plantarum*, *S. thermophilus*).
+     * `VEGETABLE_BRINE_BACKSLOP` (Pasażowanie solanki warzywnej, 20°C, 24h, $pH \in [3.40, 3.80]$).
+  2. **Wyliczanie dozy inokulacyjnej do mleka:**
+     * Dozowanie $\% \text{ v/v}$ na podstawie zaplanowanej objętości mleka (np. $2.5\%$ dla alpejskich $= 250\text{ ml}$ na $10\text{L}$ mleka, $2.0\%$ dla mezofilnych).
+  3. **Ocena dojrzałości technologicznej:**
+     * Weryfikacja fazy według mierzonego pH: `WARMING_UP` ($pH > 4.2$), `ACTIVE_ACIDIFYING` ($pH > 3.65$), `PEAK_RIPE` ($pH \in [3.40, 3.65]$ — moment zadania do mleka), `OVER_ACIDIFIED` ($pH < 3.40$).
+  4. **Dozór witalności pasażu i ochrona przed bakteriofagami (Phage Drift Guard):**
+     * Monitorowanie liczby kolejnych generacji serwatki ($G_1, G_2, \dots$).
+     * Generacja $\ge 11$: status `VIGILANCE_MONITOR` (ostrzeżenie o konieczności obserwacji czasu koagulacji).
+     * Generacja $\ge 18$: status `DEGENERATION_RESET_REQUIRED` (krytyczny nakaz zresetowania matki z surowego mleka lub czystych kultur ze względu na presję bakteriofagów serowarskich).
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w trybie Serowarstwo Pro Accordion.
+  2. Pełne testy jednostkowe (`tests/core/whey-levain-engine.test.ts`).
+* **Persona:** P1, P2, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+

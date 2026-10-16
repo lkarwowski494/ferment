@@ -36,6 +36,11 @@ import {
   CheeseCaveType,
 } from '../../src/core/cave-environment';
 import {
+  calculateSinglePointCalibration,
+  CalibrationSaltType,
+  SATURATED_SALTS,
+} from '../../src/core/hygrometer-calibration';
+import {
   recordAffinageAction,
   CaveActionType,
 } from '../../src/core/cave-log-actions';
@@ -80,6 +85,12 @@ export default function BatchesScreen() {
   const [caveRh, setCaveRh] = useState<number>(85);
   const [caveType, setCaveType] = useState<CheeseCaveType>('HARD_GOUDA_CHEDDAR');
 
+  // Hygrometer ASTM E104 Calibration State
+  const [isCalibExpanded, setIsCalibExpanded] = useState<boolean>(false);
+  const [calibSalt, setCalibSalt] = useState<CalibrationSaltType>('NACL_TABLE_SALT');
+  const [calibRawSensor, setCalibRawSensor] = useState<number>(75);
+  const [appliedSensorOffset, setAppliedSensorOffset] = useState<number>(0);
+
   // Sensory Evaluation State
   const [evaluatingBatch, setEvaluatingBatch] = useState<Batch | null>(null);
   const [sensoryScores, setSensoryScores] = useState<SensoryProfileScores>({
@@ -100,9 +111,20 @@ export default function BatchesScreen() {
   // Artisan Statistics Dashboard State
   const [isStatsExpanded, setIsStatsExpanded] = useState<boolean>(true);
 
+  const hygrometerCalib = calculateSinglePointCalibration({
+    saltType: calibSalt,
+    chamberTempC: caveTemp,
+    rawSensorReadingPct: calibRawSensor,
+    measuredCaveRawRhPct: caveRh,
+  });
+
+  const effectiveCaveRh = appliedSensorOffset !== 0
+    ? Math.max(0, Math.min(100, Math.round((caveRh + appliedSensorOffset) * 10) / 10))
+    : caveRh;
+
   const caveEnvResult = analyzeCaveEnvironment({
     tempCelsius: caveTemp,
-    relativeHumidityPct: caveRh,
+    relativeHumidityPct: effectiveCaveRh,
     caveType,
   });
   const affinageSchedule = getAffinageSchedule(caveType);
@@ -913,7 +935,9 @@ export default function BatchesScreen() {
                       />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 11, color: '#78716C', marginBottom: 2 }}>{t('Wilgotność RH (%):')}</Text>
+                      <Text style={{ fontSize: 11, color: '#78716C', marginBottom: 2 }}>
+                        {t('Wilgotność RH (%):')} {appliedSensorOffset !== 0 ? `(${effectiveCaveRh}%)` : ''}
+                      </Text>
                       <TextInput
                         style={styles.inlineWeighInput}
                         keyboardType="numeric"
@@ -922,6 +946,106 @@ export default function BatchesScreen() {
                       />
                     </View>
                   </View>
+
+                  {/* Saturated Salt Calibration Toggle & Drawer */}
+                  <TouchableOpacity
+                    style={styles.saltCalibToggleBtn}
+                    onPress={() => {
+                      triggerHapticFeedback();
+                      setIsCalibExpanded(!isCalibExpanded);
+                    }}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.saltCalibToggleText}>
+                      🧂 {t('Kalibracja Higrometru Solą (ASTM E104)')} {appliedSensorOffset !== 0 ? `[${appliedSensorOffset >= 0 ? '+' : ''}${appliedSensorOffset}%]` : ''}
+                    </Text>
+                    <Text style={{ fontSize: 12, color: '#B45309' }}>{isCalibExpanded ? '▲' : '▼'}</Text>
+                  </TouchableOpacity>
+
+                  {isCalibExpanded && (
+                    <View style={styles.saltCalibDrawer}>
+                      <Text style={styles.saltCalibDesc}>
+                        {t('Wzorcowa kalibracja wilgotności w szczelnym słoiku z papką solną:')}
+                      </Text>
+
+                      {/* Salt Type Pills */}
+                      <View style={{ flexDirection: 'row', gap: 6, marginVertical: 6, flexWrap: 'wrap' }}>
+                        {[
+                          { id: 'NACL_TABLE_SALT' as const, label: 'NaCl (75.3%)' },
+                          { id: 'KCL_POTASSIUM_CHLORIDE' as const, label: 'KCl (84.3%)' },
+                          { id: 'K2SO4_POTASSIUM_SULFATE' as const, label: 'K2SO4 (97.6%)' },
+                        ].map((salt) => (
+                          <TouchableOpacity
+                            key={salt.id}
+                            style={[
+                              styles.saltPill,
+                              calibSalt === salt.id && styles.saltPillActive,
+                            ]}
+                            onPress={() => {
+                              triggerHapticFeedback();
+                              setCalibSalt(salt.id);
+                            }}
+                          >
+                            <Text style={[styles.saltPillText, calibSalt === salt.id && styles.saltPillTextActive]}>
+                              {salt.label}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+
+                      <View style={styles.rowBetween}>
+                        <Text style={styles.inlineLabel}>{t('Odczyt miernika w słoiku testowym (%):')}</Text>
+                        <TextInput
+                          style={styles.numInputMini}
+                          keyboardType="numeric"
+                          value={String(calibRawSensor)}
+                          onChangeText={(v) => setCalibRawSensor(parseFloat(v) || 0)}
+                        />
+                      </View>
+
+                      <View style={styles.calibResultBanner}>
+                        <Text style={styles.calibResultHeader}>
+                          {t('Wzorzec ASTM:')} {hygrometerCalib.referenceEquilibriumRh}% | {t('Offset sensora:')}{' '}
+                          <Text style={{ fontWeight: '800' }}>
+                            {hygrometerCalib.offsetPct >= 0 ? '+' : ''}{hygrometerCalib.offsetPct}%
+                          </Text>
+                        </Text>
+                        <Text style={[styles.calibGradeBadge, { color: hygrometerCalib.accuracyGrade === 'EXCELLENT' ? '#15803D' : '#B45309' }]}>
+                          • {hygrometerCalib.gradeLabelPl}
+                        </Text>
+                        <Text style={styles.calibImpactText}>
+                          💡 {hygrometerCalib.cheeseCaveAffinageImpact}
+                        </Text>
+
+                        <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+                          <TouchableOpacity
+                            style={styles.applyCalibBtn}
+                            onPress={() => {
+                              triggerHapticFeedback();
+                              setAppliedSensorOffset(hygrometerCalib.offsetPct);
+                              Alert.alert(t('Offset Zastosowany!'), `${t('Skalibrowana wilgotność piwniczki:')} ${hygrometerCalib.calibratedCaveRhPct}%`);
+                            }}
+                          >
+                            <Text style={styles.applyCalibBtnText}>
+                              ✓ {t('Zastosuj do Jaskini')} ({hygrometerCalib.offsetPct >= 0 ? '+' : ''}{hygrometerCalib.offsetPct}%)
+                            </Text>
+                          </TouchableOpacity>
+
+                          {appliedSensorOffset !== 0 && (
+                            <TouchableOpacity
+                              style={styles.resetCalibBtn}
+                              onPress={() => {
+                                triggerHapticFeedback();
+                                setAppliedSensorOffset(0);
+                              }}
+                            >
+                              <Text style={styles.resetCalibBtnText}>{t('Resetuj')}</Text>
+                            </TouchableOpacity>
+                          )}
+                        </View>
+                      </View>
+                    </View>
+                  )}
 
                   <View style={[
                     styles.weightBox,
@@ -1951,5 +2075,122 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     color: '#15803D',
     marginTop: 4,
+  },
+  saltCalibToggleBtn: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FEF3C7',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    marginVertical: 4,
+  },
+  saltCalibToggleText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#92400E',
+  },
+  saltCalibDrawer: {
+    backgroundColor: '#FFFBEB',
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    marginBottom: 6,
+  },
+  saltCalibDesc: {
+    fontSize: 11,
+    color: '#78350F',
+    lineHeight: 15,
+  },
+  saltPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 14,
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1,
+    borderColor: '#FCD34D',
+  },
+  saltPillActive: {
+    backgroundColor: '#B45309',
+    borderColor: '#B45309',
+  },
+  saltPillText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#92400E',
+  },
+  saltPillTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  numInputMini: {
+    width: 60,
+    height: 36,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#D6D3D1',
+    textAlign: 'center',
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1C1917',
+  },
+  calibResultBanner: {
+    backgroundColor: '#FFFFFF',
+    padding: 8,
+    borderRadius: 8,
+    marginTop: 6,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  calibResultHeader: {
+    fontSize: 12,
+    color: '#1C1917',
+  },
+  calibGradeBadge: {
+    fontSize: 11,
+    fontWeight: '700',
+    marginTop: 2,
+  },
+  calibImpactText: {
+    fontSize: 11,
+    color: '#78350F',
+    marginTop: 4,
+    lineHeight: 15,
+  },
+  applyCalibBtn: {
+    flex: 1,
+    height: 38,
+    backgroundColor: '#15803D',
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  applyCalibBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  resetCalibBtn: {
+    paddingHorizontal: 12,
+    height: 38,
+    backgroundColor: '#E2E8F0',
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  resetCalibBtnText: {
+    color: '#475569',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  inlineLabel: {
+    fontSize: 11,
+    color: '#44403C',
+    flex: 1,
   },
 });
