@@ -131,3 +131,32 @@
 * **Persona:** P2, P5, P6.
 * **Priorytet:** MUST | **Etap:** MVP.
 
+---
+
+### **BR-KISZ-021: Ekstrakcja Botaniczna & Ochrona Chrupkości Przed Pektynazami (Botanical Extraction & Pectinase Tannin Engine)**
+* **Opis:** Moduł biochemiczny szacujący stężenie garbników roślinnych (elagotanin, garbników skondensowanych) niezbędnych do denaturacji endogennych i pleśniowych enzymów pektolitycznych (pektynaz) niszczących chrupkość ogórków i warzyw kiszonych, wraz z kinetyką uwalniania allicyny z czosnku (`botanical-extraction.ts`).
+* **Kluczowe reguły biochemiczne i parametry dawek:**
+  1. **Baza surowców garbnikowych:**
+     * Liście dębu szypułkowego (*Quercus robur*): 45 mg garbników / g.
+     * Liście wiśni (*Prunus cerasus*): 30 mg / g.
+     * Liście czarnej porzeczki (*Ribes nigrum*): 25 mg / g.
+     * Korzeń chrzanu (*Armoracia rusticana*): 12 mg / g + glukozynolany (synigryna).
+     * Liście chrzanu: 15 mg / g.
+     * Liść laurowy (*Laurus nobilis*): 20 mg / g.
+     * Liście winorośli (*Vitis vinifera*): 35 mg / g.
+     * Liście czarnej herbaty (*Camellia sinensis*): 80 mg / g.
+  2. **Próg denaturacji pektynaz:**
+     * Minimalna dawka ochronna: $80\text{ mg}$ aktywnych garbników na 1 kg masy wsadu warzywnego.
+     * Klasyfikacja: poniżej 40 mg/kg (`INADEQUATE_RISK_OF_MUSHY` — ryzyko kapcanienia i zmiękczenia ogórków), 40–80 mg/kg (`MODERATE_PROTECTION`), 80–250 mg/kg (`OPTIMAL_CRISP` — idealna jędrność), powyżej 350 mg/kg (`OVER_ASTRINGENT` — nieprzyjemna ściągająca cierpkość).
+  3. **Kinetyka uwalniania allicyny z alliliny (*Allium sativum*):**
+     * Ząbki w łupinie: 5% wydajności allicyny.
+     * Całe ząbki obrane: 20% wydajności.
+     * Zgniecione płasko nożem (bruised): 85% wydajności (optimum rzemieślnicze).
+     * Drobno posiekane / starte: 100% natychmiastowej allicyny (ostrzeżenie przy dawce >20 g/kg o przejściowym zahamowaniu kultur *Lactobacillus*).
+* **Kryteria akceptacji:**
+  1. Zintegrowana karta w trybie `veg` Pro Accordion.
+  2. Pełne pokrycie testami jednostkowymi (`tests/core/botanical-extraction.test.ts`).
+* **Persona:** P2, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+

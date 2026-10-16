@@ -167,5 +167,31 @@
 * **Persona:** P3, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
+---
+
+### **BR-KOM-027: Jednostki Pasteryzacji (PU) & Termiczna Stabilizacja Biologiczna (Pasteurization Units & Thermal Stabilization Engine)**
+* **Opis:** Matematyczny model termicznego czasu śmierci drobnoustrojów (Thermal Death Time / model Bigelowa) dla stabilizacji refermentacji kombuchy (2F), utrwalania żywych octów owocowych, fermentowanych sosów chili i niskotemperaturowej pasteryzacji kiszonek (`pasteurization-units.ts`).
+* **Formuła akumulacji jednostek pasteryzacji:**
+  $$PU = t \times 10^{\frac{T - T_{ref}}{z}}$$
+  gdzie $t$ to czas przetrzymania (minuty), $T$ to temperatura w rdzeniu butelki (°C), $T_{ref}$ to temperatura referencyjna (60.0°C lub 65.0°C), a $z$ to współczynnik wrażliwości termicznej drobnoustrojów docelowych (°C).
+* **Profile docelowe i ochrona sensoryczna:**
+  1. **Kombucha owocowa 2F (`KOMBUCHA_STABILIZATION`):**
+     * Cel: 15–25 PU ($T_{ref} = 60^\circ\text{C}, z = 7.0^\circ\text{C}$).
+     * Dezaktywacja drożdży (*Saccharomyces*, *Brettanomyces*), zatrzymująca wzrost ciśnienia w butelkach swing-top.
+     * Limit sensoryczny: $T_{max} \le 68^\circ\text{C}$ (ochrona przed posmakiem gotowanej herbaty i degradacją polifenoli).
+  2. **Żywy ocet owocowy (`LIVING_VINEGAR_PRESERVATION`):**
+     * Cel: 20–30 PU ($T_{ref} = 60^\circ\text{C}, z = 6.0^\circ\text{C}$).
+     * Zatrzymanie ciągłego narastania matki octowej w butelkach handlowych bez utraty rześkiego aromatu.
+  3. **Fermentowane sosy chili (`FERMENTED_HOT_SAUCE`):**
+     * Cel: 50–100 PU ($T_{ref} = 65^\circ\text{C}, z = 8.0^\circ\text{C}$) — stabilność w temperaturze pokojowej.
+  4. **Pasteryzacja niskotemperaturowa kiszonek (`CRISP_PICKLE_JAR`):**
+     * Cel: 100–180 PU ($T_{ref} = 65^\circ\text{C}, z = 10.0^\circ\text{C}$) — inaktywacja enzymów pektolitycznych bez gotowania miąższu.
+* **Kryteria akceptacji:**
+  1. Zintegrowana karta w trybie `beverage` Pro Accordion z protokołem powolnego chłodzenia (zapobieganie szokowi termicznemu szkła).
+  2. Testy jednostkowe (`tests/core/pasteurization-units.test.ts`) weryfikujące obliczenia Bigelowa i detekcję ryzyka sensorycznego.
+* **Persona:** P3, P5, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+
 
 

@@ -106,6 +106,23 @@ import {
   calculateWheyLevainPlan,
   WheyLevainType,
 } from '../../src/core/whey-levain-engine';
+import {
+  calculateCurdSyneresis,
+  CheeseStyleSyneresis,
+  CHEESE_SYNERESIS_CONFIGS,
+} from '../../src/core/curd-syneresis';
+import {
+  calculateVegCrispnessProtection,
+  BOTANICAL_DATABASE,
+  BotanicalSourceId,
+  GarlicPrepMethod,
+} from '../../src/core/botanical-extraction';
+import {
+  calculatePasteurizationPlan,
+  PASTEURIZATION_TARGETS,
+  PasteurizationTargetCategory,
+} from '../../src/core/pasteurization-units';
+
 
 export default function CalculatorScreen() {
   const {
@@ -237,6 +254,27 @@ export default function CalculatorScreen() {
   const [hotelVolumeMl, setHotelVolumeMl] = useState<number>(2000);
   const [hotelSludgeDepthCm, setHotelSludgeDepthCm] = useState<number>(0.8);
   const [hotelPh, setHotelPh] = useState<number>(2.8);
+
+  // --- CURD SYNERESIS & CASEIN SHRINKAGE KINETICS ---
+  const [syneresisStyle, setSyneresisStyle] = useState<CheeseStyleSyneresis>('GOUDA_EDAM');
+  const [syneresisCutSizeMm, setSyneresisCutSizeMm] = useState<number>(8);
+  const [syneresisInitTempC, setSyneresisInitTempC] = useState<number>(31);
+  const [syneresisTargetTempC, setSyneresisTargetTempC] = useState<number>(38);
+  const [syneresisHeatingMinutes, setSyneresisHeatingMinutes] = useState<number>(20);
+  const [syneresisStirMinutes, setSyneresisStirMinutes] = useState<number>(25);
+  const [syneresisDrainPh, setSyneresisDrainPh] = useState<number>(6.40);
+
+  // --- BOTANICAL EXTRACTION & VEG CRISPNESS ENGINE ---
+  const [selectedBotanical, setSelectedBotanical] = useState<BotanicalSourceId>('OAK_LEAF');
+  const [botanicalGrams, setBotanicalGrams] = useState<number>(3);
+  const [garlicGramsInput, setGarlicGramsInput] = useState<number>(15);
+  const [garlicPrepInput, setGarlicPrepInput] = useState<GarlicPrepMethod>('BRUISED_CRUSHED');
+
+  // --- PASTEURIZATION UNITS (PU) & THERMAL STABILIZATION ---
+  const [puCategory, setPuCategory] = useState<PasteurizationTargetCategory>('KOMBUCHA_STABILIZATION');
+  const [puWaterBathTempC, setPuWaterBathTempC] = useState<number>(65);
+  const [puHoldMinutes, setPuHoldMinutes] = useState<number>(15);
+  const [puBottleVolumeMl, setPuBottleVolumeMl] = useState<number>(500);
 
   // Active Flocculation Timer
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
@@ -566,6 +604,50 @@ export default function CalculatorScreen() {
       return null;
     }
   })();
+
+  const curdSyneresisCalc = (() => {
+    try {
+      return calculateCurdSyneresis({
+        cheeseStyle: syneresisStyle,
+        curdCutSizeMm: syneresisCutSizeMm,
+        initialTempC: syneresisInitTempC,
+        targetCookingTempC: syneresisTargetTempC,
+        heatingDurationMinutes: syneresisHeatingMinutes,
+        stirringDurationMinutes: syneresisStirMinutes,
+        drainPh: syneresisDrainPh,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const vegCrispnessCalc = (() => {
+    try {
+      return calculateVegCrispnessProtection({
+        vegetableWeightKg: Math.max(0.1, vegGrams / 1000),
+        brineVolumeLiters: Math.max(0.1, waterGrams / 1000),
+        botanicals: [{ botanicalId: selectedBotanical, weightGrams: botanicalGrams }],
+        garlicGrams: garlicGramsInput,
+        garlicPrep: garlicPrepInput,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const puPlanCalc = (() => {
+    try {
+      return calculatePasteurizationPlan({
+        category: puCategory,
+        waterBathTempCelsius: puWaterBathTempC,
+        holdTimeMinutes: puHoldMinutes,
+        bottleVolumeMl: puBottleVolumeMl,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
 
   const handleSaveBatch = () => {
     requireActionAccess(async () => {
@@ -1787,6 +1869,131 @@ export default function CalculatorScreen() {
                     </View>
                   </View>
                 )}
+
+                {/* Curd Syneresis & Casein Shrinkage Kinetics */}
+                {curdSyneresisCalc && (
+                  <View style={[styles.proCard, curdSyneresisCalc.caseHardeningVerdict === 'CRITICAL_CASE_HARDENING' && styles.cardDanger]}>
+                    <Text style={styles.proCardTitle}>🔪 {t('Kinetyka Synerezy Skrzepu & Dogrzewanie Ziarna')}</Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Wielkość ziarna (3-35mm), tempo podgrzewania (°C/min), ochrona przed zasklepieniem kazeiny i pH ocieku')}
+                    </Text>
+
+                    {/* Cheese Style Horizontal Pills */}
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {[
+                        { id: 'PARMESAN_GRANA' as const, label: t('Parmezan (3mm)') },
+                        { id: 'ALPINE_GRUYERE' as const, label: t('Alpejski (4mm)') },
+                        { id: 'GOUDA_EDAM' as const, label: t('Gouda (8mm)') },
+                        { id: 'CHEDDAR' as const, label: t('Cheddar (10mm)') },
+                        { id: 'CAMEMBERT_BRIE' as const, label: t('Camembert (18mm)') },
+                        { id: 'FETA_FRESH' as const, label: t('Feta / Świeży (28mm)') },
+                      ].map((st) => (
+                        <TouchableOpacity
+                          key={st.id}
+                          style={[styles.presetPill, syneresisStyle === st.id && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setSyneresisStyle(st.id);
+                            const cfg = CHEESE_SYNERESIS_CONFIGS[st.id];
+                            setSyneresisCutSizeMm(cfg.recommendedCutSizeMm);
+                            setSyneresisInitTempC(cfg.initialTempC);
+                            setSyneresisTargetTempC(cfg.maxCookingTempC);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, syneresisStyle === st.id && styles.presetPillTextActive]}>
+                            {st.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Rozmiar cięcia ziarna (mm):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(syneresisCutSizeMm)}
+                        onChangeText={(v) => setSyneresisCutSizeMm(parseFloat(v) || 1)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Temperatura docelowa (°C):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(syneresisTargetTempC)}
+                        onChangeText={(v) => setSyneresisTargetTempC(parseFloat(v) || 30)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Czas dogrzewania (min):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(syneresisHeatingMinutes)}
+                        onChangeText={(v) => setSyneresisHeatingMinutes(parseFloat(v) || 1)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Czas mieszania po dogrzaniu (min):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(syneresisStirMinutes)}
+                        onChangeText={(v) => setSyneresisStirMinutes(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('pH serwatki przy ocieku:')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(syneresisDrainPh)}
+                        onChangeText={(v) => setSyneresisDrainPh(parseFloat(v) || 6.4)}
+                      />
+                    </View>
+
+                    <View style={styles.brineResultBox}>
+                      <Text style={[
+                        styles.safetyStatus,
+                        curdSyneresisCalc.caseHardeningVerdict === 'CRITICAL_CASE_HARDENING'
+                          ? styles.safetyDanger
+                          : curdSyneresisCalc.caseHardeningVerdict === 'BORDERLINE_RATE'
+                          ? { color: '#B45309' }
+                          : { color: '#15803D' }
+                      ]}>
+                        • {t('Tempo dogrzewania:')} {curdSyneresisCalc.actualRampRateCPerMin}°C/min ({t('maks. zalecane:')} {curdSyneresisCalc.maxSafeRampRateCPerMin}°C/min)
+                      </Text>
+                      <Text style={styles.brineText}>
+                        • {curdSyneresisCalc.caseHardeningAlertPl}
+                      </Text>
+
+                      <Text style={[styles.brineText, { marginTop: 6 }]}>
+                        • {t('Wskaźnik synerezy:')} <Text style={styles.boldText}>{curdSyneresisCalc.syneresisIntensityIndex}/100</Text> | {t('Szacowana wilgotność:')} <Text style={styles.boldText}>{curdSyneresisCalc.expectedMoisturePct}%</Text> ({t('wzorzec:')} {curdSyneresisCalc.expectedMoistureMinPct}%–{curdSyneresisCalc.expectedMoistureMaxPct}%)
+                      </Text>
+
+                      <Text style={[
+                        styles.safetyStatus,
+                        curdSyneresisCalc.calciumRetentionVerdict !== 'OPTIMAL_MINERAL_BALANCE'
+                          ? { color: '#B45309' }
+                          : { color: '#15803D' },
+                        { marginTop: 4 }
+                      ]}>
+                        • {t('Wapń koloidalny:')} {curdSyneresisCalc.calciumImpactMessagePl}
+                      </Text>
+
+                      {curdSyneresisCalc.recommendations.map((rec, i) => (
+                        <Text key={i} style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                          💡 {rec}
+                        </Text>
+                      ))}
+                    </View>
+                  </View>
+                )}
               </View>
             )}
           </View>
@@ -2005,6 +2212,128 @@ export default function CalculatorScreen() {
                       <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
                         💡 {crockHeadspaceCalc.recommendations[0]}
                       </Text>
+                    </View>
+                  </View>
+                )}
+
+                {/* Botanical Extraction & Crispness Engine */}
+                {vegCrispnessCalc && (
+                  <View style={[styles.proCard, vegCrispnessCalc.crispnessVerdict === 'INADEQUATE_RISK_OF_MUSHY' && styles.cardDanger]}>
+                    <Text style={styles.proCardTitle}>🌿 {t('Ekstrakcja Botaniczna & Ochrona Chrupkości')}</Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Denaturacja pektynaz garbnikami roślinnymi (dąb, wiśnia, chrzan) i kinetyka allicyny')}
+                    </Text>
+
+                    {/* Botanical source pills */}
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {[
+                        { id: 'OAK_LEAF' as const, label: t('Liść dębu (45mg/g)') },
+                        { id: 'SOUR_CHERRY_LEAF' as const, label: t('Liść wiśni (30mg/g)') },
+                        { id: 'BLACKCURRANT_LEAF' as const, label: t('Porzeczka (25mg/g)') },
+                        { id: 'HORSERADISH_ROOT' as const, label: t('Chrzan korzeń (12mg/g)') },
+                        { id: 'HORSERADISH_LEAF' as const, label: t('Chrzan liść (15mg/g)') },
+                        { id: 'BAY_LEAF' as const, label: t('Liść laurowy (20mg/g)') },
+                        { id: 'GRAPE_LEAF' as const, label: t('Liść winorośli (35mg/g)') },
+                        { id: 'BLACK_TEA_LEAF' as const, label: t('Czarna herbata (80mg/g)') },
+                      ].map((bot) => (
+                        <TouchableOpacity
+                          key={bot.id}
+                          style={[styles.presetPill, selectedBotanical === bot.id && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setSelectedBotanical(bot.id);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, selectedBotanical === bot.id && styles.presetPillTextActive]}>
+                            {bot.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Masa dodatku botanicznego (g):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(botanicalGrams)}
+                        onChangeText={(v) => setBotanicalGrams(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Czosnek do wsadu (g):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(garlicGramsInput)}
+                        onChangeText={(v) => setGarlicGramsInput(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    {/* Garlic prep selector */}
+                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Przygotowanie czosnku:')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {[
+                        { id: 'BRUISED_CRUSHED' as const, label: t('Zgnieciony nożem (85% allicyny)') },
+                        { id: 'WHOLE_PEELED' as const, label: t('Całe ząbki obrane (20% allicyny)') },
+                        { id: 'MINCED_GRATED' as const, label: t('Posiekany / starty (100% allicyny)') },
+                        { id: 'WHOLE_UNPEELED' as const, label: t('W łupinie (5% allicyny)') },
+                      ].map((gp) => (
+                        <TouchableOpacity
+                          key={gp.id}
+                          style={[styles.presetPill, garlicPrepInput === gp.id && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setGarlicPrepInput(gp.id);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, garlicPrepInput === gp.id && styles.presetPillTextActive]}>
+                            {gp.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.safetyBox}>
+                      <Text style={[
+                        styles.safetyStatus,
+                        vegCrispnessCalc.crispnessVerdict === 'INADEQUATE_RISK_OF_MUSHY'
+                          ? styles.safetyDanger
+                          : vegCrispnessCalc.crispnessVerdict === 'OVER_ASTRINGENT'
+                          ? { color: '#B45309' }
+                          : { color: '#15803D' }
+                      ]}>
+                        • {t('Ochrona chrupkości:')} {vegCrispnessCalc.verdictLabelPl} ({vegCrispnessCalc.crispnessProtectionRatioPct}%)
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Podaż garbników:')} <Text style={styles.boldText}>{vegCrispnessCalc.totalTanninsMg} mg</Text> ({vegCrispnessCalc.tanninConcentrationMgPerKg} mg/kg {t('wsadu')}, {t('cel')} &ge; {vegCrispnessCalc.targetMinimumTanninsMg} mg)
+                      </Text>
+
+                      {vegCrispnessCalc.garlicAllicinOutputMg !== undefined && (
+                        <Text style={styles.proCardDesc}>
+                          • {t('Aktywna allicyna:')} <Text style={styles.boldText}>{vegCrispnessCalc.garlicAllicinOutputMg} mg</Text>
+                        </Text>
+                      )}
+
+                      {vegCrispnessCalc.garlicImpactNotes && (
+                        <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                          🧄 {vegCrispnessCalc.garlicImpactNotes}
+                        </Text>
+                      )}
+
+                      {vegCrispnessCalc.dominantActiveCompounds.length > 0 && (
+                        <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                          🔬 {t('Związki aktywne:')} {vegCrispnessCalc.dominantActiveCompounds.join(', ')}
+                        </Text>
+                      )}
+
+                      {vegCrispnessCalc.craftRecommendations.map((rec, idx) => (
+                        <Text key={idx} style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                          💡 {rec}
+                        </Text>
+                      ))}
                     </View>
                   </View>
                 )}
@@ -2530,6 +2859,102 @@ export default function CalculatorScreen() {
                       {continuousBrewPlan.recommendations.map((rec, idx) => (
                         <Text key={idx} style={[styles.recipeDetailText, { marginTop: 4 }]}>
                           💡 {rec}
+                        </Text>
+                      ))}
+                    </View>
+                  </View>
+                )}
+
+                {/* Pasteurization Units (PU) & Thermal Stabilization Engine */}
+                {puPlanCalc && (
+                  <View style={[styles.proCard, puPlanCalc.thermalSafetyStatus === 'SENSORY_HEAT_DAMAGE_RISK' && styles.cardDanger]}>
+                    <Text style={styles.proCardTitle}>🔥 {t('Jednostki Pasteryzacji (PU) & Termiczna Stabilizacja')}</Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Model Bigelowa, dezaktywacja drożdży w kombusze 2F, ochrona matki octowej i chrupkości')}
+                    </Text>
+
+                    {/* Category Selector Pills */}
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {[
+                        { id: 'KOMBUCHA_STABILIZATION' as const, label: t('Kombucha 2F (15-25 PU)') },
+                        { id: 'LIVING_VINEGAR_PRESERVATION' as const, label: t('Żywy ocet (20-30 PU)') },
+                        { id: 'FERMENTED_HOT_SAUCE' as const, label: t('Sos chili (50-100 PU)') },
+                        { id: 'CRISP_PICKLE_JAR' as const, label: t('Kiszonki słoik (100-180 PU)') },
+                      ].map((cat) => (
+                        <TouchableOpacity
+                          key={cat.id}
+                          style={[styles.presetPill, puCategory === cat.id && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setPuCategory(cat.id);
+                            const meta = PASTEURIZATION_TARGETS[cat.id];
+                            setPuWaterBathTempC(meta.referenceTempC + 4);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, puCategory === cat.id && styles.presetPillTextActive]}>
+                            {cat.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Temperatura łaźni wodnej (°C):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(puWaterBathTempC)}
+                        onChangeText={(v) => setPuWaterBathTempC(parseFloat(v) || 50)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Czas w kąpieli wodnej (min):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(puHoldMinutes)}
+                        onChangeText={(v) => setPuHoldMinutes(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Pojemność butelki / słoika (ml):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(puBottleVolumeMl)}
+                        onChangeText={(v) => setPuBottleVolumeMl(parseFloat(v) || 500)}
+                      />
+                    </View>
+
+                    <View style={styles.safetyBox}>
+                      <Text style={[
+                        styles.safetyStatus,
+                        puPlanCalc.thermalSafetyStatus === 'SENSORY_HEAT_DAMAGE_RISK'
+                          ? styles.safetyDanger
+                          : puPlanCalc.isTargetAchieved
+                          ? { color: '#15803D' }
+                          : { color: '#B45309' }
+                      ]}>
+                        • {t('Akumulacja PU:')} {puPlanCalc.actualAccumulatedPu ?? 0} PU / {t('cel')} {puPlanCalc.targetPu} PU ({puPlanCalc.isTargetAchieved ? t('OSIĄGNIĘTY') : t('W TRAKCIE / ZA MAŁO')})
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Wymagany czas przetrzymania:')} <Text style={styles.boldText}>{puPlanCalc.requiredHoldTimeMinutes} min</Text> ({t('tempo:')} {puPlanCalc.puAccumulationRatePerMinute} PU/min)
+                      </Text>
+
+                      <Text style={styles.brineText}>
+                        • {puPlanCalc.statusMessagePl}
+                      </Text>
+
+                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                        💡 {puPlanCalc.sensoryPreservationAdvice}
+                      </Text>
+
+                      {puPlanCalc.recommendedWaterBathProtocol.map((step, idx) => (
+                        <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 3 }}>
+                          {idx + 1}. {step}
                         </Text>
                       ))}
                     </View>

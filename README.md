@@ -3,7 +3,7 @@
 > **Ekosystem:** Apps4Brew Studio  
 > **Repozytorium:** `lkarwowski494/ferment`  
 > **Technologia:** Expo 57, React Native 0.86, TypeScript Strict, SQLite (tryb WAL)  
-> **Piramida Jakości:** 37 zestawów testów (100% PASS, 172 testów), pełna zgodność i18n (PL/EN, 604 klucze), `npm run verify` zielony  
+> **Piramida Jakości:** 44 zestawy testów (100% PASS, 220 testów), pełna zgodność i18n (PL/EN, 674 klucze w kodzie / 728 w EN), `npm run verify` zielony  
 
 ---
 
@@ -150,6 +150,18 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
     - Laboratoryjny standard kalibracji czujników wilgotności względnej (RH %) w komorze ze szczelnego słoika z roztworem nasyconym soli (NaCl 75.3%, KCl 84.3%, K2SO4 97.6%, MgCl2 33.1% przy 20°C).
     - Wyliczanie offsetu sensora, ocena klasy fabrycznej (błąd $\le 2\%$) oraz detekcja krytycznego dryfu prowadzącego do case hardeningu (gdy miernik zawyża) lub pleśni Mucor / slip skin (gdy zaniża).
     - Zintegrowana szuflada w karcie Psychrometrii Piwniczki w Dzienniku Partii z 1-tap aplikowaniem offsetu do kalkulacji VPD i punktu rosy.
+39. **Ekstrakcja Botaniczna & Ochrona Chrupkości Przed Pektynazami (`src/core/botanical-extraction.ts`):**
+    - Baza surowców garbnikowych (liście dębu, wiśni, porzeczki, chrzan korzeń/liść, laurowy, winorośl, czarna herbata).
+    - Próg denaturacji pektynaz ($80\text{ mg/kg}$ wsadu) zapobiegający kapcanieniu i mięknięciu ogórków i warzyw kiszonych.
+    - Kinetyka uwalniania allicyny z czosnku w zależności od techniki przygotowania (w łupinie 5%, obrane 20%, zgniecione nożem 85%, siekane 100%).
+40. **Jednostki Pasteryzacji (PU) & Termiczna Stabilizacja Biologiczna (`src/core/pasteurization-units.ts`):**
+    - Matematyczny model termicznego czasu śmierci drobnoustrojów (Bigelow model: $PU = t \times 10^{(T - T_{ref}) / z}$).
+    - Celowane profile termiczne: stabilizacja kombuchy owocowej 2F (15–25 PU, stop fermentacji drożdżowej i zapobieganie gejzerom ze swing-topów), utrwalenie żywego octu (20–30 PU, ochrona przed zmętnieniem matką octową), sosy fermentowane (50–100 PU) oraz kiszonki w słoikach (100–180 PU).
+    - Monitorowanie progów sensorycznych ($T_{max} \le 68^\circ\text{C}$ dla kombuchy) chroniących przed nutami gotowanej herbaty.
+41. **Kinetyka Synerezy Skrzepu & Dogrzewanie Ziarna (`src/core/curd-syneresis.ts`):**
+    - Modelowanie dynamiki kurczenia ziaren kazeinowych wg standardów krojenia (3 mm parmezan, 8 mm gouda, 18 mm camembert, 28 mm feta).
+    - Złota zasada tempa dogrzewania (Cooking Ramp Rate $\le 0.5^\circ\text{C/min}$) z alarmem `CRITICAL_CASE_HARDENING` przed zasklepieniem porów kazeinowych i uwięzieniem serwatki.
+    - Kontrola równowagi micelarnej wapnia w zależności od pH przy ocieku (zapobieganie strukturze gumowatej vs kredowej/kruchej).
 
 ---
 
@@ -162,7 +174,7 @@ npm run typecheck
 # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
 npm run check:i18n
 
-# 3. Wykonanie 41 pakietów testowych Jest
+# 3. Wykonanie 44 pakietów testowych Jest
 npm test
 
 # 4. Uruchomienie całościowej bramki
@@ -170,10 +182,10 @@ npm run verify
 ```
 
 Stan testów na dzień 16.10.2026:
-- **41 test suites PASS** (100%)
-- **202 unit & integration tests PASS** (100%)
-- **618 tekstów UI w kodzie przetłumaczonych na PL i EN (672 w słowniku EN, 100% parytet)**
-- **BRD: 101.3 stron znormalizowanych (182,325 znaków ze spacjami, 23,765 słów, 25 modularnych rozdziałów)**
+- **44 test suites PASS** (100%)
+- **220 unit & integration tests PASS** (100%)
+- **674 teksty UI w kodzie przetłumaczone na PL i EN (728 w słowniku EN, 100% parytet)**
+- **BRD: 104.8 stron znormalizowanych (188,702 znaków ze spacjami, 24,528 słów, 25 modularnych rozdziałów)**
 
 ---
 

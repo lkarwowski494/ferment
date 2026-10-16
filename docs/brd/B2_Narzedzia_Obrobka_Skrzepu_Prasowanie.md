@@ -116,4 +116,29 @@
 * **Persona:** P1, P2, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
+---
+
+### **BR-PRESS-017: Kinetyka Synerezy Skrzepu & Dogrzewanie Ziarna (Curd Syneresis & Casein Shrinkage Kinetics)**
+* **Opis:** Fizykochemiczny kalkulator dynamiki kurczenia ziaren kazeinowych podczas krojenia, mieszania i dogrzewania skrzepu (`curd-syneresis.ts`), zapobiegający defektowi zasklepienia porów kazeinowych (case hardening / protein skinning).
+* **Zasady biochemiczne i parametry kinetyki:**
+  1. **Rozmiary ziarna wg stylu sera:**
+     * Bardzo drobne (3–5 mm): Parmezan, Grana, Emmental, Sbrinz (szybka synereza, niska wilgotność 30–35%).
+     * Średnie (8–12 mm): Gouda, Edam, Cheddar, Tilsit (umiarkowana synereza, wilgotność 36–46%).
+     * Grube (15–20 mm): Camembert, Brie, Reblochon (łagodna synereza, wilgotność 50–58%).
+     * Płaty / fresh (25–35 mm): Feta, Halloumi, sery twarogowe (wilgotność 55–65%).
+  2. **Tempo dogrzewania (Cooking Ramp Rate Kinetics):**
+     * Złota zasada serowarska: tempo wzrostu temperatury nie może przekraczać 0.5°C/min (1°C na 2–3 minuty), zwłaszcza w krytycznym oknie 31–38°C.
+     * Przekroczenie tempa bezpiecznego wywołuje alarm `CRITICAL_CASE_HARDENING`: gwałtowne odwodnienie zewnętrznej warstwy ziarna i wytworzenie nieprzepuszczalnej powłoki białkowej, która więzi wilgoć i laktozę w rdzeniu, prowadząc do późniejszego przekwaszenia i gorzkiego posmaku.
+  3. **Równowaga micelarna wapnia a pH przy ocieku (Drain pH):**
+     * Zbyt niskie pH (<6.20 w Goudzie): alarm `DECALCIFIED_BRITTLE_ACIDIC` — nadmierne wypłukanie wapnia koloidalnego, kruchy, kredowy miąższ.
+     * Zbyt wysokie pH (>6.48): alarm `EXCESSIVE_CALCIUM_RUBBERY` — nadmiar wapnia micelarnego, struktura gumowata.
+  4. **Wskaźnik intensywności synerezy (Syneresis Index 0–100):**
+     * Zagregowana funkcja powierzchni właściwej ziarna, temperatury dogrzewania, czasu mieszania i zakwaszenia serwatki.
+* **Kryteria akceptacji:**
+  1. Zintegrowana karta w trybie `cheese` Pro Accordion.
+  2. Testy jednostkowe (`tests/core/curd-syneresis.test.ts`) weryfikujące wykrywanie case hardening, bilans wapnia i szacowanie wilgotności końcowej.
+* **Persona:** P1, P2, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+
 

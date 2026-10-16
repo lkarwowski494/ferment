@@ -980,6 +980,30 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-PRESS-017: Kinetyka Synerezy Skrzepu & Dogrzewanie Ziarna (Curd Syneresis & Casein Shrinkage Kinetics)**
+* **Opis:** Fizykochemiczny kalkulator dynamiki kurczenia ziaren kazeinowych podczas krojenia, mieszania i dogrzewania skrzepu (`curd-syneresis.ts`), zapobiegający defektowi zasklepienia porów kazeinowych (case hardening / protein skinning).
+* **Zasady biochemiczne i parametry kinetyki:**
+  1. **Rozmiary ziarna wg stylu sera:**
+     * Bardzo drobne (3–5 mm): Parmezan, Grana, Emmental, Sbrinz (szybka synereza, niska wilgotność 30–35%).
+     * Średnie (8–12 mm): Gouda, Edam, Cheddar, Tilsit (umiarkowana synereza, wilgotność 36–46%).
+     * Grube (15–20 mm): Camembert, Brie, Reblochon (łagodna synereza, wilgotność 50–58%).
+     * Płaty / fresh (25–35 mm): Feta, Halloumi, sery twarogowe (wilgotność 55–65%).
+  2. **Tempo dogrzewania (Cooking Ramp Rate Kinetics):**
+     * Złota zasada serowarska: tempo wzrostu temperatury nie może przekraczać 0.5°C/min (1°C na 2–3 minuty), zwłaszcza w krytycznym oknie 31–38°C.
+     * Przekroczenie tempa bezpiecznego wywołuje alarm `CRITICAL_CASE_HARDENING`: gwałtowne odwodnienie zewnętrznej warstwy ziarna i wytworzenie nieprzepuszczalnej powłoki białkowej, która więzi wilgoć i laktozę w rdzeniu, prowadząc do późniejszego przekwaszenia i gorzkiego posmaku.
+  3. **Równowaga micelarna wapnia a pH przy ocieku (Drain pH):**
+     * Zbyt niskie pH (<6.20 w Goudzie): alarm `DECALCIFIED_BRITTLE_ACIDIC` — nadmierne wypłukanie wapnia koloidalnego, kruchy, kredowy miąższ.
+     * Zbyt wysokie pH (>6.48): alarm `EXCESSIVE_CALCIUM_RUBBERY` — nadmiar wapnia micelarnego, struktura gumowata.
+  4. **Wskaźnik intensywności synerezy (Syneresis Index 0–100):**
+     * Zagregowana funkcja powierzchni właściwej ziarna, temperatury dogrzewania, czasu mieszania i zakwaszenia serwatki.
+* **Kryteria akceptacji:**
+  1. Zintegrowana karta w trybie `cheese` Pro Accordion.
+  2. Testy jednostkowe (`tests/core/curd-syneresis.test.ts`) weryfikujące wykrywanie case hardening, bilans wapnia i szacowanie wilgotności końcowej.
+* **Persona:** P1, P2, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B3_Narzedzia_Solenie_i_Solanki.md -->
@@ -1421,6 +1445,34 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-KISZ-021: Ekstrakcja Botaniczna & Ochrona Chrupkości Przed Pektynazami (Botanical Extraction & Pectinase Tannin Engine)**
+* **Opis:** Moduł biochemiczny szacujący stężenie garbników roślinnych (elagotanin, garbników skondensowanych) niezbędnych do denaturacji endogennych i pleśniowych enzymów pektolitycznych (pektynaz) niszczących chrupkość ogórków i warzyw kiszonych, wraz z kinetyką uwalniania allicyny z czosnku (`botanical-extraction.ts`).
+* **Kluczowe reguły biochemiczne i parametry dawek:**
+  1. **Baza surowców garbnikowych:**
+     * Liście dębu szypułkowego (*Quercus robur*): 45 mg garbników / g.
+     * Liście wiśni (*Prunus cerasus*): 30 mg / g.
+     * Liście czarnej porzeczki (*Ribes nigrum*): 25 mg / g.
+     * Korzeń chrzanu (*Armoracia rusticana*): 12 mg / g + glukozynolany (synigryna).
+     * Liście chrzanu: 15 mg / g.
+     * Liść laurowy (*Laurus nobilis*): 20 mg / g.
+     * Liście winorośli (*Vitis vinifera*): 35 mg / g.
+     * Liście czarnej herbaty (*Camellia sinensis*): 80 mg / g.
+  2. **Próg denaturacji pektynaz:**
+     * Minimalna dawka ochronna: $80\text{ mg}$ aktywnych garbników na 1 kg masy wsadu warzywnego.
+     * Klasyfikacja: poniżej 40 mg/kg (`INADEQUATE_RISK_OF_MUSHY` — ryzyko kapcanienia i zmiękczenia ogórków), 40–80 mg/kg (`MODERATE_PROTECTION`), 80–250 mg/kg (`OPTIMAL_CRISP` — idealna jędrność), powyżej 350 mg/kg (`OVER_ASTRINGENT` — nieprzyjemna ściągająca cierpkość).
+  3. **Kinetyka uwalniania allicyny z alliliny (*Allium sativum*):**
+     * Ząbki w łupinie: 5% wydajności allicyny.
+     * Całe ząbki obrane: 20% wydajności.
+     * Zgniecione płasko nożem (bruised): 85% wydajności (optimum rzemieślnicze).
+     * Drobno posiekane / starte: 100% natychmiastowej allicyny (ostrzeżenie przy dawce >20 g/kg o przejściowym zahamowaniu kultur *Lactobacillus*).
+* **Kryteria akceptacji:**
+  1. Zintegrowana karta w trybie `veg` Pro Accordion.
+  2. Pełne pokrycie testami jednostkowymi (`tests/core/botanical-extraction.test.ts`).
+* **Persona:** P2, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B6_Narzedzia_Kombucha_i_Octy.md -->
@@ -1593,6 +1645,31 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
   1. Kalkulator zintegrowany w trybie `beverage` Pro Accordion.
   2. Pełne testy jednostkowe (`tests/core/continuous-brew.test.ts`) pokrywające tempo cyklu, rozcieńczenie pH, granice poboru i alerty serwisu.
 * **Persona:** P3, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
+### **BR-KOM-027: Jednostki Pasteryzacji (PU) & Termiczna Stabilizacja Biologiczna (Pasteurization Units & Thermal Stabilization Engine)**
+* **Opis:** Matematyczny model termicznego czasu śmierci drobnoustrojów (Thermal Death Time / model Bigelowa) dla stabilizacji refermentacji kombuchy (2F), utrwalania żywych octów owocowych, fermentowanych sosów chili i niskotemperaturowej pasteryzacji kiszonek (`pasteurization-units.ts`).
+* **Formuła akumulacji jednostek pasteryzacji:**
+  $$PU = t \times 10^{\frac{T - T_{ref}}{z}}$$
+  gdzie $t$ to czas przetrzymania (minuty), $T$ to temperatura w rdzeniu butelki (°C), $T_{ref}$ to temperatura referencyjna (60.0°C lub 65.0°C), a $z$ to współczynnik wrażliwości termicznej drobnoustrojów docelowych (°C).
+* **Profile docelowe i ochrona sensoryczna:**
+  1. **Kombucha owocowa 2F (`KOMBUCHA_STABILIZATION`):**
+     * Cel: 15–25 PU ($T_{ref} = 60^\circ\text{C}, z = 7.0^\circ\text{C}$).
+     * Dezaktywacja drożdży (*Saccharomyces*, *Brettanomyces*), zatrzymująca wzrost ciśnienia w butelkach swing-top.
+     * Limit sensoryczny: $T_{max} \le 68^\circ\text{C}$ (ochrona przed posmakiem gotowanej herbaty i degradacją polifenoli).
+  2. **Żywy ocet owocowy (`LIVING_VINEGAR_PRESERVATION`):**
+     * Cel: 20–30 PU ($T_{ref} = 60^\circ\text{C}, z = 6.0^\circ\text{C}$).
+     * Zatrzymanie ciągłego narastania matki octowej w butelkach handlowych bez utraty rześkiego aromatu.
+  3. **Fermentowane sosy chili (`FERMENTED_HOT_SAUCE`):**
+     * Cel: 50–100 PU ($T_{ref} = 65^\circ\text{C}, z = 8.0^\circ\text{C}$) — stabilność w temperaturze pokojowej.
+  4. **Pasteryzacja niskotemperaturowa kiszonek (`CRISP_PICKLE_JAR`):**
+     * Cel: 100–180 PU ($T_{ref} = 65^\circ\text{C}, z = 10.0^\circ\text{C}$) — inaktywacja enzymów pektolitycznych bez gotowania miąższu.
+* **Kryteria akceptacji:**
+  1. Zintegrowana karta w trybie `beverage` Pro Accordion z protokołem powolnego chłodzenia (zapobieganie szokowi termicznemu szkła).
+  2. Testy jednostkowe (`tests/core/pasteurization-units.test.ts`) weryfikujące obliczenia Bigelowa i detekcję ryzyka sensorycznego.
+* **Persona:** P3, P5, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
 ---
