@@ -3,7 +3,7 @@
 > **Ekosystem:** Apps4Brew Studio  
 > **Repozytorium:** `lkarwowski494/ferment`  
 > **Technologia:** Expo 57, React Native 0.86, TypeScript Strict, SQLite (tryb WAL)  
-> **Piramida Jakości:** 46 zestawów testów (100% PASS, 232 testy), pełna zgodność i18n (PL/EN, 700 kluczy w kodzie / 754 w EN), `npm run verify` zielony  
+> **Piramida Jakości:** 48 zestawów testów (100% PASS, 250 testów), pełna zgodność i18n (PL/EN, 746 kluczy w kodzie / 800 w EN), `npm run verify` zielony  
 
 
 ---
@@ -173,6 +173,14 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
     - Reguła krzyża Pearsona do standaryzacji kwasowości octów rzemieślniczych (np. z 7.2% do 5.0% z zachowaniem minimum 20% octu macierzystego chroniącego przed pleśnią).
     - Stechiometria utleniania alkoholu do kwasu octowego wg Pasteura ($1\%\text{ ABV} \approx 1.05\%\text{ kwasu octowego}$ przy 85% sprawności biologicznej *Acetobacter*).
     - Optymalizacja stosunku powierzchni cieczy do objętości ($A/V\text{ w cm}^2/\text{L}$) determinująca tempo dostępu tlenu i zapobiegająca duszeniu bakterii octowych w wąskich gąsiorach.
+44. **Areometria Solanki & Kompensacja Temperatury (`src/core/brine-densitometry.ts`):**
+    - Konwersje pomiędzy stopniami Salometru (°Sal), Baumé (°Bé), gęstością właściwą (SG) i ułamkiem wagowym (% NaCl).
+    - Dynamiczna kompensacja temperaturowa pomiaru areometrem ($\Delta \text{SG} = (T_{próbki} - T_{wzorca}) \times 0.00032$) eliminująca błędy odczytu w zimnych dojrzewalniach (10–12°C).
+    - Profile docelowe dla serów twardych (18–20°Bé / 72–80°Sal), miękkich, Fety i kiszonek warzywnych wraz z precyzyjnym kalkulatorem dosypki soli w gramach.
+45. **Enzymatyka Koji, Shio Koji & Słodkie Amazake (`src/core/koji-fermentation.ts`):**
+    - Model hydrolizy enzymatycznej *Aspergillus oryzae*: proporcje Shio Koji (optimum zasolenia 11.5% z alertami <9% i >15%) oraz dawkowanie do kruszenia mięsa (10% masy).
+    - Monitorowanie okna termicznego amylolizy w Amazake (55–60°C) z ochroną przed ukwaszeniem mlekowym ($<52^\circ\text{C}$) oraz termiczną denaturacją enzymów ($>63^\circ\text{C}$).
+    - Bilansowanie soli i ciężaru dociskowego dla formulacji Miso (Shiro Miso 5.5% soli / 1.5 mies. vs Akamiso 12.0% soli / 12 mies.).
 
 ---
 
@@ -185,7 +193,7 @@ npm run typecheck
 # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
 npm run check:i18n
 
-# 3. Wykonanie 46 pakietów testowych Jest
+# 3. Wykonanie 48 pakietów testowych Jest
 npm test
 
 # 4. Uruchomienie całościowej bramki
@@ -193,10 +201,10 @@ npm run verify
 ```
 
 Stan testów na dzień 16.10.2026:
-- **46 test suites PASS** (100%)
-- **232 unit & integration tests PASS** (100%)
-- **700 tekstów UI w kodzie przetłumaczone na PL i EN (754 w słowniku EN, 100% parytet)**
-- **BRD: 107.9 stron znormalizowanych (194,152 znaków ze spacjami, 25,166 słów, 25 modularnych rozdziałów)**
+- **48 test suites PASS** (100%)
+- **250 unit & integration tests PASS** (100%)
+- **746 tekstów UI w kodzie przetłumaczone na PL i EN (800 w słowniku EN, 100% parytet)**
+- **BRD: 110.2 stron znormalizowanych (198,300 znaków ze spacjami, 25,684 słów, 25 modularnych rozdziałów)**
 
 ---
 

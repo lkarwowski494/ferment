@@ -159,4 +159,28 @@
 * **Persona:** P2, P5, P6.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
+---
+
+### **BR-KISZ-022: Enzymatyka Koji, Shio Koji & Słodkie Amazake (Koji Solid-State Hydrolysis & Formulation Engine)**
+* **Opis:** Fizjologiczno-enzymatyczny model produktów hydrolizowanych przez *Aspergillus oryzae* (shio koji, słodkie amazake, formulacje miso Shiro i Akamiso) z rygorystyczną kontrolą okna termicznego enzymów amylolitycznych i proteolitycznych (`src/core/koji-fermentation.ts`).
+* **Kluczowe reguły biochemiczne:**
+  1. **Shio Koji (Enzymatyczna pasta do marynowania):**
+     * Proporcje wsadu: Koji (100g) + Woda (135g dla suszonego / 110g dla świeżego nama-koji) + Sól (ok. 30–35g) = bezpieczne zasolenie ok. 11.5% masy ogólnej.
+     * Alerty bezpieczeństwa: zasolenie <9% grozi niekontrolowanym skwaszeniem mlekowym; zasolenie >15% silnie hamuje aktywność proteaz (słabe kruszenie włókien mięśniowych).
+     * Tryb termiczny: fermentacja pokojowa (22°C, 7–10 dni, wymagane codzienne mieszanie i napowietrzanie) vs przyspieszona hydroliza sous-vide (58°C, 8 godzin, gotowe w 1 dzień).
+     * Dawkowanie kulinarne: 10% wagi mięsa / tofu, czas marinacji 2–12 godzin.
+  2. **Amazake (Słodki bezalkoholowy napój ryżowy):**
+     * Okno termiczne amylaz: ściśle 55°C – 60°C (optymalna produkcja glukozy i maltozy do ~24°Bx).
+     * Alert $T < 52^\circ\text{C}$: `RISK_OF_LACTIC_SOURING` (namnażanie dzikich bakterii kwasu mlekowego, kwaszenie zamiast słodyczy).
+     * Alert $T > 63^\circ\text{C}$: `CRITICAL_AMYLASE_DENATURATION` (nieodwracalne zniszczenie enzymów $\alpha$-amylazy i glukoamylazy, utrata słodkości, surowy kleik).
+  3. **Formulacje Miso i ciężary dociskowe:**
+     * Shiro Miso (jasne, słodkie): 5.5% soli, fermentacja 1.5 miesiąca, docisk 20% wagi wsadu.
+     * Akamiso (ciemne, wytrawne): 12.0% soli, fermentacja 12 miesięcy, docisk 30% wagi wsadu (ochrona przed zakażeniem powierzchniowym).
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w trybie Kiszonki & Warzywa Pro Accordion z selektorem trybów (Shio Koji, Amazake, Miso).
+  2. 100% testów jednostkowych (`tests/core/koji-fermentation.test.ts`).
+* **Persona:** P2, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+
 

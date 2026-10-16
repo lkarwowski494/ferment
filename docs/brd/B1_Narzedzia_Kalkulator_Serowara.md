@@ -187,5 +187,32 @@
 * **Persona:** P1, P4, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
+---
+
+### **BR-SER-037: Areometria Solanki & Kompensacja Temperatury (Brine Densitometry & Hydrometer Temp Compensation Engine)**
+* **Opis:** Laboratoryjny model przeliczeń gęstości i zasolenia roztworów solankowych z użyciem areometrów serowarskich (skala Salometru °Sal, Baumé °Bé, Specific Gravity SG oraz % wagowy NaCl) wraz z kompensacją temperaturowej rozszerzalności cieczy (`src/core/brine-densitometry.ts`).
+* **Zasady fizykochemiczne modelu:**
+  1. **Konwersje skal:**
+     * Salometr: $100^\circ\text{Sal} = 26.395\%\text{ wagowo NaCl}$ (roztwór nasycony przy 60°F / 15.56°C).
+     * Skala Baumé: $^\circ\text{Bé} = 145 \times (1 - 1 / \text{SG})$ oraz $\text{SG} = 145 / (145 - ^\circ\text{Bé})$.
+     * Wielomian gęstości pozornej CRC: $\text{SG}_{20} = 1.000 + 0.007077 \cdot P + 0.0000305 \cdot P^2$ dla $P \in [0, 26.4\%]$.
+  2. **Kompensacja temperaturowa:**
+     * Ciecz w chłodni dojrzewalniczej (10–12°C) jest gęstsza od wzorca 20°C (areometr wypływa wyżej, wskazując zawyżone zasolenie).
+     * Współczynnik korekcji termicznej: $\Delta \text{SG} = (T_{próbki} - T_{wzorca}) \times 0.00032$.
+  3. **Wbudowane profile serowarskie:**
+     * Sery twarde (Gouda, Parmezan, Cheddar): 18–20°Bé / 72–80°Sal (19–21% NaCl).
+     * Sery miękkie (Camembert, Brie): 13.5–15.5°Bé / 53–61°Sal (14–16% NaCl).
+     * Sery parzone Pasta Filata (Mozzarella): 15.5–17.5°Bé / 60–68°Sal (16–18% NaCl).
+     * Solanka do Fety: 6.8–8.3°Bé / 26–32°Sal (7–8.5% NaCl).
+  4. **Kalkulator korekty dosypki soli:**
+     * Dokładne wyliczenie gramów soli kamiennej do dosypania do istniejącej objętości solanki w celu osiągnięcia stężenia docelowego z uwzględnieniem bilansu masy rozpuszczalnika.
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w akordeonie Pro z selektorem jednostek (°Sal, °Bé, SG, % wag.).
+  2. Alerty przed przesyceniem (>26% NaCl) i skrajnym rozcieńczeniem (<6% NaCl).
+  3. 100% testów jednostkowych (`tests/core/brine-densitometry.test.ts`).
+* **Persona:** P1, P2, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+
 
 

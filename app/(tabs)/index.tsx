@@ -132,6 +132,17 @@ import {
   calculateVinegarStoichiometry,
   calculateVesselAeration,
 } from '../../src/core/vinegar-standardization';
+import {
+  calculateBrineDensitometry,
+  BRINE_TARGET_PROFILES,
+  BrineTargetProfileKey,
+} from '../../src/core/brine-densitometry';
+import {
+  calculateShioKoji,
+  calculateAmazake,
+  calculateMisoFormulation,
+  KojiMoistureState,
+} from '../../src/core/koji-fermentation';
 
 
 
@@ -294,6 +305,24 @@ export default function CalculatorScreen() {
   const [vinTargetAcidity, setVinTargetAcidity] = useState<number>(5.0);
   const [vinVesselDiameterCm, setVinVesselDiameterCm] = useState<number>(24);
   const [vinInitialAbv, setVinInitialAbv] = useState<number>(6.5);
+
+  // --- BRINE DENSITOMETRY & HYDROMETER TEMP COMPENSATION ---
+  const [brineDensityUnit, setBrineDensityUnit] = useState<'PERCENT_WT' | 'SALOMETER' | 'BAUME' | 'SPECIFIC_GRAVITY'>('PERCENT_WT');
+  const [brineMeasuredValue, setBrineMeasuredValue] = useState<number>(20.0);
+  const [brineSampleTempC, setBrineSampleTempC] = useState<number>(12.0);
+  const [brineTargetProfile, setBrineTargetProfile] = useState<BrineTargetProfileKey>('HARD_CHEESE_HEAVY');
+  const [brineVolumeLitersInput, setBrineVolumeLitersInput] = useState<number>(10.0);
+
+  // --- KOJI, SHIO KOJI & AMAZAKE ENZYMATIC HYDROLYSIS ---
+  const [kojiMode, setKojiMode] = useState<'SHIO_KOJI' | 'AMAZAKE' | 'MISO'>('SHIO_KOJI');
+  const [kojiMassGrams, setKojiMassGrams] = useState<number>(200);
+  const [kojiState, setKojiState] = useState<KojiMoistureState>('DRIED');
+  const [kojiSalinityTarget, setKojiSalinityTarget] = useState<number>(11.5);
+  const [kojiTempC, setKojiTempC] = useState<number>(22.0);
+  const [amazakeCookedRiceGrams, setAmazakeCookedRiceGrams] = useState<number>(200);
+  const [amazakeTempC, setAmazakeTempC] = useState<number>(58.0);
+  const [misoTypeInput, setMisoTypeInput] = useState<'SHIRO_MISO' | 'AKAMISO'>('SHIRO_MISO');
+  const [misoSoyGrams, setMisoSoyGrams] = useState<number>(500);
 
   // Active Flocculation Timer
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
@@ -711,6 +740,58 @@ export default function CalculatorScreen() {
         surfaceDiameterCm: vinVesselDiameterCm,
         liquidVolumeLiters: vinRawVolumeL,
       });
+    } catch {
+      return null;
+    }
+  })();
+
+  const brineDensitometryCalc = (() => {
+    try {
+      const targetPct = BRINE_TARGET_PROFILES[brineTargetProfile]?.targetPercentMin ?? 20.0;
+      return calculateBrineDensitometry({
+        measuredValue: brineMeasuredValue,
+        unit: brineDensityUnit,
+        sampleTempC: brineSampleTempC,
+        calibrationTempC: 20.0,
+        currentBrineVolumeLiters: brineVolumeLitersInput,
+        targetPercent: targetPct,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const kojiCalc = (() => {
+    try {
+      if (kojiMode === 'SHIO_KOJI') {
+        return {
+          type: 'SHIO_KOJI' as const,
+          data: calculateShioKoji({
+            kojiMassGrams,
+            kojiState,
+            targetSalinityPercent: kojiSalinityTarget,
+            fermentationTempC: kojiTempC,
+          }),
+        };
+      } else if (kojiMode === 'AMAZAKE') {
+        return {
+          type: 'AMAZAKE' as const,
+          data: calculateAmazake({
+            kojiMassGrams,
+            cookedRiceMassGrams: amazakeCookedRiceGrams,
+            incubationTempC: amazakeTempC,
+          }),
+        };
+      } else {
+        return {
+          type: 'MISO' as const,
+          data: calculateMisoFormulation({
+            cookedSoybeansGrams: misoSoyGrams,
+            kojiGrams: kojiMassGrams,
+            misoType: misoTypeInput,
+          }),
+        };
+      }
     } catch {
       return null;
     }
@@ -2119,6 +2200,128 @@ export default function CalculatorScreen() {
                     </View>
                   </View>
                 )}
+
+                {/* Brine Densitometry & Hydrometer Temp Compensation */}
+                {brineDensitometryCalc && (
+                  <View style={styles.proCard}>
+                    <Text style={styles.proCardTitle}>
+                      ⚖️ {t('Areometria Solanki & Kompensacja Temperatury')}
+                    </Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Przeliczanie stopni Salometru (°Sal), Baumé (°Bé), gęstości SG i % NaCl z korektą termiczną')}
+                    </Text>
+
+                    {/* Unit selector */}
+                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Jednostka pomiaru:')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {[
+                        { id: 'PERCENT_WT' as const, label: '% NaCl (wag.)' },
+                        { id: 'SALOMETER' as const, label: '°Sal (Salometr)' },
+                        { id: 'BAUME' as const, label: '°Bé (Baumé)' },
+                        { id: 'SPECIFIC_GRAVITY' as const, label: 'SG (Gęstość)' },
+                      ].map((u) => (
+                        <TouchableOpacity
+                          key={u.id}
+                          style={[styles.presetPill, brineDensityUnit === u.id && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setBrineDensityUnit(u.id);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, brineDensityUnit === u.id && styles.presetPillTextActive]}>
+                            {u.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Odczyt areometru:')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(brineMeasuredValue)}
+                        onChangeText={(v) => setBrineMeasuredValue(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Temperatura solanki (°C):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(brineSampleTempC)}
+                        onChangeText={(v) => setBrineSampleTempC(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Objętość solanki (L):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(brineVolumeLitersInput)}
+                        onChangeText={(v) => setBrineVolumeLitersInput(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Profil docelowy solanki:')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {(Object.keys(BRINE_TARGET_PROFILES) as BrineTargetProfileKey[]).map((pk) => {
+                        const prof = BRINE_TARGET_PROFILES[pk];
+                        return (
+                          <TouchableOpacity
+                            key={pk}
+                            style={[styles.presetPill, brineTargetProfile === pk && styles.presetPillActive]}
+                            onPress={() => {
+                              triggerHapticFeedback();
+                              setBrineTargetProfile(pk);
+                            }}
+                          >
+                            <Text style={[styles.presetPillText, brineTargetProfile === pk && styles.presetPillTextActive]}>
+                              {prof.namePl.split(' (')[0]}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </ScrollView>
+
+                    <View style={styles.brineResultBox}>
+                      <Text style={[
+                        styles.safetyStatus,
+                        brineDensitometryCalc.status === 'SUPER_SATURATED' || brineDensitometryCalc.status === 'TOO_DILUTE'
+                          ? styles.safetyDanger
+                          : { color: '#15803D' }
+                      ]}>
+                        • {t('Status roztworu:')} {brineDensitometryCalc.status}
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Gęstość skorygowana SG:')} <Text style={styles.boldText}>{brineDensitometryCalc.temperatureCorrectedSg}</Text> ({t('Korekta termiczna SG:')} {brineDensitometryCalc.thermalOffsetSg > 0 ? `+${brineDensitometryCalc.thermalOffsetSg}` : brineDensitometryCalc.thermalOffsetSg})
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Zasolenie NaCl:')} <Text style={styles.boldText}>{brineDensitometryCalc.percentNacl}%</Text> | {t('Stopnie Salometru:')} <Text style={styles.boldText}>{brineDensitometryCalc.salometerDegrees}°Sal</Text> | {t('Stopnie Baumé:')} <Text style={styles.boldText}>{brineDensitometryCalc.baumeDegrees}°Bé</Text>
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('NaCl na litr solanki:')} <Text style={styles.boldText}>{brineDensitometryCalc.gramsNaclPerLiterBrine} g/L</Text> ({t('NaCl na litr wody:')} {brineDensitometryCalc.gramsNaclPerLiterWater} g/L)
+                      </Text>
+
+                      {brineDensitometryCalc.saltAdjustmentGrams !== undefined && (
+                        <Text style={[styles.recipeDetailText, { marginTop: 6 }]}>
+                          🧂 {t('Dodatek soli do celu:')} <Text style={styles.boldText}>{brineDensitometryCalc.saltAdjustmentGrams} g</Text> ({t('do')} {BRINE_TARGET_PROFILES[brineTargetProfile].namePl})
+                        </Text>
+                      )}
+
+                      {brineDensitometryCalc.alertsPl.map((alert, idx) => (
+                        <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
+                          ⚠️ {alert}
+                        </Text>
+                      ))}
+                    </View>
+                  </View>
+                )}
               </View>
             )}
           </View>
@@ -2460,6 +2663,222 @@ export default function CalculatorScreen() {
                         </Text>
                       ))}
                     </View>
+                  </View>
+                )}
+
+                {/* Koji, Shio Koji & Amazake Hydrolysis */}
+                {kojiCalc && (
+                  <View style={styles.proCard}>
+                    <Text style={styles.proCardTitle}>
+                      🌾 {t('Enzymatyka Koji, Shio Koji & Amazake')}
+                    </Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Hydroliza enzymatyczna Aspergillus oryzae: shio koji, amazake i miso z kontrolą okna termicznego')}
+                    </Text>
+
+                    {/* Mode selector */}
+                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Tryb Koji:')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {[
+                        { id: 'SHIO_KOJI' as const, label: t('Shio Koji (Słona pasta)') },
+                        { id: 'AMAZAKE' as const, label: t('Amazake (Słodki napój ryżowy)') },
+                        { id: 'MISO' as const, label: t('Miso (Pasta sojowa)') },
+                      ].map((km) => (
+                        <TouchableOpacity
+                          key={km.id}
+                          style={[styles.presetPill, kojiMode === km.id && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setKojiMode(km.id);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, kojiMode === km.id && styles.presetPillTextActive]}>
+                            {km.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Masa koji (g):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(kojiMassGrams)}
+                        onChangeText={(v) => setKojiMassGrams(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    {kojiMode === 'SHIO_KOJI' && (
+                      <>
+                        <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Stan koji:')}</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                          {[
+                            { id: 'DRIED' as const, label: t('Suszone') },
+                            { id: 'FRESH' as const, label: t('Świeże (nama)') },
+                          ].map((ks) => (
+                            <TouchableOpacity
+                              key={ks.id}
+                              style={[styles.presetPill, kojiState === ks.id && styles.presetPillActive]}
+                              onPress={() => {
+                                triggerHapticFeedback();
+                                setKojiState(ks.id);
+                              }}
+                            >
+                              <Text style={[styles.presetPillText, kojiState === ks.id && styles.presetPillTextActive]}>
+                                {ks.label}
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </ScrollView>
+
+                        <View style={styles.rowBetween}>
+                          <Text style={styles.inlineLabel}>{t('Temperatura hydrolizy (°C):')}</Text>
+                          <TextInput
+                            style={styles.numInput}
+                            keyboardType="numeric"
+                            value={String(kojiTempC)}
+                            onChangeText={(v) => setKojiTempC(parseFloat(v) || 0)}
+                          />
+                        </View>
+
+                        {kojiCalc.type === 'SHIO_KOJI' && (
+                          <View style={styles.brineResultBox}>
+                            <Text style={styles.proCardDesc}>
+                              • {t('Wymagana woda:')} <Text style={styles.boldText}>{kojiCalc.data.waterGrams} g</Text> | {t('Wymagana sól:')} <Text style={styles.boldText}>{kojiCalc.data.saltGrams} g</Text>
+                            </Text>
+                            <Text style={styles.proCardDesc}>
+                              • {t('Masa całkowita wsadu:')} <Text style={styles.boldText}>{kojiCalc.data.totalBatchMassGrams} g</Text> ({t('Zasolenie efektywne:')} <Text style={styles.boldText}>{kojiCalc.data.effectiveSalinityPercent}%</Text>)
+                            </Text>
+                            <Text style={styles.proCardDesc}>
+                              • {t('Czas fermentacji:')} <Text style={styles.boldText}>{kojiCalc.data.fermentationDurationHours}h</Text> ({kojiCalc.data.fermentationMethodPl})
+                            </Text>
+                            <Text style={styles.proCardDesc}>
+                              • {t('Codzienne mieszanie:')} <Text style={styles.boldText}>{kojiCalc.data.dailyStirringRequired ? t('Wymagane (napowietrzanie)') : t('Zbędne (sous-vide)')}</Text>
+                            </Text>
+                            <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                              🥩 {t('Dawka do kruszenia mięsa:')} <Text style={styles.boldText}>~{kojiCalc.data.meatTenderizingDoseGrams(500)} g</Text> {t('na 500g mięsa / tofu (10%)')}
+                            </Text>
+                            {kojiCalc.data.alertsPl.map((alert, idx) => (
+                              <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
+                                ⚠️ {alert}
+                              </Text>
+                            ))}
+                          </View>
+                        )}
+                      </>
+                    )}
+
+                    {kojiMode === 'AMAZAKE' && (
+                      <>
+                        <View style={styles.rowBetween}>
+                          <Text style={styles.inlineLabel}>{t('Masa ugotowanego ryżu (g):')}</Text>
+                          <TextInput
+                            style={styles.numInput}
+                            keyboardType="numeric"
+                            value={String(amazakeCookedRiceGrams)}
+                            onChangeText={(v) => setAmazakeCookedRiceGrams(parseFloat(v) || 0)}
+                          />
+                        </View>
+
+                        <View style={styles.rowBetween}>
+                          <Text style={styles.inlineLabel}>{t('Temperatura hydrolizy (°C):')}</Text>
+                          <TextInput
+                            style={styles.numInput}
+                            keyboardType="numeric"
+                            value={String(amazakeTempC)}
+                            onChangeText={(v) => setAmazakeTempC(parseFloat(v) || 0)}
+                          />
+                        </View>
+
+                        {kojiCalc.type === 'AMAZAKE' && (
+                          <View style={styles.brineResultBox}>
+                            <Text style={[
+                              styles.safetyStatus,
+                              kojiCalc.data.safetyStatus !== 'OPTIMAL' ? styles.safetyDanger : { color: '#15803D' }
+                            ]}>
+                              • {t('Status bezpieczeństwa termicznego:')} {kojiCalc.data.safetyStatus}
+                            </Text>
+                            <Text style={styles.proCardDesc}>
+                              • {t('Wymagana woda:')} <Text style={styles.boldText}>{kojiCalc.data.waterGrams} g</Text> ({t('Masa całkowita wsadu:')} {kojiCalc.data.totalMassGrams} g)
+                            </Text>
+                            <Text style={styles.proCardDesc}>
+                              • {t('Szacowana słodycz Brix:')} <Text style={styles.boldText}>{kojiCalc.data.expectedBrixSweetness} °Bx</Text> | {t('Czas fermentacji:')} {kojiCalc.data.incubationHours}h
+                            </Text>
+                            {kojiCalc.data.alertsPl.map((alert, idx) => (
+                              <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
+                                ⚠️ {alert}
+                              </Text>
+                            ))}
+                            {kojiCalc.data.instructionsPl.map((inst, idx) => (
+                              <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 3 }}>
+                                💡 {inst}
+                              </Text>
+                            ))}
+                          </View>
+                        )}
+                      </>
+                    )}
+
+                    {kojiMode === 'MISO' && (
+                      <>
+                        <View style={styles.rowBetween}>
+                          <Text style={styles.inlineLabel}>{t('Masa gotowanej soi (g):')}</Text>
+                          <TextInput
+                            style={styles.numInput}
+                            keyboardType="numeric"
+                            value={String(misoSoyGrams)}
+                            onChangeText={(v) => setMisoSoyGrams(parseFloat(v) || 0)}
+                          />
+                        </View>
+
+                        <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Typ miso:')}</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                          {[
+                            { id: 'SHIRO_MISO' as const, label: t('Shiro Miso (Jasne, słodkie, 1.5 mies.)') },
+                            { id: 'AKAMISO' as const, label: t('Akamiso (Ciemne, wytrawne, 12 mies.)') },
+                          ].map((mt) => (
+                            <TouchableOpacity
+                              key={mt.id}
+                              style={[styles.presetPill, misoTypeInput === mt.id && styles.presetPillActive]}
+                              onPress={() => {
+                                triggerHapticFeedback();
+                                setMisoTypeInput(mt.id);
+                              }}
+                            >
+                              <Text style={[styles.presetPillText, misoTypeInput === mt.id && styles.presetPillTextActive]}>
+                                {mt.label}
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </ScrollView>
+
+                        {kojiCalc.type === 'MISO' && (
+                          <View style={styles.brineResultBox}>
+                            <Text style={[
+                              styles.safetyStatus,
+                              kojiCalc.data.safetyStatus !== 'SAFE' ? styles.safetyDanger : { color: '#15803D' }
+                            ]}>
+                              • {t('Status bezpieczeństwa:')} {kojiCalc.data.safetyStatus}
+                            </Text>
+                            <Text style={styles.proCardDesc}>
+                              • {t('Wymagana sól:')} <Text style={styles.boldText}>{kojiCalc.data.saltGrams} g</Text> ({t('Zasolenie efektywne:')} <Text style={styles.boldText}>{kojiCalc.data.saltPercent}%</Text>)
+                            </Text>
+                            <Text style={styles.proCardDesc}>
+                              • {t('Zalecany ciężar docisku:')} <Text style={styles.boldText}>{kojiCalc.data.pressWeightGrams} g</Text> (otoshiguta + kamień)
+                            </Text>
+                            <Text style={styles.proCardDesc}>
+                              • {t('Czas fermentacji:')} <Text style={styles.boldText}>~{kojiCalc.data.fermentationDurationMonths} {t('miesięcy')}</Text>
+                            </Text>
+                            {kojiCalc.data.alertsPl.map((alert, idx) => (
+                              <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
+                                ⚠️ {alert}
+                              </Text>
+                            ))}
+                          </View>
+                        )}
+                      </>
+                    )}
                   </View>
                 )}
               </View>

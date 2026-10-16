@@ -888,6 +888,32 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-SER-037: Areometria Solanki & Kompensacja Temperatury (Brine Densitometry & Hydrometer Temp Compensation Engine)**
+* **Opis:** Laboratoryjny model przeliczeń gęstości i zasolenia roztworów solankowych z użyciem areometrów serowarskich (skala Salometru °Sal, Baumé °Bé, Specific Gravity SG oraz % wagowy NaCl) wraz z kompensacją temperaturowej rozszerzalności cieczy (`src/core/brine-densitometry.ts`).
+* **Zasady fizykochemiczne modelu:**
+  1. **Konwersje skal:**
+     * Salometr: $100^\circ\text{Sal} = 26.395\%\text{ wagowo NaCl}$ (roztwór nasycony przy 60°F / 15.56°C).
+     * Skala Baumé: $^\circ\text{Bé} = 145 \times (1 - 1 / \text{SG})$ oraz $\text{SG} = 145 / (145 - ^\circ\text{Bé})$.
+     * Wielomian gęstości pozornej CRC: $\text{SG}_{20} = 1.000 + 0.007077 \cdot P + 0.0000305 \cdot P^2$ dla $P \in [0, 26.4\%]$.
+  2. **Kompensacja temperaturowa:**
+     * Ciecz w chłodni dojrzewalniczej (10–12°C) jest gęstsza od wzorca 20°C (areometr wypływa wyżej, wskazując zawyżone zasolenie).
+     * Współczynnik korekcji termicznej: $\Delta \text{SG} = (T_{próbki} - T_{wzorca}) \times 0.00032$.
+  3. **Wbudowane profile serowarskie:**
+     * Sery twarde (Gouda, Parmezan, Cheddar): 18–20°Bé / 72–80°Sal (19–21% NaCl).
+     * Sery miękkie (Camembert, Brie): 13.5–15.5°Bé / 53–61°Sal (14–16% NaCl).
+     * Sery parzone Pasta Filata (Mozzarella): 15.5–17.5°Bé / 60–68°Sal (16–18% NaCl).
+     * Solanka do Fety: 6.8–8.3°Bé / 26–32°Sal (7–8.5% NaCl).
+  4. **Kalkulator korekty dosypki soli:**
+     * Dokładne wyliczenie gramów soli kamiennej do dosypania do istniejącej objętości solanki w celu osiągnięcia stężenia docelowego z uwzględnieniem bilansu masy rozpuszczalnika.
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w akordeonie Pro z selektorem jednostek (°Sal, °Bé, SG, % wag.).
+  2. Alerty przed przesyceniem (>26% NaCl) i skrajnym rozcieńczeniem (<6% NaCl).
+  3. 100% testów jednostkowych (`tests/core/brine-densitometry.test.ts`).
+* **Persona:** P1, P2, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B2_Narzedzia_Obrobka_Skrzepu_Prasowanie.md -->
@@ -1501,6 +1527,29 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 * **Kryteria akceptacji:**
   1. Zintegrowana karta w trybie `veg` Pro Accordion.
   2. Pełne pokrycie testami jednostkowymi (`tests/core/botanical-extraction.test.ts`).
+* **Persona:** P2, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
+### **BR-KISZ-022: Enzymatyka Koji, Shio Koji & Słodkie Amazake (Koji Solid-State Hydrolysis & Formulation Engine)**
+* **Opis:** Fizjologiczno-enzymatyczny model produktów hydrolizowanych przez *Aspergillus oryzae* (shio koji, słodkie amazake, formulacje miso Shiro i Akamiso) z rygorystyczną kontrolą okna termicznego enzymów amylolitycznych i proteolitycznych (`src/core/koji-fermentation.ts`).
+* **Kluczowe reguły biochemiczne:**
+  1. **Shio Koji (Enzymatyczna pasta do marynowania):**
+     * Proporcje wsadu: Koji (100g) + Woda (135g dla suszonego / 110g dla świeżego nama-koji) + Sól (ok. 30–35g) = bezpieczne zasolenie ok. 11.5% masy ogólnej.
+     * Alerty bezpieczeństwa: zasolenie <9% grozi niekontrolowanym skwaszeniem mlekowym; zasolenie >15% silnie hamuje aktywność proteaz (słabe kruszenie włókien mięśniowych).
+     * Tryb termiczny: fermentacja pokojowa (22°C, 7–10 dni, wymagane codzienne mieszanie i napowietrzanie) vs przyspieszona hydroliza sous-vide (58°C, 8 godzin, gotowe w 1 dzień).
+     * Dawkowanie kulinarne: 10% wagi mięsa / tofu, czas marinacji 2–12 godzin.
+  2. **Amazake (Słodki bezalkoholowy napój ryżowy):**
+     * Okno termiczne amylaz: ściśle 55°C – 60°C (optymalna produkcja glukozy i maltozy do ~24°Bx).
+     * Alert $T < 52^\circ\text{C}$: `RISK_OF_LACTIC_SOURING` (namnażanie dzikich bakterii kwasu mlekowego, kwaszenie zamiast słodyczy).
+     * Alert $T > 63^\circ\text{C}$: `CRITICAL_AMYLASE_DENATURATION` (nieodwracalne zniszczenie enzymów $\alpha$-amylazy i glukoamylazy, utrata słodkości, surowy kleik).
+  3. **Formulacje Miso i ciężary dociskowe:**
+     * Shiro Miso (jasne, słodkie): 5.5% soli, fermentacja 1.5 miesiąca, docisk 20% wagi wsadu.
+     * Akamiso (ciemne, wytrawne): 12.0% soli, fermentacja 12 miesięcy, docisk 30% wagi wsadu (ochrona przed zakażeniem powierzchniowym).
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w trybie Kiszonki & Warzywa Pro Accordion z selektorem trybów (Shio Koji, Amazake, Miso).
+  2. 100% testów jednostkowych (`tests/core/koji-fermentation.test.ts`).
 * **Persona:** P2, P5, P6.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
