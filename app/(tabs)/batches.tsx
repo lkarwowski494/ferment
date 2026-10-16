@@ -40,6 +40,7 @@ import {
   evaluateSensoryProfile,
   SensoryProfileScores,
 } from '../../src/core/sensory-evaluation';
+import { parseDeepLinkOrQr } from '../../src/core/qr-deeplink';
 
 export default function BatchesScreen() {
   const {
@@ -278,6 +279,74 @@ export default function BatchesScreen() {
   const liveSensoryResult = evaluatingBatch
     ? evaluateSensoryProfile(evaluatingBatch.category, sensoryScores)
     : null;
+
+  const handleQrScanResult = (scannedCode: string) => {
+    setIsScannerVisible(false);
+    triggerHapticFeedback();
+
+    const parsed = parseDeepLinkOrQr(scannedCode);
+    const targetId = (parsed.id || parsed.raw || '').toLowerCase().trim();
+
+    // Check if matching wheel
+    const matchedWheel = caveWheels.find(
+      (w) => w.id.toLowerCase() === targetId || w.wheelTag.toLowerCase() === targetId
+    );
+
+    // Check if matching batch
+    const matchedBatch = batches.find(
+      (b) => b.id.toLowerCase() === targetId || b.batchNumber.toLowerCase() === targetId
+    );
+
+    if (parsed.type === 'wheel' || (matchedWheel && !matchedBatch)) {
+      if (matchedWheel) {
+        setActiveTabSection('cave');
+        toggleWheelHistory(matchedWheel.id);
+        Alert.alert(
+          `${t('Znaleziono Krążek:')} ${matchedWheel.wheelTag}`,
+          `${t('Waga:')} ${matchedWheel.currentWeightGrams}g | ${t('Ubytek:')} ${matchedWheel.shrinkagePct.toFixed(1)}%\n${t('Wybierz szybką akcję pielęgnacyjną:')}`,
+          [
+            { text: t('Obróć'), onPress: () => handleAffinageAction(matchedWheel, 'TURN') },
+            { text: t('Zważ'), onPress: () => setWeighWheelId(matchedWheel.id) },
+            { text: t('OK'), style: 'cancel' },
+          ]
+        );
+      } else {
+        Alert.alert(
+          t('Nie Znaleziono Krążka'),
+          `${t('Nie odnaleziono krążka o identyfikatorze:')} ${parsed.id || scannedCode}`
+        );
+      }
+      return;
+    }
+
+    if (parsed.type === 'batch' || matchedBatch) {
+      if (matchedBatch) {
+        setActiveTabSection('batches');
+        Alert.alert(
+          `${t('Znaleziono Partię:')} ${matchedBatch.batchNumber}`,
+          `${matchedBatch.styleName}\n${t('Status:')} ${matchedBatch.status}\n${t('Czy chcesz otworzyć ocenę sensoryczną tej partii?')}`,
+          [
+            {
+              text: t('⭐ Oceń Sensorycznie'),
+              onPress: () => {
+                setEvaluatingBatch(matchedBatch);
+              },
+            },
+            { text: t('OK'), style: 'cancel' },
+          ]
+        );
+      } else {
+        Alert.alert(
+          t('Nie Znaleziono Partii'),
+          `${t('Nie odnaleziono partii o identyfikatorze:')} ${parsed.id || scannedCode}`
+        );
+      }
+      return;
+    }
+
+    // Fallback for general QR code
+    Alert.alert(t('Odczytano Kod QR'), `${t('Dane:')} ${scannedCode}`);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -866,9 +935,7 @@ export default function BatchesScreen() {
       <QrScannerModal
         visible={isScannerVisible}
         onClose={() => setIsScannerVisible(false)}
-        onScanSuccess={(scannedCode) => {
-          Alert.alert(t('Odczytano Kod QR'), `${t('Partia / Krążek:')} ${scannedCode}`);
-        }}
+        onScanSuccess={handleQrScanResult}
       />
 
       {/* Apps4Brew Paywall Modal */}

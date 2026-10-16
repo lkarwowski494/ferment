@@ -14,6 +14,8 @@ import {
   getPantry,
   savePantryItem,
   deletePantryItem,
+  updatePantryItemQty,
+  applyPantryDepletion,
   getAppAccess,
   setSubscriptionTier,
   incrementCompletedBatches,
@@ -175,5 +177,26 @@ describe('FERMENT SQLite Store & Persistence (Faza 1)', () => {
 
     const nextCount = await incrementCompletedBatches();
     expect(nextCount).toBe(1);
+  });
+
+  it('updates pantry quantity and applies batch depletion', async () => {
+    const item: PantryItem = {
+      id: 'pantry_dep_test',
+      itemName: 'Cukier Trzcinowy',
+      category: 'SUGAR',
+      quantityAvailable: 1000,
+      unit: 'g',
+    };
+    await savePantryItem(item);
+
+    await updatePantryItemQty('pantry_dep_test', 850);
+    let pantry = await getPantry();
+    expect(pantry.find((p) => p.id === 'pantry_dep_test')?.quantityAvailable).toBe(850);
+
+    await applyPantryDepletion([
+      { pantryItemId: 'pantry_dep_test', remainingQty: 700 },
+    ]);
+    pantry = await getPantry();
+    expect(pantry.find((p) => p.id === 'pantry_dep_test')?.quantityAvailable).toBe(700);
   });
 });

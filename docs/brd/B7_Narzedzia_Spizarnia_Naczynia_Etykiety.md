@@ -66,3 +66,15 @@
 * **Persona:** P1, P2, P6.
 * **Priorytet:** MUST | **Etap:** MVP.
 
+---
+
+### **BR-MAG-025: Dirty-Hands Steppers i Skaner Deep-Link (Pantry Steppers & Deep-Linking)**
+* **Opis:** Ergonomia mokrych rąk w spiżarni oraz bezdotykowa nawigacja po partiach i krążkach (`qr-deeplink.ts` + `QrScannerModal.tsx`).
+* **Kluczowe funkcjonalności:**
+  1. **Dotykowe steppery $\ge 56\text{ pt}$:** Szybka korekta stanu magazynowego (`-1` / `+1`) jednym tapnięciem bez otwierania klawiatury systemowej.
+  2. **Obsługa protokołu deep-link:** Obsługa schematów `ferment://batch/<id>` oraz `ferment://wheel/<id>`.
+  3. **Reakcja na skan kodu QR:** Po zeskanowaniu etykiety krążka lub partii aplikacja automatycznie przełącza widok na odpowiednią zakładkę (Dziennik Partii lub Piwniczka), rozwija historię pielęgnacji oraz prezentuje modal szybkich akcji (Obróć / Zważ / Oceń sensorycznie).
+* **Persona:** P1, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+

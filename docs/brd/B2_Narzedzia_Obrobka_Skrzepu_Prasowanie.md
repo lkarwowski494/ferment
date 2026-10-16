@@ -102,3 +102,18 @@
 * **Persona:** P1, P2, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
+---
+
+### **BR-PRESS-016: Przemywanie Ziarna & Odlaktozowanie (Curd Washing / Delactosing Thermal Equilibrium)**
+* **Opis:** Bilans masowo-termiczny przemywania ziarna serowarskiego gorącą wodą (Gouda, Edam, Havarti). Usuwa część laktozy z serwatki, zapobiegając nadmiernemu przekwaszeniu i zapewniając elastyczną, maślaną strukturę miąższu.
+* **Formuła równowagi cieplnej:**
+  $$V_{woda} = \frac{(V_{mleko} - V_{odlana}) \cdot (T_{docelowa} - T_{ziarno})}{T_{goraca} - T_{docelowa}}$$
+* **Wskaźnik odlaktozowania:**
+  $$Ratio_{delacto} = \left(\frac{V_{odlana}}{V_{mleko}}\right) \times 100\%$$
+* **Reguły ochronne:**
+  - Alarm $T_{goraca} > 65^\circ\text{C}$: Ostrzeżenie przed zacięciem termicznym powierzchni ziaren (case hardening) i zniszczeniem mikroflory.
+  - Alarm $T_{docelowa} > 39^\circ\text{C}$ dla kultur mezofilnych (*Lactococcus lactis*): Blokada przed zabiciem bakterii.
+* **Persona:** P1, P2, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+

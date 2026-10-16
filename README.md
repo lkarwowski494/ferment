@@ -75,6 +75,20 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
 17. **6-Osiowy Silnik Oceny Sensorycznej & Balansu Organoleptycznego (`src/core/sensory-evaluation.ts`):**
     - Standaryzowana skala 0–100 pkt i klasyfikacja (EXEMPLARY, GOOD, ACCEPTABLE, FLAWED).
     - Analiza kwasowości, słoności, zwartości/chrupkości, kremowości, pikantności i orzechowości z automatycznym wykrywaniem wad technologicznych i poradami naprawczymi.
+18. **Przemywanie Ziarna & Odlaktozowanie (Curd Washing / Delactosing — `src/core/curd-washing-and-salting.ts`):**
+    - Bilans masowo-termiczny przemywania ziarna serowarskiego gorącą wodą (Gouda, Edam, Havarti).
+    - Obliczanie objętości dolewanej wody o danej temperaturze, by podnieść temperaturę gęstwy i odlaktozować wsad do pożądanego profilu słodyczy/elastyczności.
+    - Ochrona przed zacięciem termicznym ($>65^\circ\text{C}$) i inaktywacją mezofili ($>39^\circ\text{C}$).
+19. **Solenie Ziarna w Masie dla Cheddara (Milling & Dry Salting — `src/core/curd-washing-and-salting.ts`):**
+    - Bezpośrednie solenie na sucho pociętych bloków skrzepu z kompensacją 33% strat soli w odciekającej pod prasą serwatce.
+    - 3-etapowy protokół zadawania soli z przerwami na osmozę kapilarną.
+20. **Kalkulator Powłok Ochronnych & Woskowania Krążka (Wax & Polyvinyl Coverage — `src/core/curd-washing-and-salting.ts`):**
+    - Precyzyjne obliczanie pola powierzchni walca sera ($A = 2\pi r^2 + 2\pi r h$) oraz gramatury wosku serowarskiego (bariera 0% ubytku) lub powłoki polioctanowej (paroprzepuszczalna bariera przeciwgrzybicza).
+21. **Automatyczny Odpis ze Spiżarni i Steppery Ergonomiczne (`src/core/inventory.ts`, `src/data/sqlite-store.ts`):**
+    - Automatyczne odejmowanie składników (mleko, podpuszczka, CaCl2, sól, cukier, herbata) ze spiżarni podczas tworzenia nowej partii, ze skalowaniem wg receptur kanonicznych lub wprowadzonych parametrów.
+    - Steppery $\ge 56\text{ pt}$ (`-1` / `+1`) i natychmiastowe usuwanie pozycji ze spiżarni.
+22. **Skaner Kodów QR i Obsługa Protokołu Deep-Link (`src/core/qr-deeplink.ts`, `src/components/QrScannerModal.tsx`):**
+    - Obsługa protokołów `ferment://batch/<id>` oraz `ferment://wheel/<id>`, JSON i kodów etykiet A4 z natychmiastowym przełączeniem widoku i prezentacją modalnych akcji.
 
 ---
 
@@ -87,7 +101,7 @@ npm run typecheck
 # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
 npm run check:i18n
 
-# 3. Wykonanie 24 pakietów testowych Jest
+# 3. Wykonanie 26 pakietów testowych Jest
 npm test
 
 # 4. Uruchomienie całościowej bramki
@@ -95,9 +109,10 @@ npm run verify
 ```
 
 Stan testów na dzień 16.10.2026:
-- **24 test suites PASS** (100%)
-- **95 unit & integration tests PASS** (100%)
-- **401 tekstów UI w kodzie przetłumaczonych na PL i EN** (100% parytet)
+- **26 test suites PASS** (100%)
+- **117 unit & integration tests PASS** (100%)
+- **446 tekstów UI w kodzie przetłumaczonych na PL i EN** (100% parytet)
+- **BRD: 85.6 stron znormalizowanych (154,074 znaków ze spacjami, 25 modularnych rozdziałów)**
 
 ---
 

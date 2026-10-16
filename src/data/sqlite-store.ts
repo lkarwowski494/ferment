@@ -594,6 +594,31 @@ export async function deletePantryItem(itemId: string): Promise<void> {
   memPantry = memPantry.filter((p) => p.id !== itemId);
 }
 
+export async function updatePantryItemQty(itemId: string, newQty: number): Promise<void> {
+  const safeQty = Math.max(0, Math.round(newQty * 100) / 100);
+  const db = await getDb();
+  if (db) {
+    try {
+      await db.runAsync('UPDATE pantry_inventory SET quantity_available = ? WHERE id = ?', [safeQty, itemId]);
+      return;
+    } catch {
+      // Fallback
+    }
+  }
+  const idx = memPantry.findIndex((p) => p.id === itemId);
+  if (idx >= 0) {
+    memPantry[idx] = { ...memPantry[idx], quantityAvailable: safeQty };
+  }
+}
+
+export async function applyPantryDepletion(
+  depletions: { pantryItemId: string; remainingQty: number }[]
+): Promise<void> {
+  for (const dep of depletions) {
+    await updatePantryItemQty(dep.pantryItemId, dep.remainingQty);
+  }
+}
+
 export type CaveWheel = CaveCheeseWheel;
 
 export interface WeighLog {
@@ -801,6 +826,8 @@ export function getSqliteStore() {
     getPantryItems: getPantry,
     savePantryItem,
     deletePantryItem,
+    updatePantryItemQty,
+    applyPantryDepletion,
     getWeighLogs: async (wheelId?: string): Promise<WeighLog[]> => {
       if (wheelId) {
         const actions = await getCaveActions(wheelId);

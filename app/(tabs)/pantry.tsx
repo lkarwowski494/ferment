@@ -104,12 +104,9 @@ export default function PantryScreen() {
   const handleUpdateQuantity = (item: PantryItem, delta: number) => {
     requireActionAccess(async () => {
       triggerHapticFeedback();
-      const updated: PantryItem = {
-        ...item,
-        quantityAvailable: Math.max(0, Math.round((item.quantityAvailable + delta) * 10) / 10),
-      };
+      const updatedQty = Math.max(0, Math.round((item.quantityAvailable + delta) * 10) / 10);
       const store = getSqliteStore();
-      await store.savePantryItem(updated);
+      await store.updatePantryItemQty(item.id, updatedQty);
       await createAutoBackup();
       await loadPantry();
     });

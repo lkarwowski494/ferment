@@ -21,6 +21,7 @@ import { useAppAccess } from '../../src/lib/app-access';
 import { Apps4BrewPassModal } from '../../src/components/Apps4BrewPassModal';
 import { getSqliteStore, Batch } from '../../src/data/sqlite-store';
 import { createAutoBackup } from '../../src/lib/backup';
+import { processPantryDepletion, RecipeRequirement } from '../../src/core/inventory';
 import {
   calculateRennetDose,
   calculateCacl2Dose,
@@ -86,6 +87,11 @@ import {
   calculateKombucha2FBlending,
   KombuchaBottleType,
 } from '../../src/core/kombucha-blending';
+import {
+  calculateCurdWashWater,
+  calculateCurdMillingSalting,
+  calculateWheelCoating,
+} from '../../src/core/curd-washing-and-salting';
 
 export default function CalculatorScreen() {
   const {
@@ -160,6 +166,16 @@ export default function CalculatorScreen() {
   const [juiceVolumeMl, setJuiceVolumeMl] = useState<number>(150);
   const [kombuchaBottleType, setKombuchaBottleType] = useState<KombuchaBottleType>('HEAVY_SWING_TOP_AMBER');
   const [kombuchaTemp, setKombuchaTemp] = useState<number>(22);
+
+  // --- CURD WASHING, CHEDDAR SALTING & COATING ---
+  const [washWheyDrainedLiters, setWashWheyDrainedLiters] = useState<number>(3.0);
+  const [washHotWaterTempC, setWashHotWaterTempC] = useState<number>(60);
+  const [washTargetTempC, setWashTargetTempC] = useState<number>(37);
+  const [cheddarCurdGrams, setCheddarCurdGrams] = useState<number>(1050);
+  const [cheddarTargetSalinityPct, setCheddarTargetSalinityPct] = useState<number>(2.0);
+  const [coatingType, setCoatingType] = useState<'CHEESE_WAX' | 'POLYVINYL_BREATHABLE'>('CHEESE_WAX');
+  const [coatingWheelHeightCm, setCoatingWheelHeightCm] = useState<number>(8.0);
+  const [coatingLayers, setCoatingLayers] = useState<number>(2);
 
   // Active Flocculation Timer
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
@@ -318,6 +334,48 @@ export default function CalculatorScreen() {
     daysAtRoomTemp: daysIn2F,
   });
 
+  const curdWashCalc = (() => {
+    try {
+      const safeDrained = Math.min(milkLiters * 0.8, Math.max(0.5, washWheyDrainedLiters));
+      const safeTarget = Math.max(32, Math.min(washHotWaterTempC - 1, washTargetTempC));
+      return calculateCurdWashWater({
+        milkVolumeLiters: milkLiters,
+        initialCurdTempC: 31,
+        wheyDrainedLiters: safeDrained,
+        hotWaterTempC: washHotWaterTempC,
+        targetCookingTempC: safeTarget,
+        cultureType: 'MESOPHILIC',
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const cheddarSaltingCalc = (() => {
+    try {
+      return calculateCurdMillingSalting({
+        curdWeightGrams: cheddarCurdGrams,
+        targetSalinityPct: cheddarTargetSalinityPct,
+        wheyRunoffLossPct: 33.0,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const wheelCoatingCalc = (() => {
+    try {
+      return calculateWheelCoating({
+        diameterCm: moldDiamCm,
+        heightCm: coatingWheelHeightCm,
+        coatingType,
+        layersCount: coatingLayers,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
   const handleSaveBatch = () => {
     requireActionAccess(async () => {
       triggerHapticFeedback();
@@ -339,6 +397,92 @@ export default function CalculatorScreen() {
         category = 'KOMBUCHA';
       }
 
+      // Prepare recipe requirements for auto-depletion (BR-MAG-005)
+      const requirements: RecipeRequirement[] = [];
+
+      if (selectedRecipe) {
+        const scale =
+          craftMode === 'cheese'
+            ? milkLiters
+            : craftMode === 'veg'
+            ? vegGrams / 1000
+            : kombuchaWaterLiters;
+
+        for (const ing of selectedRecipe.ingredients) {
+          if (['MILK', 'RENNET', 'CULTURE', 'SALT', 'MINERAL', 'TEA', 'SUGAR'].includes(ing.category)) {
+            requirements.push({
+              name: ing.name,
+              category: ing.category as any,
+              quantity: Math.round(ing.quantityPerUnit * scale * 100) / 100,
+              unit: ing.unit,
+            });
+          }
+        }
+      } else {
+        if (craftMode === 'cheese') {
+          requirements.push({
+            name:
+              milkType === 'COW'
+                ? t('Mleko Krowie')
+                : milkType === 'GOAT'
+                ? t('Mleko Kozie')
+                : t('Mleko Owcze'),
+            category: 'MILK',
+            quantity: milkLiters,
+            unit: 'L',
+          });
+          if (rennetCalc.volumeMl > 0) {
+            requirements.push({
+              name: t('Podpuszczka'),
+              category: 'RENNET',
+              quantity: Math.round(rennetCalc.volumeMl * 100) / 100,
+              unit: 'ml',
+            });
+          }
+          if (cacl2Calc.solution33PercentMl > 0) {
+            requirements.push({
+              name: t('Chlorek Wapnia'),
+              category: 'MINERAL',
+              quantity: Math.round(cacl2Calc.solution33PercentMl * 100) / 100,
+              unit: 'ml',
+            });
+          }
+        } else if (craftMode === 'veg') {
+          if (totalSalinityCalc.saltGrams > 0) {
+            requirements.push({
+              name: t('Sól Kamienna'),
+              category: 'SALT',
+              quantity: totalSalinityCalc.saltGrams,
+              unit: 'g',
+            });
+          }
+        } else {
+          if (kombucha1F.sugarGrams > 0) {
+            requirements.push({
+              name: t('Cukier'),
+              category: 'SUGAR',
+              quantity: kombucha1F.sugarGrams,
+              unit: 'g',
+            });
+          }
+          if (kombucha1F.teaGrams > 0) {
+            requirements.push({
+              name: t('Herbata'),
+              category: 'TEA',
+              quantity: kombucha1F.teaGrams,
+              unit: 'g',
+            });
+          }
+        }
+      }
+
+      const currentPantry = await store.getPantryItems();
+      const depletion = processPantryDepletion(requirements, currentPantry);
+
+      if (depletion.items.length > 0) {
+        await store.applyPantryDepletion(depletion.items);
+      }
+
       await store.saveBatch({
         id: `batch_${now}`,
         batchNumber: code,
@@ -351,11 +495,21 @@ export default function CalculatorScreen() {
 
       await createAutoBackup();
 
-      Alert.alert(
-        t('Partia Zapisana!'),
-        `${name}\n${t('Numer partii:')} ${code}`,
-        [{ text: t('OK') }]
-      );
+      let alertMsg = `${name}\n${t('Numer partii:')} ${code}`;
+      if (depletion.items.length > 0) {
+        const deductedList = depletion.items
+          .filter((i) => i.deductedQty > 0)
+          .map((i) => `• ${i.name}: -${i.deductedQty} ${i.unit}`)
+          .join('\n');
+        if (deductedList) {
+          alertMsg += `\n\n📦 ${t('Odpisano ze spiżarni:')}\n${deductedList}`;
+        }
+      }
+      if (depletion.deficitWarnings.length > 0) {
+        alertMsg += `\n\n⚠️ ${t('Braki w spiżarni:')}\n${depletion.deficitWarnings.join('\n')}`;
+      }
+
+      Alert.alert(t('Partia Zapisana!'), alertMsg, [{ text: t('OK') }]);
     });
   };
 
@@ -1016,6 +1170,167 @@ export default function CalculatorScreen() {
                       <Text style={styles.boldText}>{(wheyDrinkCalc.wheyLiters + wheyDrinkCalc.waterDilutionMl / 1000).toFixed(1)} L</Text> ({t('z dodatkiem soku jabłkowego 1:1')})
                     </Text>
                   </View>
+                </View>
+
+                {/* 7. Curd Washing / Delactosing */}
+                <View style={styles.proCard}>
+                  <Text style={styles.proCardTitle}>💧 {t('Przemywanie Ziarna & Odlaktozowanie (Gouda/Edam)')}</Text>
+                  <Text style={styles.proCardDesc}>
+                    {t('Obniżanie kwasowości i regulacja elastyczności miąższu dolewaniem gorącej wody')}
+                  </Text>
+                  <View style={styles.rowBetween}>
+                    <Text style={styles.inlineLabel}>{t('Odlana serwatka (L):')}</Text>
+                    <TextInput
+                      style={styles.numInput}
+                      keyboardType="numeric"
+                      value={String(washWheyDrainedLiters)}
+                      onChangeText={(v) => setWashWheyDrainedLiters(parseFloat(v) || 0)}
+                    />
+                  </View>
+                  <View style={styles.rowBetween}>
+                    <Text style={styles.inlineLabel}>{t('Temp. dolewanej wody (°C):')}</Text>
+                    <TextInput
+                      style={styles.numInput}
+                      keyboardType="numeric"
+                      value={String(washHotWaterTempC)}
+                      onChangeText={(v) => setWashHotWaterTempC(parseFloat(v) || 50)}
+                    />
+                  </View>
+                  <View style={styles.rowBetween}>
+                    <Text style={styles.inlineLabel}>{t('Docelowa temp. gęstwy (°C):')}</Text>
+                    <TextInput
+                      style={styles.numInput}
+                      keyboardType="numeric"
+                      value={String(washTargetTempC)}
+                      onChangeText={(v) => setWashTargetTempC(parseFloat(v) || 36)}
+                    />
+                  </View>
+                  {curdWashCalc && (
+                    <View style={styles.brineResultBox}>
+                      <Text style={styles.brineText}>
+                        • {t('Wymagana objętość gorącej wody:')}{' '}
+                        <Text style={styles.boldText}>{curdWashCalc.waterVolumeLiters} L</Text>
+                      </Text>
+                      <Text style={styles.brineText}>
+                        • {t('Stopień odlaktozowania wsadu:')}{' '}
+                        <Text style={styles.boldText}>{curdWashCalc.delactosingRatioPct}%</Text>
+                      </Text>
+                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                        💡 {curdWashCalc.techniqueRecommendation}
+                      </Text>
+                      {curdWashCalc.warnings.map((w, idx) => (
+                        <View key={idx} style={[styles.warningAlert, { marginTop: 6 }]}>
+                          <Text style={styles.warningAlertText}>⚠️ {w}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </View>
+
+                {/* 8. Cheddar Curd Milling & Dry Salting */}
+                <View style={styles.proCard}>
+                  <Text style={styles.proCardTitle}>🧂 {t('Solenie Ziarna w Masie (Milling Cheddara)')}</Text>
+                  <Text style={styles.proCardDesc}>
+                    {t('Precyzyjne solenie na sucho z uwzględnieniem odcieku pod prasą')}
+                  </Text>
+                  <View style={styles.rowBetween}>
+                    <Text style={styles.inlineLabel}>{t('Masa pociętego ziarna (g):')}</Text>
+                    <TextInput
+                      style={styles.numInput}
+                      keyboardType="numeric"
+                      value={String(cheddarCurdGrams)}
+                      onChangeText={(v) => setCheddarCurdGrams(parseFloat(v) || 0)}
+                    />
+                  </View>
+                  <View style={styles.rowBetween}>
+                    <Text style={styles.inlineLabel}>{t('Docelowa słoność sera (%):')}</Text>
+                    <TextInput
+                      style={styles.numInput}
+                      keyboardType="numeric"
+                      value={String(cheddarTargetSalinityPct)}
+                      onChangeText={(v) => setCheddarTargetSalinityPct(parseFloat(v) || 0)}
+                    />
+                  </View>
+                  {cheddarSaltingCalc && (
+                    <View style={styles.brineResultBox}>
+                      <Text style={styles.brineText}>
+                        • {t('Całkowita sól do zadania na sucho:')}{' '}
+                        <Text style={styles.boldText}>{cheddarSaltingCalc.totalSaltToApplyGrams} g</Text> ({t('w tym sól związana:')} {cheddarSaltingCalc.netSaltRetainedGrams}g)
+                      </Text>
+                      <View style={{ marginTop: 6 }}>
+                        {cheddarSaltingCalc.additions.map((step) => (
+                          <Text key={step.step} style={[styles.brineText, { fontSize: 13, marginBottom: 3 }]}>
+                            {step.step}. <Text style={styles.boldText}>{step.grams} g</Text> — {step.instruction}
+                          </Text>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+                </View>
+
+                {/* 9. Cheese Wheel Coating & Wax Calculator */}
+                <View style={styles.proCard}>
+                  <Text style={styles.proCardTitle}>🛡️ {t('Woskowanie & Powłoki Ochronne Krążka')}</Text>
+                  <Text style={styles.proCardDesc}>
+                    {t('Obliczanie powierzchni krążka i zapotrzebowania na wosk serowarski lub polioctan')}
+                  </Text>
+                  <View style={styles.typeSelectorRow}>
+                    <TouchableOpacity
+                      style={[styles.typePill, coatingType === 'CHEESE_WAX' && styles.typePillActive]}
+                      onPress={() => {
+                        triggerHapticFeedback();
+                        setCoatingType('CHEESE_WAX');
+                      }}
+                    >
+                      <Text style={[styles.typePillText, coatingType === 'CHEESE_WAX' && styles.typePillTextActive]}>
+                        🧀 {t('Wosk Serowarski')}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.typePill, coatingType === 'POLYVINYL_BREATHABLE' && styles.typePillActive]}
+                      onPress={() => {
+                        triggerHapticFeedback();
+                        setCoatingType('POLYVINYL_BREATHABLE');
+                      }}
+                    >
+                      <Text style={[styles.typePillText, coatingType === 'POLYVINYL_BREATHABLE' && styles.typePillTextActive]}>
+                        🛡️ {t('Powłoka Polioctanowa')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.rowBetween}>
+                    <Text style={styles.inlineLabel}>{t('Wysokość krążka (cm):')}</Text>
+                    <TextInput
+                      style={styles.numInput}
+                      keyboardType="numeric"
+                      value={String(coatingWheelHeightCm)}
+                      onChangeText={(v) => setCoatingWheelHeightCm(parseFloat(v) || 1)}
+                    />
+                  </View>
+                  <View style={styles.rowBetween}>
+                    <Text style={styles.inlineLabel}>{t('Liczba warstw (1-3):')}</Text>
+                    <TextInput
+                      style={styles.numInput}
+                      keyboardType="numeric"
+                      value={String(coatingLayers)}
+                      onChangeText={(v) => setCoatingLayers(parseInt(v, 10) || 1)}
+                    />
+                  </View>
+                  {wheelCoatingCalc && (
+                    <View style={styles.brineResultBox}>
+                      <Text style={styles.brineText}>
+                        • {t('Powierzchnia całkowita krążka:')}{' '}
+                        <Text style={styles.boldText}>{wheelCoatingCalc.surfaceAreaCm2} cm²</Text>
+                      </Text>
+                      <Text style={styles.brineText}>
+                        • {t('Zapotrzebowanie na wosk/powłokę:')}{' '}
+                        <Text style={styles.boldText}>{wheelCoatingCalc.totalGramsNeeded} g</Text> ({coatingLayers} {t('warstwy')})
+                      </Text>
+                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                        💡 {wheelCoatingCalc.recommendation}
+                      </Text>
+                    </View>
+                  )}
                 </View>
               </View>
             )}

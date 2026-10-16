@@ -915,6 +915,20 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-PRESS-016: Przemywanie Ziarna & Odlaktozowanie (Curd Washing / Delactosing Thermal Equilibrium)**
+* **Opis:** Bilans masowo-termiczny przemywania ziarna serowarskiego gorącą wodą (Gouda, Edam, Havarti). Usuwa część laktozy z serwatki, zapobiegając nadmiernemu przekwaszeniu i zapewniając elastyczną, maślaną strukturę miąższu.
+* **Formuła równowagi cieplnej:**
+  $$V_{woda} = \frac{(V_{mleko} - V_{odlana}) \cdot (T_{docelowa} - T_{ziarno})}{T_{goraca} - T_{docelowa}}$$
+* **Wskaźnik odlaktozowania:**
+  $$Ratio_{delacto} = \left(\frac{V_{odlana}}{V_{mleko}}\right) \times 100\%$$
+* **Reguły ochronne:**
+  - Alarm $T_{goraca} > 65^\circ\text{C}$: Ostrzeżenie przed zacięciem termicznym powierzchni ziaren (case hardening) i zniszczeniem mikroflory.
+  - Alarm $T_{docelowa} > 39^\circ\text{C}$ dla kultur mezofilnych (*Lactococcus lactis*): Blokada przed zabiciem bakterii.
+* **Persona:** P1, P2, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B3_Narzedzia_Solenie_i_Solanki.md -->
@@ -1007,6 +1021,30 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 * **Kryteria akceptacji:**
   1. Kalkulator w zakładce Solanki wylicza objętość kwasu mlekowego oraz wagę chlorku wapnia.
   2. Komunikat edukacyjny wyjaśniający mechanizm wymiany jonowej i zapobiegania usterkom mikrobiologicznym.
+* **Persona:** P1, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-SOL-030: Solenie Ziarna w Masie dla Cheddara (Milling & Dry Salting With Whey Runoff Compensation)**
+* **Opis:** Bezpośrednie solenie pociętego ziarna serowarskiego w kotle (metoda anglosaska - Cheddar, Caerphilly, Lancashire) z kompensacją strat soli w odciekającej pod prasą serwatce (`curd-washing-and-salting.ts`).
+* **Formuła kompensacyjna:**
+  $$m_{soli\_calkowita} = \frac{m_{ziarna} \times (S_{docelowa} / 100)}{1 - (Loss_{serwatka} / 100)}$$
+  gdzie domyślny odciek soli w serwatce pod prasą wynosi 33%.
+* **3-etapowy protokół zadawania soli:**
+  1. Krok 1 (1/3 dawki): posypanie ziarna, mieszanie 3 min, 5 min spoczynku na pierwsze wyciągnięcie wilgoci.
+  2. Krok 2 (1/3 dawki): ponowne mieszanie błyszczącego ziarna, 5 min spoczynku.
+  3. Krok 3 (1/3 dawki): końcowe wymieszanie i natychmiastowy załadunek do chusty prasowalniczej.
+* **Persona:** P1, P2, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-SOL-035: Kalkulator Powłok Ochronnych & Woskowania Krążka (Cheese Wax & Polyvinyl Coverage)**
+* **Opis:** Precyzyjne obliczanie pola powierzchni walca sera ($A = 2\pi r^2 + 2\pi r h$) oraz gramatury wosku serowarskiego lub powłoki polioctanowej (z natamycyną) potrzebnej do zabezpieczenia krążka przed wysychaniem i pleśnią.
+* **Wskaźniki zużycia materiału:**
+  - Wosk serowarski (parafina/mikrowosk): $0.075\text{ g/cm}^2$ na warstwę. Zapewnia barierę wilgoci (0% ubytku).
+  - Powłoka polioctanowa: $0.040\text{ g/cm}^2$ na warstwę. Zapewnia paroprzepuszczalność i ochronę przeciwgrzybiczą.
 * **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
@@ -1377,6 +1415,17 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
   2. **Ekwiwalenty kultur naturalnych (zamiast DVS):** Zastępowanie kultur liofilizowanych naturalnymi starterami — świeżą żywą maślanką/zsiadłym mlekiem z mleka surowego (mezofile, $18\text{ ml/L}$) lub żywym gęstym jogurtem greckim (termofile, $15\text{ g/L}$).
   3. **Postacie chlorku wapnia ($CaCl_2$):** Bezwodny ($111\text{ g/mol}$) vs dwuwodny dihydrate ($147\text{ g/mol}$) vs roztwór wodny 33% i 10%.
 * **Persona:** P1, P2, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-MAG-025: Dirty-Hands Steppers i Skaner Deep-Link (Pantry Steppers & Deep-Linking)**
+* **Opis:** Ergonomia mokrych rąk w spiżarni oraz bezdotykowa nawigacja po partiach i krążkach (`qr-deeplink.ts` + `QrScannerModal.tsx`).
+* **Kluczowe funkcjonalności:**
+  1. **Dotykowe steppery $\ge 56\text{ pt}$:** Szybka korekta stanu magazynowego (`-1` / `+1`) jednym tapnięciem bez otwierania klawiatury systemowej.
+  2. **Obsługa protokołu deep-link:** Obsługa schematów `ferment://batch/<id>` oraz `ferment://wheel/<id>`.
+  3. **Reakcja na skan kodu QR:** Po zeskanowaniu etykiety krążka lub partii aplikacja automatycznie przełącza widok na odpowiednią zakładkę (Dziennik Partii lub Piwniczka), rozwija historię pielęgnacji oraz prezentuje modal szybkich akcji (Obróć / Zważ / Oceń sensorycznie).
+* **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
 ---

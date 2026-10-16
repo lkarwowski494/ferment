@@ -88,3 +88,28 @@
 * **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
+---
+
+### **BR-SOL-030: Solenie Ziarna w Masie dla Cheddara (Milling & Dry Salting With Whey Runoff Compensation)**
+* **Opis:** Bezpośrednie solenie pociętego ziarna serowarskiego w kotle (metoda anglosaska - Cheddar, Caerphilly, Lancashire) z kompensacją strat soli w odciekającej pod prasą serwatce (`curd-washing-and-salting.ts`).
+* **Formuła kompensacyjna:**
+  $$m_{soli\_calkowita} = \frac{m_{ziarna} \times (S_{docelowa} / 100)}{1 - (Loss_{serwatka} / 100)}$$
+  gdzie domyślny odciek soli w serwatce pod prasą wynosi 33%.
+* **3-etapowy protokół zadawania soli:**
+  1. Krok 1 (1/3 dawki): posypanie ziarna, mieszanie 3 min, 5 min spoczynku na pierwsze wyciągnięcie wilgoci.
+  2. Krok 2 (1/3 dawki): ponowne mieszanie błyszczącego ziarna, 5 min spoczynku.
+  3. Krok 3 (1/3 dawki): końcowe wymieszanie i natychmiastowy załadunek do chusty prasowalniczej.
+* **Persona:** P1, P2, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-SOL-035: Kalkulator Powłok Ochronnych & Woskowania Krążka (Cheese Wax & Polyvinyl Coverage)**
+* **Opis:** Precyzyjne obliczanie pola powierzchni walca sera ($A = 2\pi r^2 + 2\pi r h$) oraz gramatury wosku serowarskiego lub powłoki polioctanowej (z natamycyną) potrzebnej do zabezpieczenia krążka przed wysychaniem i pleśnią.
+* **Wskaźniki zużycia materiału:**
+  - Wosk serowarski (parafina/mikrowosk): $0.075\text{ g/cm}^2$ na warstwę. Zapewnia barierę wilgoci (0% ubytku).
+  - Powłoka polioctanowa: $0.040\text{ g/cm}^2$ na warstwę. Zapewnia paroprzepuszczalność i ochronę przeciwgrzybiczą.
+* **Persona:** P1, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+
