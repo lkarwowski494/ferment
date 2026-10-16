@@ -1249,6 +1249,38 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-LAB-011: Kompensacja Kinetyki Temperaturowej Q10 (Ambient Q10 Velocity & Spoilage Barrier)**
+* **Opis:** Silnik dynamicznego skalowania czasu fermentacji mlekowej w zależności od wahań temperatury pokojowej (`fermentation-q10.ts`), oparty na empirycznym współczynniku $Q_{10} = 2.2$ dla bakterii kwasu mlekowego.
+* **Wzory matematyczne i strefy termiczne:**
+  $$v = Q_{10}^{(\Delta T / 10)}, \quad t_{\text{adj}} = \frac{t_{\text{nom}}}{v}$$
+  * `< 16°C (DORMANT_SLUGGISH)`: Uśpienie LAB, ryzyko gnicia i namnażania drożdży kożuchujących przed przełamaniem bariery pH 4.60.
+  * `16–19°C (SLOW_CRISP)`: Powolna fermentacja, maksymalna chrupkość i jędrność warzyw (bardzo stabilne pektyny).
+  * `20–23°C (GOLDILOCKS_OPTIMAL)`: Idealna równowaga heterofermentacji i homofermentacji.
+  * `24–27°C (RAPID_ACCELERATED)`: Bardzo szybki spadek pH, zalecany monitoring co 12h.
+  * `> 27°C (HEAT_STRESS_SPOILAGE)`: Ryzyko rozmiękania tkanek (rozpad pektyn) i posmaku drożdżowego.
+* **Kryteria akceptacji:**
+  1. Reaktywne przeliczanie dni i godzin fermentacji oraz szacowanego momentu sforsowania bariery $pH \le 4.60$.
+  2. Dedykowane komunikaty ostrzegawcze i zalecenia profilaktyczne w UI.
+* **Persona:** P2, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-KISZ-019: Obliczanie Pojemności Słoja, Wyporności Docisku i Wolnej Przestrzeni (Crock Headspace & Overflow Guard)**
+* **Opis:** Fizyczny kalkulator objętości wsadu warzywnego, solanki oraz wyporności ciężarka dociskowego (`crock-headspace.ts`), zabezpieczający przed zalaniem blatu wyciekiem z naczynia oraz nadmiarem tlenu.
+* **Kryteria akceptacji:**
+  1. Uwzględnienie gęstości materiału docisku (szkło bezołowiowe: $2.50\text{ g/ml}$, ceramika: $2.30\text{ g/ml}$, granit: $2.70\text{ g/ml}$).
+  2. Wyliczanie wolnej przestrzeni (headspace w ml oraz % objętości słoja).
+  3. Klasyfikacja ryzyka:
+     * `headspace < 40 ml`: `RISK_OVERFLOW` (ostrzeżenie przed wylewaniem solanki podczas fazy burzliwej $CO_2$).
+     * `headspace > 25%`: `RISK_EXCESS_OXYGEN` (ostrzeżenie przed dużą poduszką tlenową sprzyjającą kożuchowi).
+     * `totalVolume > jarCapacity`: `CRITICAL_SPILL` (blokada przed przelaniem naczynia).
+  4. Rekomendacja optymalnej masy docisku (min. 20% masy warzyw).
+* **Persona:** P2, P5.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B6_Narzedzia_Kombucha_i_Octy.md -->
@@ -1344,6 +1376,24 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-OCT-012: Korektor Refraktometru Optycznego w Środowisku Alkoholowym (Terrill Brix-to-SG Engine)**
+* **Opis:** Fizykochemiczny korektor odczytu refraktometru optycznego (°Bx) uwzględniający zakłócenie współczynnika załamania światła przez powstający w procesie fermentacji etanol (`refractometer-alcohol.ts`).
+* **Zastosowane modele matematyczne:**
+  1. **Dla win owocowych i cydrów ($OB \ge 8^\circ\text{Bx}$):** sześcienny wielomian Terrilla:
+     $$SG = 1.001843 - 0.002318474 \cdot OB + 0.000007775 \cdot OB^2 - 0.000000034 \cdot OB^3 + 0.00574 \cdot FB - 0.00003344 \cdot FB^2 + 0.000000086 \cdot FB^3$$
+  2. **Dla kombuchy ($OB < 8^\circ\text{Bx}$):** stechiometryczna konwersja empiryczna:
+     $$\Delta\text{Brix} = OB - FB, \quad \text{ABV} = \max(0, \Delta\text{Brix} \times 0.58)$$
+* **Kryteria akceptacji:**
+  1. Wyznaczanie skorygowanej gęstości pozornej (corrected SG) oraz ekstraktu rzeczywistego w stopniach Plato (°P).
+  2. Wyliczanie stężenia alkoholu (% ABV).
+  3. Alerty bezpieczeństwa biologicznego:
+     * Ostrzeżenie przed inhibicją bakterii octowych (*Acetobacter*) przy $\text{ABV} > 8.0\%$.
+     * Weryfikacja statusu bezalkoholowości kombuchy ($\le 0.5\% \text{ ABV}$).
+* **Persona:** P3, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B7_Narzedzia_Spizarnia_Naczynia_Etykiety.md -->
@@ -1425,6 +1475,21 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
   1. **Dotykowe steppery $\ge 56\text{ pt}$:** Szybka korekta stanu magazynowego (`-1` / `+1`) jednym tapnięciem bez otwierania klawiatury systemowej.
   2. **Obsługa protokołu deep-link:** Obsługa schematów `ferment://batch/<id>` oraz `ferment://wheel/<id>`.
   3. **Reakcja na skan kodu QR:** Po zeskanowaniu etykiety krążka lub partii aplikacja automatycznie przełącza widok na odpowiednią zakładkę (Dziennik Partii lub Piwniczka), rozwija historię pielęgnacji oraz prezentuje modal szybkich akcji (Obróć / Zważ / Oceń sensorycznie).
+* **Persona:** P1, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-MAG-011: Eksport Dziennika Produkcyjnego i Spiżarni do RFC 4180 CSV (Production CSV Export Engine)**
+* **Opis:** Generowanie standaryzowanych arkuszy kalkulacyjnych CSV dla partii produkcyjnych, krążków piwnicznych oraz stanu magazynowego spiżarni (`csv-export.ts`).
+* **Kryteria akceptacji:**
+  1. Zgodność ze specyfikacją RFC 4180 (bezpieczne uciekanie znaków specjalnych, przecinków, cudzysłowów i nowych linii).
+  2. Generowanie plików CSV dla:
+     * Dziennika Partii (kod partii, data, nazwa, kategoria, status, parametry początkowe, notatki).
+     * Dziennika Dojrzewalni Sera (kod krążka, typ sera, data wyrobienia, waga początkowa i bieżąca, ubytek masy %, stan skórki, historia obracania).
+     * Magazynu Spiżarni (nazwa, kategoria, ilość, jednostka, data minimalnej trwałości, stan minimalny).
+  3. Bezpieczne udostępnianie pliku przez natywny mechanizm `expo-sharing` (współdzielenie z arkuszami Excel, Google Sheets, AirDrop).
+  4. Dostępność również w trybie READ-ONLY po wygaśnięciu okresu próbnego (prawo użytkownika do własnych danych).
 * **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 

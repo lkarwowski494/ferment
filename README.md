@@ -89,6 +89,18 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
     - Steppery $\ge 56\text{ pt}$ (`-1` / `+1`) i natychmiastowe usuwanie pozycji ze spiżarni.
 22. **Skaner Kodów QR i Obsługa Protokołu Deep-Link (`src/core/qr-deeplink.ts`, `src/components/QrScannerModal.tsx`):**
     - Obsługa protokołów `ferment://batch/<id>` oraz `ferment://wheel/<id>`, JSON i kodów etykiet A4 z natychmiastowym przełączeniem widoku i prezentacją modalnych akcji.
+23. **Kompensacja Kinetyki Temperaturowej Q10 (`src/core/fermentation-q10.ts`):**
+    - Modelowanie dynamiki prędkości fermentacji $v = Q_{10}^{(\Delta T / 10)}$ względem bazowej temperatury 20°C.
+    - Adaptacyjny czas fermentacji w dniach i godzinach, estymacja momentu przejścia przez barierę $pH \le 4.60$ (Botulinum Guard) oraz klasyfikacja 5 stref termicznych (od uśpienia po stres cieplny i degradację pektyn).
+24. **Kalkulator Pojemności Słoja & Wolna Przestrzeń / Headspace Guard (`src/core/crock-headspace.ts`):**
+    - Fizyczne modelowanie upakowania warzyw (szatkowana kapusta, cząstki kimchi, całe ogórki), objętości solanki oraz wyporności ciężarków dociskowych (szkło, ceramika, granit).
+    - Ochrona przed wykipieniem solanki ($< 40\text{ ml}$) oraz nadmiarem tlenu sprzyjającym drożdżom kożuchującym ($> 25\%$).
+25. **Korektor Refraktometru Optycznego (°Bx → SG → ABV) (`src/core/refractometer-alcohol.ts`):**
+    - Eliminacja zakłócenia optycznego wywołanego etanolem przy użyciu sześciennego wielomianu Terrilla ($OB \ge 8^\circ\text{Bx}$) oraz stechiometrii kombuchy ($OB < 8^\circ\text{Bx}$).
+    - Wyliczanie skorygowanego SG, ekstraktu rzeczywistego w °P, stężenia alkoholu (% ABV), alarmu inhibicji bakterii octowych (>8% ABV) oraz weryfikacji bezalkoholowości kombuchy ($\le 0.5\%$).
+26. **Standaryzowany Eksport Dziennika Produkcyjnego do RFC 4180 CSV (`src/lib/csv-export.ts`):**
+    - Eksport partii produkcyjnych, krążków dojrzewalni oraz spiżarni do formatu CSV z obsługą natywnego udostępniania (`expo-sharing`).
+    - Dostępność eksportu danych również w trybie READ-ONLY po wygaśnięciu okresu próbnego.
 
 ---
 
@@ -101,7 +113,7 @@ npm run typecheck
 # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
 npm run check:i18n
 
-# 3. Wykonanie 26 pakietów testowych Jest
+# 3. Wykonanie 30 pakietów testowych Jest
 npm test
 
 # 4. Uruchomienie całościowej bramki
@@ -109,10 +121,10 @@ npm run verify
 ```
 
 Stan testów na dzień 16.10.2026:
-- **26 test suites PASS** (100%)
-- **117 unit & integration tests PASS** (100%)
-- **446 tekstów UI w kodzie przetłumaczonych na PL i EN** (100% parytet)
-- **BRD: 85.6 stron znormalizowanych (154,074 znaków ze spacjami, 25 modularnych rozdziałów)**
+- **30 test suites PASS** (100%)
+- **138 unit & integration tests PASS** (100%)
+- **469 tekstów UI w kodzie przetłumaczonych na PL i EN (520 w słowniku EN, 100% parytet)**
+- **BRD: 88.2 stron znormalizowanych (158,813 znaków ze spacjami, 25 modularnych rozdziałów)**
 
 ---
 

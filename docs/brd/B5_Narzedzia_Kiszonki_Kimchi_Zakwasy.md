@@ -77,3 +77,36 @@
   3. Sugestie interwencyjne przy spowolnionej fermentacji (docieplenie, kontrola wody).
 * **Persona:** P2, P4, P5, P6.
 * **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-LAB-011: Kompensacja Kinetyki Temperaturowej Q10 (Ambient Q10 Velocity & Spoilage Barrier)**
+* **Opis:** Silnik dynamicznego skalowania czasu fermentacji mlekowej w zależności od wahań temperatury pokojowej (`fermentation-q10.ts`), oparty na empirycznym współczynniku $Q_{10} = 2.2$ dla bakterii kwasu mlekowego.
+* **Wzory matematyczne i strefy termiczne:**
+  $$v = Q_{10}^{(\Delta T / 10)}, \quad t_{\text{adj}} = \frac{t_{\text{nom}}}{v}$$
+  * `< 16°C (DORMANT_SLUGGISH)`: Uśpienie LAB, ryzyko gnicia i namnażania drożdży kożuchujących przed przełamaniem bariery pH 4.60.
+  * `16–19°C (SLOW_CRISP)`: Powolna fermentacja, maksymalna chrupkość i jędrność warzyw (bardzo stabilne pektyny).
+  * `20–23°C (GOLDILOCKS_OPTIMAL)`: Idealna równowaga heterofermentacji i homofermentacji.
+  * `24–27°C (RAPID_ACCELERATED)`: Bardzo szybki spadek pH, zalecany monitoring co 12h.
+  * `> 27°C (HEAT_STRESS_SPOILAGE)`: Ryzyko rozmiękania tkanek (rozpad pektyn) i posmaku drożdżowego.
+* **Kryteria akceptacji:**
+  1. Reaktywne przeliczanie dni i godzin fermentacji oraz szacowanego momentu sforsowania bariery $pH \le 4.60$.
+  2. Dedykowane komunikaty ostrzegawcze i zalecenia profilaktyczne w UI.
+* **Persona:** P2, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-KISZ-019: Obliczanie Pojemności Słoja, Wyporności Docisku i Wolnej Przestrzeni (Crock Headspace & Overflow Guard)**
+* **Opis:** Fizyczny kalkulator objętości wsadu warzywnego, solanki oraz wyporności ciężarka dociskowego (`crock-headspace.ts`), zabezpieczający przed zalaniem blatu wyciekiem z naczynia oraz nadmiarem tlenu.
+* **Kryteria akceptacji:**
+  1. Uwzględnienie gęstości materiału docisku (szkło bezołowiowe: $2.50\text{ g/ml}$, ceramika: $2.30\text{ g/ml}$, granit: $2.70\text{ g/ml}$).
+  2. Wyliczanie wolnej przestrzeni (headspace w ml oraz % objętości słoja).
+  3. Klasyfikacja ryzyka:
+     * `headspace < 40 ml`: `RISK_OVERFLOW` (ostrzeżenie przed wylewaniem solanki podczas fazy burzliwej $CO_2$).
+     * `headspace > 25%`: `RISK_EXCESS_OXYGEN` (ostrzeżenie przed dużą poduszką tlenową sprzyjającą kożuchowi).
+     * `totalVolume > jarCapacity`: `CRITICAL_SPILL` (blokada przed przelaniem naczynia).
+  4. Rekomendacja optymalnej masy docisku (min. 20% masy warzyw).
+* **Persona:** P2, P5.
+* **Priorytet:** MUST | **Etap:** MVP.
+

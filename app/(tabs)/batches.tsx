@@ -41,6 +41,11 @@ import {
   SensoryProfileScores,
 } from '../../src/core/sensory-evaluation';
 import { parseDeepLinkOrQr } from '../../src/core/qr-deeplink';
+import {
+  generateBatchesCsv,
+  generateCaveWheelsCsv,
+  shareCsvExport,
+} from '../../src/lib/csv-export';
 
 export default function BatchesScreen() {
   const {
@@ -348,6 +353,17 @@ export default function BatchesScreen() {
     Alert.alert(t('Odczytano Kod QR'), `${t('Dane:')} ${scannedCode}`);
   };
 
+  const handleExportCsv = async () => {
+    triggerHapticFeedback();
+    if (activeTabSection === 'batches') {
+      const csv = generateBatchesCsv(batches);
+      await shareCsvExport(`ferment_partie_${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    } else {
+      const csv = generateCaveWheelsCsv(caveWheels);
+      await shareCsvExport(`ferment_piwniczka_${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
@@ -358,16 +374,26 @@ export default function BatchesScreen() {
           </Text>
         </View>
 
-        <TouchableOpacity
-          style={styles.qrButton}
-          onPress={() => {
-            triggerHapticFeedback();
-            setIsScannerVisible(true);
-          }}
-          accessibilityRole="button"
-        >
-          <Text style={styles.qrButtonText}>📷 QR</Text>
-        </TouchableOpacity>
+        <View style={styles.headerBtnRow}>
+          <TouchableOpacity
+            style={styles.csvButton}
+            onPress={handleExportCsv}
+            accessibilityRole="button"
+          >
+            <Text style={styles.csvButtonText}>📤 CSV</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.qrButton}
+            onPress={() => {
+              triggerHapticFeedback();
+              setIsScannerVisible(true);
+            }}
+            accessibilityRole="button"
+          >
+            <Text style={styles.qrButtonText}>📷 QR</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Switch between Batches and Cave Log */}
@@ -972,9 +998,27 @@ const styles = StyleSheet.create({
     color: '#78716C',
     marginTop: 2,
   },
+  headerBtnRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  csvButton: {
+    height: 48,
+    paddingHorizontal: 12,
+    backgroundColor: '#0F766E',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  csvButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 13,
+  },
   qrButton: {
     height: 48,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     backgroundColor: '#78350F',
     borderRadius: 12,
     alignItems: 'center',

@@ -77,4 +77,20 @@
 * **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
+---
+
+### **BR-MAG-011: Eksport Dziennika Produkcyjnego i Spiżarni do RFC 4180 CSV (Production CSV Export Engine)**
+* **Opis:** Generowanie standaryzowanych arkuszy kalkulacyjnych CSV dla partii produkcyjnych, krążków piwnicznych oraz stanu magazynowego spiżarni (`csv-export.ts`).
+* **Kryteria akceptacji:**
+  1. Zgodność ze specyfikacją RFC 4180 (bezpieczne uciekanie znaków specjalnych, przecinków, cudzysłowów i nowych linii).
+  2. Generowanie plików CSV dla:
+     * Dziennika Partii (kod partii, data, nazwa, kategoria, status, parametry początkowe, notatki).
+     * Dziennika Dojrzewalni Sera (kod krążka, typ sera, data wyrobienia, waga początkowa i bieżąca, ubytek masy %, stan skórki, historia obracania).
+     * Magazynu Spiżarni (nazwa, kategoria, ilość, jednostka, data minimalnej trwałości, stan minimalny).
+  3. Bezpieczne udostępnianie pliku przez natywny mechanizm `expo-sharing` (współdzielenie z arkuszami Excel, Google Sheets, AirDrop).
+  4. Dostępność również w trybie READ-ONLY po wygaśnięciu okresu próbnego (prawo użytkownika do własnych danych).
+* **Persona:** P1, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+
 

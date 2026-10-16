@@ -2,12 +2,21 @@
 jest.mock('expo-clipboard', () => ({
   setStringAsync: jest.fn().mockResolvedValue(true),
   getStringAsync: jest.fn().mockResolvedValue(''),
-}));
+}), { virtual: true });
 
 jest.mock('expo-sharing', () => ({
   isAvailableAsync: jest.fn().mockResolvedValue(true),
   shareAsync: jest.fn().mockResolvedValue(undefined),
-}));
+}), { virtual: true });
+
+jest.mock('expo-audio', () => ({
+  createAudioPlayer: jest.fn().mockReturnValue({
+    play: jest.fn(),
+    pause: jest.fn(),
+    remove: jest.fn(),
+  }),
+  AudioPlayer: jest.fn(),
+}), { virtual: true });
 
 jest.mock('expo-av', () => ({
   Audio: {
@@ -20,7 +29,7 @@ jest.mock('expo-av', () => ({
       }),
     },
   },
-}));
+}), { virtual: true });
 
 jest.mock('expo-camera', () => {
   const React = require('react');
@@ -32,18 +41,18 @@ jest.mock('expo-camera', () => {
       jest.fn().mockResolvedValue({ granted: true }),
     ],
   };
-});
+}, { virtual: true });
 
 jest.mock('expo-print', () => ({
   printAsync: jest.fn().mockResolvedValue(undefined),
   printToFileAsync: jest.fn().mockResolvedValue({ uri: 'file:///mock/print.pdf' }),
-}));
+}), { virtual: true });
 
 jest.mock('expo-keep-awake', () => ({
   activateKeepAwakeAsync: jest.fn().mockResolvedValue(undefined),
   deactivateKeepAwake: jest.fn(),
   useKeepAwake: jest.fn(),
-}));
+}), { virtual: true });
 
 jest.mock('expo-haptics', () => ({
   notificationAsync: jest.fn().mockResolvedValue(undefined),

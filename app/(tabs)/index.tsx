@@ -92,6 +92,9 @@ import {
   calculateCurdMillingSalting,
   calculateWheelCoating,
 } from '../../src/core/curd-washing-and-salting';
+import { calculateFermentationQ10 } from '../../src/core/fermentation-q10';
+import { calculateCrockHeadspace } from '../../src/core/crock-headspace';
+import { analyzeRefractometerBrix } from '../../src/core/refractometer-alcohol';
 
 export default function CalculatorScreen() {
   const {
@@ -176,6 +179,17 @@ export default function CalculatorScreen() {
   const [coatingType, setCoatingType] = useState<'CHEESE_WAX' | 'POLYVINYL_BREATHABLE'>('CHEESE_WAX');
   const [coatingWheelHeightCm, setCoatingWheelHeightCm] = useState<number>(8.0);
   const [coatingLayers, setCoatingLayers] = useState<number>(2);
+
+  // --- Q10 FERMENTATION TEMPERATURE STATE ---
+  const [ambientTempC, setAmbientTempC] = useState<number>(21);
+
+  // --- CROCK & JAR HEADSPACE STATE ---
+  const [jarCapacityMl, setJarCapacityMl] = useState<number>(1000);
+  const [stoneWeightGrams, setStoneWeightGrams] = useState<number>(150);
+
+  // --- OPTICAL REFRACTOMETER ALCOHOL STATE ---
+  const [originalBrixInput, setOriginalBrixInput] = useState<number>(12);
+  const [currentBrixInput, setCurrentBrixInput] = useState<number>(5.5);
 
   // Active Flocculation Timer
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
@@ -370,6 +384,55 @@ export default function CalculatorScreen() {
         heightCm: coatingWheelHeightCm,
         coatingType,
         layersCount: coatingLayers,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const q10VegCalc = (() => {
+    try {
+      return calculateFermentationQ10({
+        cultureType: 'VEG_LAB',
+        ambientTempC,
+        nominalDaysAt20C: Math.max(1, Math.round(fermentHours / 24)),
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const q10KombuchaCalc = (() => {
+    try {
+      return calculateFermentationQ10({
+        cultureType: 'KOMBUCHA_SCOBY',
+        ambientTempC,
+        nominalDaysAt20C: 10,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const crockHeadspaceCalc = (() => {
+    try {
+      return calculateCrockHeadspace({
+        jarCapacityMl,
+        vegetableWeightGrams: vegGrams,
+        brineWaterMl: waterGrams,
+        weightMassGrams: stoneWeightGrams,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const refractometerAlcoholCalc = (() => {
+    try {
+      return analyzeRefractometerBrix({
+        originalBrix: originalBrixInput,
+        currentBrix: currentBrixInput,
+        purpose: craftMode === 'beverage' ? 'KOMBUCHA' : 'VINEGAR_CIDER',
       });
     } catch {
       return null;
@@ -1481,6 +1544,78 @@ export default function CalculatorScreen() {
                     </Text>
                   </View>
                 </View>
+
+                {/* Q10 Fermentation Kinetics */}
+                {q10VegCalc && (
+                  <View style={[styles.proCard, (q10VegCalc.zone === 'HEAT_STRESS_SPOILAGE' || q10VegCalc.zone === 'DORMANT_SLUGGISH') && styles.cardDanger]}>
+                    <Text style={styles.proCardTitle}>🌡️ {t('Kompensacja Temperatury Q10 (Kinetyka Pokojowa)')}</Text>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Temperatura otoczenia (°C):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(ambientTempC)}
+                        onChangeText={(v) => setAmbientTempC(parseFloat(v) || 20)}
+                      />
+                    </View>
+                    <View style={styles.safetyBox}>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Mnożnik kinetyki:')} <Text style={styles.boldText}>{q10VegCalc.velocityMultiplier}x</Text> {t('(względem 20°C)')}
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Skorygowany czas fermentacji:')} <Text style={styles.boldText}>{q10VegCalc.adjustedDays} {t('dni')}</Text> ({q10VegCalc.adjustedHours} {t('godz.')})
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Szacowana bariera pH 4.60 po:')} <Text style={styles.boldText}>{q10VegCalc.botulinumSafeHourEstimated} {t('godz.')}</Text>
+                      </Text>
+                      <Text style={[styles.safetyStatus, (q10VegCalc.zone === 'HEAT_STRESS_SPOILAGE' || q10VegCalc.zone === 'DORMANT_SLUGGISH') && styles.safetyDanger, { marginTop: 4 }]}>
+                        {t('Strefa termiczna:')} {q10VegCalc.zoneLabel}
+                      </Text>
+                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                        💡 {q10VegCalc.flavorProfileImpact}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+
+                {/* Crock & Jar Headspace Guard */}
+                {crockHeadspaceCalc && (
+                  <View style={[styles.proCard, crockHeadspaceCalc.status !== 'OPTIMAL' && styles.cardDanger]}>
+                    <Text style={styles.proCardTitle}>🏺 {t('Pojemność Słoja & Wolna Przestrzeń (Headspace Guard)')}</Text>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Pojemność słoja (ml):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(jarCapacityMl)}
+                        onChangeText={(v) => setJarCapacityMl(parseFloat(v) || 1000)}
+                      />
+                    </View>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Masa docisku (kamień/szkło g):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(stoneWeightGrams)}
+                        onChangeText={(v) => setStoneWeightGrams(parseFloat(v) || 0)}
+                      />
+                    </View>
+                    <View style={styles.safetyBox}>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Objętość wsadu z dociskiem:')} <Text style={styles.boldText}>{crockHeadspaceCalc.totalSubstanceVolumeMl} ml</Text>
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Pozostała wolna przestrzeń:')} <Text style={styles.boldText}>{crockHeadspaceCalc.remainingHeadspaceMl} ml</Text> ({crockHeadspaceCalc.headspacePercentage}%)
+                      </Text>
+                      <Text style={[styles.safetyStatus, crockHeadspaceCalc.status !== 'OPTIMAL' && styles.safetyDanger, { marginTop: 4 }]}>
+                        {crockHeadspaceCalc.summaryAlert}
+                      </Text>
+                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                        💡 {crockHeadspaceCalc.recommendations[0]}
+                      </Text>
+                    </View>
+                  </View>
+                )}
               </View>
             )}
           </View>
@@ -1711,6 +1846,79 @@ export default function CalculatorScreen() {
                     </Text>
                   </View>
                 </View>
+
+                {/* Q10 Kombucha Kinetics */}
+                {q10KombuchaCalc && (
+                  <View style={[styles.proCard, (q10KombuchaCalc.zone === 'HEAT_STRESS_SPOILAGE' || q10KombuchaCalc.zone === 'DORMANT_SLUGGISH') && styles.cardDanger]}>
+                    <Text style={styles.proCardTitle}>🌡️ {t('Kompensacja Temperatury Q10 dla Kombuchy (Czas 1F)')}</Text>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Temperatura otoczenia (°C):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(ambientTempC)}
+                        onChangeText={(v) => setAmbientTempC(parseFloat(v) || 20)}
+                      />
+                    </View>
+                    <View style={styles.safetyBox}>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Mnożnik kinetyki:')} <Text style={styles.boldText}>{q10KombuchaCalc.velocityMultiplier}x</Text> {t('(względem 20°C)')}
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Skorygowany czas 1F:')} <Text style={styles.boldText}>{q10KombuchaCalc.adjustedDays} {t('dni')}</Text> ({q10KombuchaCalc.adjustedHours} {t('godz.')})
+                      </Text>
+                      <Text style={[styles.safetyStatus, (q10KombuchaCalc.zone === 'HEAT_STRESS_SPOILAGE' || q10KombuchaCalc.zone === 'DORMANT_SLUGGISH') && styles.safetyDanger, { marginTop: 4 }]}>
+                        {t('Strefa termiczna:')} {q10KombuchaCalc.zoneLabel}
+                      </Text>
+                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                        💡 {q10KombuchaCalc.flavorProfileImpact}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+
+                {/* Optical Refractometer & Alcohol Engine */}
+                {refractometerAlcoholCalc && (
+                  <View style={[styles.proCard, !refractometerAlcoholCalc.isVinegarSafe && styles.cardDanger]}>
+                    <Text style={styles.proCardTitle}>🔍 {t('Korektor Refraktometru Optycznego (°Bx → SG → ABV)')}</Text>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Początkowy odczyt (°Bx):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(originalBrixInput)}
+                        onChangeText={(v) => setOriginalBrixInput(parseFloat(v) || 0)}
+                      />
+                    </View>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Aktualny odczyt (°Bx):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(currentBrixInput)}
+                        onChangeText={(v) => setCurrentBrixInput(parseFloat(v) || 0)}
+                      />
+                    </View>
+                    <View style={styles.safetyBox}>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Skorygowana gęstość rzeczywista:')} <Text style={styles.boldText}>{refractometerAlcoholCalc.correctedFinalSg} SG</Text> ({refractometerAlcoholCalc.realExtractPlato}°P)
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Zawartość alkoholu:')} <Text style={styles.boldText}>{refractometerAlcoholCalc.abvPct}% ABV</Text>
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Klasyfikacja:')} <Text style={styles.boldText}>{refractometerAlcoholCalc.classification}</Text>
+                      </Text>
+                      <Text style={[
+                        styles.safetyStatus,
+                        !refractometerAlcoholCalc.isVinegarSafe ? styles.safetyDanger : !refractometerAlcoholCalc.isNonAlcoholicKombucha ? { color: '#B45309' } : { color: '#15803D' },
+                        { marginTop: 4 }
+                      ]}>
+                        {refractometerAlcoholCalc.recommendation}
+                      </Text>
+                    </View>
+                  </View>
+                )}
               </View>
             )}
           </View>

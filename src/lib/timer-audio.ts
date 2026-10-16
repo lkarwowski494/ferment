@@ -3,12 +3,13 @@
 // Ergonomic dirty/wet hands support: audible PCM chime + screen stay awake
 // ============================================================================
 
-import { Audio } from 'expo-av';
+import { createAudioPlayer, AudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { CHIME_WAV_BASE64 } from './chime-sound';
 
 let keepAwakeActive = false;
+let soundInstance: AudioPlayer | null = null;
 
 /**
  * Activates screen keep-awake during critical biological steps (coagulation, pressing, stirring)
@@ -51,17 +52,17 @@ export async function playTimerCompletionAlert(): Promise<void> {
 
   // 2. Play acoustic dual-tone bell sound
   try {
-    if (Audio && Audio.Sound) {
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: CHIME_WAV_BASE64 },
-        { shouldPlay: true, volume: 1.0 }
-      );
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          sound.unloadAsync();
-        }
-      });
+    if (soundInstance) {
+      try {
+        soundInstance.remove();
+      } catch {
+        // ignore
+      }
+      soundInstance = null;
     }
+    const player = createAudioPlayer(CHIME_WAV_BASE64);
+    player.play();
+    soundInstance = player;
   } catch {
     // In mock or simulator without audio hardware, continue silently
   }

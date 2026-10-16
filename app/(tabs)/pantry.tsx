@@ -21,6 +21,7 @@ import { getSqliteStore, PantryItem } from '../../src/data/sqlite-store';
 import { createAutoBackup } from '../../src/lib/backup';
 import { calculateBatchYieldAndEconomics } from '../../src/core/inventory';
 import { printLabelSheet, shareLabelSheetPdf, LabelItem } from '../../src/lib/pdf-sheet-generator';
+import { generatePantryCsv, shareCsvExport } from '../../src/lib/csv-export';
 import { triggerHapticFeedback } from '../../src/lib/timer-audio';
 import {
   convertRennetForm,
@@ -191,6 +192,18 @@ export default function PantryScreen() {
     });
   };
 
+  const handleExportPantryCsv = () => {
+    requireActionAccess(async () => {
+      triggerHapticFeedback();
+      if (pantryItems.length === 0) {
+        Alert.alert(t('Pusta Spiżarnia'), t('Brak składników do wyeksportowania.'));
+        return;
+      }
+      const csv = generatePantryCsv(pantryItems);
+      await shareCsvExport(`ferment_spizarnia_${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    });
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
@@ -222,10 +235,13 @@ export default function PantryScreen() {
           </Text>
           <View style={styles.actionBtnRow}>
             <TouchableOpacity style={styles.printBtn} onPress={handlePrintLabels}>
-              <Text style={styles.printBtnText}>📄 {t('Drukuj A4 (AirPrint)')}</Text>
+              <Text style={styles.printBtnText}>📄 {t('Drukuj A4')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.shareBtn} onPress={handleSharePdf}>
-              <Text style={styles.shareBtnText}>📤 {t('PDF / Udostępnij')}</Text>
+              <Text style={styles.shareBtnText}>📤 {t('Etykiety PDF')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.csvBtn} onPress={handleExportPantryCsv}>
+              <Text style={styles.csvBtnText}>📊 {t('Eksport CSV')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -619,6 +635,19 @@ const styles = StyleSheet.create({
     color: '#1C1917',
     fontSize: 13,
     fontWeight: '600',
+  },
+  csvBtn: {
+    flex: 1,
+    height: 52,
+    backgroundColor: '#0F766E',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  csvBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
   },
   addPanel: {
     backgroundColor: '#FFFFFF',
