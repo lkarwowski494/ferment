@@ -67,3 +67,24 @@
   4. Etap 4: 12–16 godzin (przez noc) przy nacisku docelowym ($1.5 - 2.0\text{ kg/cm}^2$). Powiadomienie: *„Zakończ prasowanie. Zmierz pH i wagę przed kąpielą solankową.”*
 * **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-CURD-025: Harmonogram Odwrócony Produkcji & Anti-Fatigue Sleep Guard**
+* **Opis:** Zaadaptowany z silnika *Piekarz* system planowania wstecznego na osi czasu (`reverse-scheduler.ts`). Użytkownik definiuje docelową godzinę zakończenia wyrobu sera (np. sobota 22:00, przed pójściem spać), a silnik wylicza dokładny moment startu podgrzewania mleka oraz sekwencję kroków.
+* **Algorytm i Bezpieczeństwo Kulinarne (Anti-Fatigue Guard):**
+  1. Wyliczanie wsteczne: $T_{start} = T_{cel} - \sum t_{krokow}$.
+  2. Analiza przedziału nocnego (23:00–06:00): Jeśli jakikolwiek aktywny krok wymagający interwencji (odwracanie w prasie, solenie, dogrzewanie) wypadnie w oknie snu, system generuje ostrzeżenie wysokiego priorytetu oraz rekomenduje wcześniejszą godzinę startu.
+* **Persona:** P1, P2, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-CURD-030: Odzysk Serwatki i Gospodarka Zero-Waste (Ricotta & Izotonik)**
+* **Opis:** Moduł zagospodarowania produktów ubocznych (`whey-utilization.ts`). Z 10 litrów mleka serowarskiego powstaje ok. 9 litrów słodkiej serwatki podpuszczkowej zawierającej cenne albuminy i globuliny.
+* **Zasady technologiczne:**
+  1. **Odzysk tradycyjnej Ricotty (Ziger):** Denaturacja białek w temperaturze 88–92°C z zakwaszeniem kwasem cytrynowym ($1.8\text{ g/L}$) lub octem. Obliczanie dodatku świeżego pełnego mleka (+10% / +20%) dla podwojenia kremowości i uzysku.
+  2. **Rzemieślniczy napój izotoniczny (Alpejska Rivella):** Receptura bilansująca serwatkę, sok z cytryny, miód/cukier, świeżą miętę i wodę mineralną (bogaty w potas i peptydy bioaktywne).
+* **Persona:** P1, P4, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+

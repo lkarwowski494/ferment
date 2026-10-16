@@ -43,6 +43,29 @@ import {
   playTimerCompletionAlert,
   triggerHapticFeedback,
 } from '../../src/lib/timer-audio';
+import * as Clipboard from 'expo-clipboard';
+import {
+  CANONICAL_RECIPES,
+  getCanonicalRecipe,
+  getRecipesByCategory,
+  CanonicalRecipe,
+} from '../../src/core/canonical-recipes';
+import {
+  calculateReverseSchedule,
+  CraftProcessType,
+} from '../../src/core/reverse-scheduler';
+import {
+  calculateRicottaRecovery,
+  calculateWheyIsotonicDrink,
+} from '../../src/core/whey-utilization';
+import {
+  calculateSaltToBoostBrine,
+  calculateBrineTopupWithVolume,
+} from '../../src/core/brine-topup';
+import {
+  encodeRecipeToShareUri,
+  decodeRecipeFromShareUri,
+} from '../../src/core/recipe-share';
 
 export default function CalculatorScreen() {
   const {
@@ -86,6 +109,15 @@ export default function CalculatorScreen() {
   const [daysIn2F, setDaysIn2F] = useState<number>(3);
   const [vinegarBrix, setVinegarBrix] = useState<number>(12);
 
+  // --- SISTER MODULE STATES (napar, piekarz, słoik, oczko) ---
+  const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
+  const [isSchedulerOpen, setIsSchedulerOpen] = useState<boolean>(false);
+  const [targetFinishHour, setTargetFinishHour] = useState<number>(22);
+  const [schedulerProcess, setSchedulerProcess] = useState<CraftProcessType>('CHEESE_HARD_GOUDA');
+  const [wheyMilkBoostLiters, setWheyMilkBoostLiters] = useState<number>(1);
+  const [currentBrineSalinity, setCurrentBrineSalinity] = useState<number>(16);
+  const [targetBrineSalinity, setTargetBrineSalinity] = useState<number>(20);
+
   // Active Flocculation Timer
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
@@ -128,6 +160,57 @@ export default function CalculatorScreen() {
     setFlocSecInput(timerSeconds);
   };
 
+  const handleSelectRecipe = (recipe: CanonicalRecipe) => {
+    triggerHapticFeedback();
+    setSelectedRecipeId(recipe.id);
+    if (recipe.category === 'CHEESE') {
+      setMilkLiters(10);
+      setCraftMode('cheese');
+      setSchedulerProcess('CHEESE_HARD_GOUDA');
+    } else if (recipe.category === 'VEG_FERMENT') {
+      setVegGrams(1000);
+      setWaterGrams(1000);
+      setCraftMode('veg');
+      setSchedulerProcess('KIMCHI_TRADITIONAL');
+    } else {
+      setKombuchaWaterLiters(3);
+      setCraftMode('beverage');
+      setSchedulerProcess('KOMBUCHA_1F');
+    }
+  };
+
+  const handleCopyShareLink = async (recipe: CanonicalRecipe) => {
+    triggerHapticFeedback();
+    const uri = encodeRecipeToShareUri(recipe);
+    await Clipboard.setStringAsync(uri);
+    Alert.alert(
+      t('Receptura Skopiowana!'),
+      `${recipe.name}\n${t('Link offline (ferment://) ze sprawdzoną sumą kontrolną skopiowano do schowka.')}`
+    );
+  };
+
+  const handleImportRecipeFromClipboard = async () => {
+    try {
+      const text = await Clipboard.getStringAsync();
+      if (!text || !text.includes('ferment://recipe?data=')) {
+        Alert.alert(
+          t('Brak Receptury'),
+          t('W schowku nie znaleziono prawidłowego linku receptury ferment://')
+        );
+        return;
+      }
+      triggerHapticFeedback();
+      const decoded = decodeRecipeFromShareUri(text);
+      setSelectedRecipeId(decoded.id);
+      Alert.alert(
+        t('Wczytano Recepturę!'),
+        `${decoded.name} (${decoded.code})\n${t('Pomyślnie zweryfikowano sumę kontrolną integralności.')}`
+      );
+    } catch (err: any) {
+      Alert.alert(t('Błąd Importu'), err.message || t('Nieprawidłowe dane receptury.'));
+    }
+  };
+
   // Calculations
   const rennetCalc = calculateRennetDose(milkLiters, 40, 200);
   const cacl2Calc = calculateCacl2Dose(milkLiters, 'STORE_MICROFILTERED');
@@ -143,6 +226,23 @@ export default function CalculatorScreen() {
   const kombucha1F = calculateKombucha1F(kombuchaWaterLiters);
   const kombucha2F = calculateKombucha2FPressure(residualSugar, daysIn2F);
   const vinegarCalc = calculateVinegarConversion(vinegarBrix);
+
+  const sweetWheyLiters = Math.max(1, milkLiters * 0.9);
+  const ricottaCalc = calculateRicottaRecovery(sweetWheyLiters, wheyMilkBoostLiters);
+  const wheyDrinkCalc = calculateWheyIsotonicDrink(sweetWheyLiters);
+  const brineBoostCalc = calculateSaltToBoostBrine(brineWaterLiters, currentBrineSalinity, targetBrineSalinity);
+
+  const targetDateForSchedule = (() => {
+    const d = new Date();
+    d.setHours(targetFinishHour, 0, 0, 0);
+    return d;
+  })();
+  const reverseScheduleCalc = calculateReverseSchedule(schedulerProcess, targetDateForSchedule);
+
+  const activeRecipes = getRecipesByCategory(
+    craftMode === 'cheese' ? 'CHEESE' : craftMode === 'veg' ? 'VEG_FERMENT' : 'KOMBUCHA'
+  );
+  const selectedRecipe = CANONICAL_RECIPES.find((r) => r.id === selectedRecipeId);
 
   const handleSaveBatch = () => {
     requireActionAccess(async () => {
@@ -248,6 +348,176 @@ export default function CalculatorScreen() {
             trackColor={{ false: '#D6D3D1', true: '#B45309' }}
             thumbColor="#FFFFFF"
           />
+        </View>
+
+        {/* Canonical Recipes Presets & Offline Sharing */}
+        <View style={styles.card}>
+          <Text style={styles.cardMiniTitle}>📜 {t('Receptury Kanoniczne & Wymiana')}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+            {activeRecipes.map((r) => {
+              const isSel = r.id === selectedRecipeId;
+              return (
+                <TouchableOpacity
+                  key={r.id}
+                  style={[styles.presetPill, isSel && styles.presetPillActive]}
+                  onPress={() => handleSelectRecipe(r)}
+                >
+                  <Text style={[styles.presetPillText, isSel && styles.presetPillTextActive]}>
+                    {r.name}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+
+          {selectedRecipe && (
+            <View style={styles.recipeDetailCard}>
+              <View style={styles.rowBetween}>
+                <Text style={styles.recipeDetailName}>{selectedRecipe.name}</Text>
+                <Text style={styles.recipeDetailCode}>{selectedRecipe.code}</Text>
+              </View>
+              <Text style={styles.recipeDetailText}>
+                • {t('Wydajność:')} <Text style={styles.boldText}>{selectedRecipe.targetYieldPer10Units}</Text>
+              </Text>
+              <Text style={styles.recipeDetailText}>
+                • {t('Dojrzewanie:')} <Text style={styles.boldText}>{selectedRecipe.agingDays} dni</Text> ({selectedRecipe.optimalConditions.targetTempC})
+              </Text>
+              <Text style={styles.recipeDetailText}>
+                • pH: <Text style={styles.boldText}>{selectedRecipe.optimalConditions.phMilestone}</Text>
+              </Text>
+              <Text style={styles.recipeKeyTechnique}>
+                💡 {t('Kluczowa technika:')} {selectedRecipe.keyTechnique}
+              </Text>
+              <View style={styles.recipeBtnRow}>
+                <TouchableOpacity
+                  style={styles.recipeShareBtn}
+                  onPress={() => handleCopyShareLink(selectedRecipe)}
+                >
+                  <Text style={styles.recipeShareBtnText}>🔗 {t('Kopiuj Link Receptury (ferment://)')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.recipeImportBtn}
+                  onPress={handleImportRecipeFromClipboard}
+                >
+                  <Text style={styles.recipeImportBtnText}>📥 {t('Wczytaj ze Schowka')}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* Reverse Production Scheduler (Anti-Fatigue Guard) */}
+        <View style={styles.card}>
+          <TouchableOpacity
+            style={styles.rowBetween}
+            onPress={() => {
+              triggerHapticFeedback();
+              setIsSchedulerOpen(!isSchedulerOpen);
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.cardMiniTitle}>
+                ⏰ {t('Harmonogram Odwrócony Produkcji (Anti-Fatigue Guard)')}
+              </Text>
+              <Text style={styles.cardDescMini}>
+                {t('Oblicz godzinę startu na podstawie planowanego zakończenia, aby nie przerywać snu.')}
+              </Text>
+            </View>
+            <Text style={styles.accordionArrow}>{isSchedulerOpen ? '▲' : '▼'}</Text>
+          </TouchableOpacity>
+
+          {isSchedulerOpen && (
+            <View style={styles.schedulerBody}>
+              <Text style={styles.inputLabelMini}>{t('Typ procesu:')}</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                {[
+                  { id: 'CHEESE_HARD_GOUDA' as const, label: t('Gouda (15.5h)') },
+                  { id: 'CHEESE_PASTA_FILATA_MOZZARELLA' as const, label: t('Mozzarella (4.5h)') },
+                  { id: 'CHEESE_FRESH_KORYCIN' as const, label: t('Ser Koryciński') },
+                  { id: 'KIMCHI_TRADITIONAL' as const, label: t('Kimchi (5h)') },
+                  { id: 'KOMBUCHA_1F' as const, label: t('Kombucha 1F (1h)') },
+                  { id: 'BEET_KVASS' as const, label: t('Zakwas Buraczany') },
+                ].map((item) => (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[styles.presetPill, schedulerProcess === item.id && styles.presetPillActive]}
+                    onPress={() => {
+                      triggerHapticFeedback();
+                      setSchedulerProcess(item.id);
+                    }}
+                  >
+                    <Text style={[styles.presetPillText, schedulerProcess === item.id && styles.presetPillTextActive]}>
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
+              <View style={styles.rowBetween}>
+                <Text style={styles.inlineLabel}>{t('Docelowa godzina ukończenia:')}</Text>
+                <View style={styles.miniStepper}>
+                  <TouchableOpacity
+                    style={styles.miniStepperBtn}
+                    onPress={() => {
+                      triggerHapticFeedback();
+                      setTargetFinishHour((h) => (h === 0 ? 23 : h - 1));
+                    }}
+                  >
+                    <Text style={styles.miniStepperBtnText}>-1h</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.miniStepperVal}>{String(targetFinishHour).padStart(2, '0')}:00</Text>
+                  <TouchableOpacity
+                    style={styles.miniStepperBtn}
+                    onPress={() => {
+                      triggerHapticFeedback();
+                      setTargetFinishHour((h) => (h === 23 ? 0 : h + 1));
+                    }}
+                  >
+                    <Text style={styles.miniStepperBtnText}>+1h</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.schedulerResultBox}>
+                <Text style={styles.schedulerStartLabel}>{t('Rozpocznij produkcję:')}</Text>
+                <Text style={styles.schedulerStartHour}>
+                  {String(reverseScheduleCalc.startTime.getHours()).padStart(2, '0')}:
+                  {String(reverseScheduleCalc.startTime.getMinutes()).padStart(2, '0')}
+                </Text>
+                <Text style={styles.schedulerSubText}>
+                  {t('Całkowity czas trwania:')} {Math.floor(reverseScheduleCalc.totalDurationMinutes / 60)}h{' '}
+                  {reverseScheduleCalc.totalDurationMinutes % 60}m
+                </Text>
+
+                {reverseScheduleCalc.hasNightConflict && (
+                  <View style={styles.nightWarningBox}>
+                    <Text style={styles.nightWarningTitle}>
+                      ⚠️ {t('Konflikt Nocny (23:00 – 06:00)!')}
+                    </Text>
+                    {reverseScheduleCalc.nightConflictWarnings.map((w, idx) => (
+                      <Text key={idx} style={styles.nightWarningLine}>• {w}</Text>
+                    ))}
+                    <Text style={styles.nightWarningRec}>
+                      💡 {reverseScheduleCalc.recommendation}
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              <Text style={styles.inputLabelMini}>{t('Kroki procesu:')}</Text>
+              {reverseScheduleCalc.steps.map((st, idx) => (
+                <View key={idx} style={styles.timelineRow}>
+                  <Text style={styles.timelineTime}>
+                    {String(st.scheduledTime.getHours()).padStart(2, '0')}:{String(st.scheduledTime.getMinutes()).padStart(2, '0')}
+                  </Text>
+                  <View style={styles.timelineContent}>
+                    <Text style={styles.timelineName}>{st.name} ({st.durationMinutes} min)</Text>
+                    <Text style={styles.timelineDesc}>{st.description}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
 
         {/* =================================================================== */}
@@ -450,6 +720,85 @@ export default function CalculatorScreen() {
                       ✅ {t('Tempo dogrzewania bezpieczne (min. 2 min / 1°C).')}
                     </Text>
                   )}
+                </View>
+
+                {/* 5. Brine Salinity Boost & Regeneration */}
+                <View style={styles.proCard}>
+                  <Text style={styles.proCardTitle}>🧂 {t('Regeneracja i Wzmocnienie Stężenia Solanki')}</Text>
+                  <View style={styles.rowBetween}>
+                    <Text style={styles.inlineLabel}>{t('Aktualne stężenie solanki (%):')}</Text>
+                    <TextInput
+                      style={styles.numInput}
+                      keyboardType="numeric"
+                      value={String(currentBrineSalinity)}
+                      onChangeText={(v) => setCurrentBrineSalinity(parseFloat(v) || 0)}
+                    />
+                  </View>
+                  <View style={styles.rowBetween}>
+                    <Text style={styles.inlineLabel}>{t('Docelowe stężenie solanki (%):')}</Text>
+                    <TextInput
+                      style={styles.numInput}
+                      keyboardType="numeric"
+                      value={String(targetBrineSalinity)}
+                      onChangeText={(v) => setTargetBrineSalinity(parseFloat(v) || 0)}
+                    />
+                  </View>
+                  <View style={styles.brineResultBox}>
+                    <Text style={styles.brineText}>
+                      • {t('Sól do dosypania w celu przywrócenia stężenia:')}{' '}
+                      <Text style={styles.boldText}>{brineBoostCalc.saltGramsToAdd} g</Text>
+                    </Text>
+                    <Text style={styles.recipeDetailText}>
+                      {t('Rozpuść sól bezpośrednio w solance bez wylewania roztworu.')}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* 6. Whey Zero-Waste & Ricotta Recovery */}
+                <View style={styles.proCard}>
+                  <Text style={styles.proCardTitle}>♻️ {t('Odzysk Serwatki & Zero-Waste (Ricotta / Izotonik)')}</Text>
+                  <Text style={styles.proCardDesc}>
+                    {t('Dostępna serwatka słodka:')} <Text style={styles.boldText}>{sweetWheyLiters.toFixed(1)} L</Text>
+                  </Text>
+                  <Text style={styles.inputLabelMini}>{t('Dodatek pełnego mleka (wzmocnienie uzysku):')}</Text>
+                  <View style={styles.typeSelectorRow}>
+                    {[
+                      { boost: 0, label: t('Brak (czysta serwatka)') },
+                      { boost: 1, label: '+1 L (+10%)' },
+                      { boost: 2, label: '+2 L (+20%)' },
+                    ].map((opt) => (
+                      <TouchableOpacity
+                        key={opt.boost}
+                        style={[styles.typePill, wheyMilkBoostLiters === opt.boost && styles.typePillActive]}
+                        onPress={() => {
+                          triggerHapticFeedback();
+                          setWheyMilkBoostLiters(opt.boost);
+                        }}
+                      >
+                        <Text style={[styles.typePillText, wheyMilkBoostLiters === opt.boost && styles.typePillTextActive]}>
+                          {opt.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                  <View style={styles.brineResultBox}>
+                    <Text style={styles.brineText}>
+                      • {t('Przewidywany uzysk słodkiej Ricotty:')}{' '}
+                      <Text style={styles.boldText}>{ricottaCalc.estimatedRicottaYieldGrams} g</Text>
+                    </Text>
+                    <Text style={styles.brineText}>
+                      • {t('Dawka kwasu cytrynowego:')}{' '}
+                      <Text style={styles.boldText}>{ricottaCalc.citricAcidGramsNeeded} g</Text>
+                    </Text>
+                    <Text style={styles.brineText}>
+                      • {t('Docelowa temperatura koagulacji serwatki:')}{' '}
+                      <Text style={styles.boldText}>{ricottaCalc.heatingTargetTempC}°C</Text>
+                    </Text>
+                    <Text style={styles.brineText}>
+                      • {t('Napój izotoniczny z serwatki (Rivella):')}{' '}
+                      <Text style={styles.boldText}>{(wheyDrinkCalc.wheyLiters + wheyDrinkCalc.waterDilutionMl / 1000).toFixed(1)} L</Text> ({t('z dodatkiem soku jabłkowego 1:1')})
+                    </Text>
+                  </View>
                 </View>
               </View>
             )}
@@ -1169,5 +1518,219 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '700',
+  },
+  cardMiniTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#1C1917',
+    marginBottom: 8,
+  },
+  cardDescMini: {
+    fontSize: 12,
+    color: '#78716C',
+    marginTop: 2,
+  },
+  inputLabelMini: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#57534E',
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  presetScroll: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  presetPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#F5F5F4',
+    borderRadius: 8,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+  },
+  presetPillActive: {
+    backgroundColor: '#FEF3C7',
+    borderColor: '#B45309',
+  },
+  presetPillText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#57534E',
+  },
+  presetPillTextActive: {
+    color: '#92400E',
+    fontWeight: '700',
+  },
+  recipeDetailCard: {
+    backgroundColor: '#FFFBEB',
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  recipeDetailName: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#92400E',
+  },
+  recipeDetailCode: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#B45309',
+  },
+  recipeDetailText: {
+    fontSize: 12,
+    color: '#78350F',
+    marginTop: 3,
+  },
+  recipeKeyTechnique: {
+    fontSize: 11,
+    color: '#92400E',
+    fontStyle: 'italic',
+    marginTop: 6,
+    paddingTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: '#FDE68A',
+  },
+  recipeBtnRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
+  recipeShareBtn: {
+    flex: 1,
+    backgroundColor: '#D97706',
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  recipeShareBtnText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  recipeImportBtn: {
+    flex: 1,
+    backgroundColor: '#78350F',
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  recipeImportBtnText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  schedulerBody: {
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F5F5F4',
+  },
+  miniStepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  miniStepperBtn: {
+    width: 36,
+    height: 36,
+    backgroundColor: '#F5F5F4',
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#D6D3D1',
+  },
+  miniStepperBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#1C1917',
+  },
+  miniStepperVal: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#78350F',
+    minWidth: 50,
+    textAlign: 'center',
+  },
+  schedulerResultBox: {
+    backgroundColor: '#F0FDF4',
+    padding: 12,
+    borderRadius: 10,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    alignItems: 'center',
+  },
+  schedulerStartLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#166534',
+  },
+  schedulerStartHour: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: '#14532D',
+    marginVertical: 2,
+  },
+  schedulerSubText: {
+    fontSize: 11,
+    color: '#15803D',
+  },
+  nightWarningBox: {
+    backgroundColor: '#FEF2F2',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    width: '100%',
+  },
+  nightWarningTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#DC2626',
+    marginBottom: 4,
+  },
+  nightWarningLine: {
+    fontSize: 11,
+    color: '#991B1B',
+    marginTop: 2,
+  },
+  nightWarningRec: {
+    fontSize: 11,
+    color: '#7F1D1D',
+    fontWeight: '600',
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+  timelineRow: {
+    flexDirection: 'row',
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F4',
+  },
+  timelineTime: {
+    width: 50,
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#B45309',
+  },
+  timelineContent: {
+    flex: 1,
+  },
+  timelineName: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#1C1917',
+  },
+  timelineDesc: {
+    fontSize: 10,
+    color: '#78716C',
+    marginTop: 1,
   },
 });

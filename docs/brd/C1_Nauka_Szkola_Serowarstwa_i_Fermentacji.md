@@ -44,3 +44,39 @@
 
 ### **BR-EDU-020: Diagnostyk Chorób Kiszonek i Fermentów Roślinnych**
 * Diagnoza: kożuch drożdżowy Kahm vs pleśnie mikotoksynowe, mięknięcie ogórków (brak garbników/enzymy pektynazy), ciągliwość/śluzowatość solanki (*Leuconostoc* w niskiej temperaturze tworzący dekstran), przebarwienia czosnku na niebiesko-zielono (nieszkodliwe związki izoalliiny w środowisku kwasowym).
+
+---
+
+### **BR-EDU-025: SOR Ratunkowy Fermentacji & Triage Awaryjny (Emergency Recovery Protocols)**
+* **Opis:** Zaadaptowany z silnika *Słoik* protokół natychmiastowego ratowania zagrożonych partii biologicznych (`emergency-recovery.ts`).
+* **Szybka kategoryzacja usterki i plan ratunkowy:**
+  1. **Brak zestalenia skrzepu:** dogrzanie do 35°C w płaszczu wodnym, suplementacja $CaCl_2$, zadanie 50% świeżej podpuszczki bez wirowania. W ostateczności konwersja na twaróg kwasowy.
+  2. **Ucieczka kwasowości (przekwaszenie):** natychmiastowe zlanie kwaśnej serwatki, płukanie wodą 38°C (curd washing), redukcja czasu solenia o 25%.
+  3. **Śluzowata skórka w solance:** kąpiel naprawcza w zbuforowanej solance z 1% $CaCl_2$ i pH 5.2.
+  4. **Kożuszek Kahm na powierzchni:** zebranie cienkiej błony wyparzoną łyżką, sprawdzenie anaerobowości, dociążenie wsadu. Partia zdatna do spożycia.
+  5. **Zakażenie pleśnią grzybka SCOBY:** puszysta, zielona/czarna grzybnia z zarodnikami — **BEZWZGLĘDNY NAKAZ UTYLIZACJI (FATAL_DISCARD)** całego słoika ze względu na mikotoksyny wnikające w głąb płynu.
+  6. **Zatrzymana fermentacja octowa:** rozcieńczenie wsadu wodą do 5–6% ABV i zapewnienie stałego dopływu tlenu przez przewiewną gazę.
+* **Persona:** P1, P2, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-EDU-030: Chemia Wody & Neutralizacja Chloraminy (Water Chemistry Engine)**
+* **Opis:** Zaadaptowany z silnika *Napar* kalkulator uzdatniania wody wodociągowej dla mikrobiologii domowej (`water-chemistry.ts`).
+* **Zasady biochemiczne:**
+  * Chloramina ($NH_2Cl$) stosowana w nowoczesnych wodociągach nie ulatnia się podczas odstania i gotowania. Nawet śladowe ilości (0.5 ppm) zabijają bakterie kwasu mlekowego (*Lactobacillus*, *Lactococcus*) oraz drożdże kombuchy.
+  * **Neutralizacja chemiczna:** Zastosowanie kwasu L-askorbinowego (witaminy C) w proporcji $8\text{ mg}$ na każdy litr wody redukuje chloraminę do nieszkodliwych chlorków.
+  * **Bufor alkaliczny (dKH):** Wysoka zawartość wodorowęglanów ($dKH > 10$) buforuje kwas mlekowy, opóźniając osiągnięcie bezpiecznego pH < 4.2. Algorytm rekomenduje częściowe kupażowanie z wodą demineralizowaną/RO.
+* **Persona:** P1, P4, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-EDU-035: Koło Aromatów Mikrobiologicznych (Microbiological Flavor Wheel)**
+* **Opis:** Zaadaptowane z silnika sensorycznego *Napar* 6-osiowe organoleptyczne koło smaków i zapachów (`flavor-wheel-data.ts`).
+* **Struktura leksykonu sensorycznego:**
+  * 5 głównych klas: Mleczne & Maślane, Owocowo-Kwasowe, Orzechowo-Karmelowe, Ziemisto-Grzybowe, Zwierzęco-Pikantne.
+  * 15 podkategorii i 40 deskryptorów przypisanych do związków chemicznych (diacetyl, kwas L-mlekowy, octan etylu, kwas masłowy, kwas izowalerianowy, 1-okten-3-ol, p-krezol) wraz z identyfikacją mikroorganizmów odpowiedzialnych za ich powstanie.
+* **Persona:** P1, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+

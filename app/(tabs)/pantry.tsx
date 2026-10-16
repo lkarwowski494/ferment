@@ -22,6 +22,12 @@ import { createAutoBackup } from '../../src/lib/backup';
 import { calculateBatchYieldAndEconomics } from '../../src/core/inventory';
 import { printLabelSheet, shareLabelSheetPdf, LabelItem } from '../../src/lib/pdf-sheet-generator';
 import { triggerHapticFeedback } from '../../src/lib/timer-audio';
+import {
+  convertRennetForm,
+  getCultureNaturalSubstitute,
+  convertCacl2Forms,
+  RennetSubstitutionResult,
+} from '../../src/core/ingredient-substitutions';
 
 export default function PantryScreen() {
   const {
@@ -47,6 +53,11 @@ export default function PantryScreen() {
   const [calcCheeseKg, setCalcCheeseKg] = useState<number>(2.1);
   const [calcBatchCost, setCalcBatchCost] = useState<number>(75);
 
+  // Ingredient Substitutions State
+  const [substMilkLiters, setSubstMilkLiters] = useState<number>(10);
+  const [substRennetType, setSubstRennetType] = useState<RennetSubstitutionResult['substituteType']>('LIQUID_200_IMCU');
+  const [substCultureType, setSubstCultureType] = useState<'MESOPHILIC' | 'THERMOPHILIC'>('MESOPHILIC');
+
   const loadPantry = useCallback(async () => {
     const store = getSqliteStore();
     const items = await store.getPantryItems();
@@ -58,6 +69,9 @@ export default function PantryScreen() {
   }, [loadPantry]);
 
   const yieldCalc = calculateBatchYieldAndEconomics(calcBatchCost, calcMilkLiters, calcCheeseKg);
+  const rennetSubstCalc = convertRennetForm(substMilkLiters, substRennetType);
+  const cultureSubstCalc = getCultureNaturalSubstitute(substMilkLiters, substCultureType);
+  const cacl2SubstCalc = convertCacl2Forms(substMilkLiters);
 
   const handleSaveNewItem = () => {
     requireActionAccess(async () => {
@@ -307,6 +321,129 @@ export default function PantryScreen() {
               {t('Wydajność:')} {yieldCalc.yieldPercentage}% | {yieldCalc.costPerKgOrLiter.toFixed(2)} PLN / kg
             </Text>
             <Text style={styles.yieldComment}>{yieldCalc.comment}</Text>
+          </View>
+        </View>
+
+        {/* Ingredient Forms & Substitutions Engine */}
+        <View style={styles.yieldCard}>
+          <Text style={styles.yieldTitle}>🧪 {t('Przelicznik Form i Zamienników Składników')}</Text>
+          <Text style={styles.headerSub}>
+            {t('Kalkulator ekwiwalentów enzymów, kultur naturalnych i roztworów chlorku wapnia')}
+          </Text>
+
+          {/* Volume Stepper */}
+          <View style={[styles.rowBetween, { marginTop: 12 }]}>
+            <Text style={styles.yieldLabel}>{t('Objętość mleka (L):')}</Text>
+            <View style={styles.substStepper}>
+              <TouchableOpacity
+                style={styles.substStepperBtn}
+                onPress={() => {
+                  triggerHapticFeedback();
+                  setSubstMilkLiters((v) => Math.max(1, v - 5));
+                }}
+              >
+                <Text style={styles.substStepperBtnText}>-5</Text>
+              </TouchableOpacity>
+              <Text style={styles.substStepperVal}>{substMilkLiters} L</Text>
+              <TouchableOpacity
+                style={styles.substStepperBtn}
+                onPress={() => {
+                  triggerHapticFeedback();
+                  setSubstMilkLiters((v) => v + 5);
+                }}
+              >
+                <Text style={styles.substStepperBtnText}>+5</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* 1. Rennet Forms */}
+          <Text style={styles.substSectionTitle}>{t('Przelicznik Form Podpuszczki')}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.substScroll}>
+            {[
+              { id: 'LIQUID_200_IMCU' as const, label: t('Płynna (200 IMCU/ml)') },
+              { id: 'POWDER_MICROBIAL_2000' as const, label: t('Proszek mikrobiologiczny (2000 IMCU/g)') },
+              { id: 'MEITO_TABLET' as const, label: t('Tabletka Meito (2500 IMCU/tabl)') },
+              { id: 'PASTE_ANIMAL' as const, label: t('Pasta jagnięca z lipazą') },
+            ].map((rf) => (
+              <TouchableOpacity
+                key={rf.id}
+                style={[styles.substPill, substRennetType === rf.id && styles.substPillActive]}
+                onPress={() => {
+                  triggerHapticFeedback();
+                  setSubstRennetType(rf.id);
+                }}
+              >
+                <Text style={[styles.substPillText, substRennetType === rf.id && styles.substPillTextActive]}>
+                  {rf.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <View style={styles.substResultBox}>
+            <Text style={styles.substResultLine}>
+              • {t('Wymagana dawka:')}{' '}
+              <Text style={styles.boldText}>{rennetSubstCalc.requiredAmount} {rennetSubstCalc.unit}</Text> ({rennetSubstCalc.targetImcuTotal} IMCU)
+            </Text>
+            <Text style={styles.substTipText}>💡 {rennetSubstCalc.preparationTip}</Text>
+          </View>
+
+          {/* 2. Natural Culture Starters */}
+          <Text style={styles.substSectionTitle}>{t('Ekwiwalent Kultur Naturalnych (Zamiast DVS)')}</Text>
+          <View style={styles.categoryPickerRow}>
+            <TouchableOpacity
+              style={[styles.catPill, substCultureType === 'MESOPHILIC' && styles.catPillActive]}
+              onPress={() => {
+                triggerHapticFeedback();
+                setSubstCultureType('MESOPHILIC');
+              }}
+            >
+              <Text style={[styles.catPillText, substCultureType === 'MESOPHILIC' && styles.catPillTextActive]}>
+                {t('Mezofilne (maślanka/zsiadłe)')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.catPill, substCultureType === 'THERMOPHILIC' && styles.catPillActive]}
+              onPress={() => {
+                triggerHapticFeedback();
+                setSubstCultureType('THERMOPHILIC');
+              }}
+            >
+              <Text style={[styles.catPillText, substCultureType === 'THERMOPHILIC' && styles.catPillTextActive]}>
+                {t('Termofilne (żywy jogurt)')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.substResultBox}>
+            <Text style={styles.substResultLine}>
+              • {t('Naturalny zamiennik:')} <Text style={styles.boldText}>{cultureSubstCalc.naturalSubstituteName}</Text>
+            </Text>
+            <Text style={styles.substResultLine}>
+              • {t('Ilość do zadania:')}{' '}
+              <Text style={styles.boldText}>{cultureSubstCalc.naturalSubstituteAmount} {cultureSubstCalc.naturalSubstituteUnit}</Text> ({cultureSubstCalc.commercialDvsGrams}g DVS)
+            </Text>
+            <Text style={styles.substTipText}>💡 {cultureSubstCalc.notes}</Text>
+          </View>
+
+          {/* 3. CaCl2 Forms */}
+          <Text style={styles.substSectionTitle}>{t('Przelicznik Postaci Chlorku Wapnia (CaCl2)')}</Text>
+          <View style={styles.cacl2Grid}>
+            <View style={styles.cacl2Item}>
+              <Text style={styles.cacl2Label}>{t('Bezwodny CaCl2 (suchy czysty):')}</Text>
+              <Text style={styles.cacl2Val}>{cacl2SubstCalc.dryAnhydrousGrams} g</Text>
+            </View>
+            <View style={styles.cacl2Item}>
+              <Text style={styles.cacl2Label}>{t('Dwuwodny CaCl2 * 2H2O:')}</Text>
+              <Text style={styles.cacl2Val}>{cacl2SubstCalc.dryDihydrateGrams} g</Text>
+            </View>
+            <View style={styles.cacl2Item}>
+              <Text style={styles.cacl2Label}>{t('Roztwór płynny 33%:')}</Text>
+              <Text style={styles.cacl2Val}>{cacl2SubstCalc.liquid33PercentMl} ml</Text>
+            </View>
+            <View style={styles.cacl2Item}>
+              <Text style={styles.cacl2Label}>{t('Roztwór płynny 10%:')}</Text>
+              <Text style={styles.cacl2Val}>{cacl2SubstCalc.liquid10PercentMl} ml</Text>
+            </View>
           </View>
         </View>
       </ScrollView>
@@ -600,5 +737,113 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginVertical: 4,
+  },
+  substStepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  substStepperBtn: {
+    width: 38,
+    height: 38,
+    backgroundColor: '#F5F5F4',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#D6D3D1',
+  },
+  substStepperBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1C1917',
+  },
+  substStepperVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#78350F',
+    minWidth: 44,
+    textAlign: 'center',
+  },
+  substSectionTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#44403C',
+    marginTop: 14,
+    marginBottom: 6,
+  },
+  substScroll: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  substPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    backgroundColor: '#F5F5F4',
+    borderRadius: 8,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+  },
+  substPillActive: {
+    backgroundColor: '#FEF3C7',
+    borderColor: '#B45309',
+  },
+  substPillText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#57534E',
+  },
+  substPillTextActive: {
+    color: '#92400E',
+    fontWeight: '700',
+  },
+  substResultBox: {
+    backgroundColor: '#F5F5F4',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 6,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+  },
+  substResultLine: {
+    fontSize: 12,
+    color: '#1C1917',
+    marginBottom: 4,
+  },
+  substTipText: {
+    fontSize: 11,
+    color: '#78716C',
+    fontStyle: 'italic',
+    marginTop: 2,
+  },
+  boldText: {
+    fontWeight: '800',
+  },
+  cacl2Grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 6,
+  },
+  cacl2Item: {
+    flex: 1,
+    minWidth: 130,
+    backgroundColor: '#F5F5F4',
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+  },
+  cacl2Label: {
+    fontSize: 11,
+    color: '#78716C',
+    fontWeight: '600',
+  },
+  cacl2Val: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#B45309',
+    marginTop: 2,
   },
 });

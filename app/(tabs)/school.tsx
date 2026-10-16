@@ -10,11 +10,27 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { t } from '../../src/lib/i18n';
 import { SensoryRadarChart, SensoryProfile } from '../../src/components/SensoryRadarChart';
 import { triggerHapticFeedback } from '../../src/lib/timer-audio';
+import {
+  EMERGENCY_PROTOCOLS,
+  getEmergencyRescueProtocol,
+  EmergencyRescueProtocol,
+  EmergencyCaseId,
+} from '../../src/core/emergency-recovery';
+import {
+  calculateDechlorination,
+  analyzeWaterHardnessForFerment,
+} from '../../src/core/water-chemistry';
+import {
+  FLAVOR_CATEGORIES,
+  FLAVOR_DESCRIPTORS,
+  FlavorDescriptor,
+} from '../../src/core/flavor-wheel-data';
 
 interface DefectItem {
   id: string;
@@ -78,6 +94,18 @@ export default function SchoolScreen() {
   const [selectedCategory, setSelectedCategory] = useState<'ALL' | 'CHEESE' | 'VEG' | 'BEV'>('ALL');
   const [expandedDefectId, setExpandedDefectId] = useState<string | null>(null);
 
+  // SOR Triage State
+  const [selectedTriageId, setSelectedTriageId] = useState<EmergencyCaseId>('WEAK_CURD_NO_SET');
+
+  // Water Chemistry State
+  const [waterVolumeLiters, setWaterVolumeLiters] = useState<number>(10);
+  const [isChloramine, setIsChloramine] = useState<boolean>(true);
+  const [calciumPpm, setCalciumPpm] = useState<number>(75);
+  const [magnesiumPpm, setMagnesiumPpm] = useState<number>(15);
+
+  // Flavor Wheel State
+  const [selectedFlavorCatId, setSelectedFlavorCatId] = useState<string>('LACTIC');
+
   // Interactive sensory profile state
   const [sensoryProfile, setSensoryProfile] = useState<SensoryProfile>({
     acidity: 6,
@@ -87,6 +115,11 @@ export default function SchoolScreen() {
     pungency: 4,
     nuttiness: 6,
   });
+
+  const activeTriage: EmergencyRescueProtocol = EMERGENCY_PROTOCOLS[selectedTriageId];
+  const dechlorCalc = calculateDechlorination(waterVolumeLiters, isChloramine);
+  const hardnessAnalysis = analyzeWaterHardnessForFerment(calciumPpm, magnesiumPpm);
+  const activeDescriptors = FLAVOR_DESCRIPTORS.filter((d) => d.category === selectedFlavorCatId);
 
   const filteredDefects = DEFECTS.filter((d) => {
     if (selectedCategory === 'ALL') return true;
@@ -153,6 +186,225 @@ export default function SchoolScreen() {
           </View>
         </View>
 
+        {/* Emergency Rescue Triage (SOR Ratunkowy) */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>🚨 {t('SOR Ratunkowy Fermentacji (Triage Awaryjny)')}</Text>
+          <Text style={styles.cardDesc}>
+            {t('Natychmiastowe protokoły ratunkowe dla krytycznych usterek biologicznych')}
+          </Text>
+
+          <Text style={styles.inputLabelMini}>{t('Wybierz zaistniałą awarię:')}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.triageScroll}>
+            {(Object.keys(EMERGENCY_PROTOCOLS) as EmergencyCaseId[]).map((id) => {
+              const p = EMERGENCY_PROTOCOLS[id];
+              const isSel = p.id === selectedTriageId;
+              return (
+                <TouchableOpacity
+                  key={p.id}
+                  style={[
+                    styles.triagePill,
+                    isSel && styles.triagePillActive,
+                    p.isDiscardMandatory && styles.triagePillFatal,
+                  ]}
+                  onPress={() => {
+                    triggerHapticFeedback();
+                    setSelectedTriageId(p.id);
+                  }}
+                >
+                  <Text style={[styles.triagePillText, isSel && styles.triagePillTextActive]}>
+                    {p.title.split('(')[0].trim()}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+
+          {activeTriage && (
+            <View
+              style={[
+                styles.triageCard,
+                activeTriage.isDiscardMandatory && styles.triageCardFatal,
+              ]}
+            >
+              <View style={styles.rowBetween}>
+                <Text style={styles.triageTitle}>{activeTriage.title}</Text>
+                <View
+                  style={[
+                    styles.urgencyBadge,
+                    activeTriage.severity === 'FATAL_DISCARD'
+                      ? styles.urgencyFatal
+                      : activeTriage.severity === 'CRITICAL'
+                      ? styles.urgencyCritical
+                      : styles.urgencyCaution,
+                  ]}
+                >
+                  <Text style={styles.urgencyBadgeText}>{activeTriage.severity}</Text>
+                </View>
+              </View>
+
+              <View style={styles.salvageBox}>
+                <Text style={styles.salvageLabel}>{t('Czy partię można uratować?')}</Text>
+                <Text
+                  style={[
+                    styles.salvageValue,
+                    activeTriage.isDiscardMandatory ? styles.salvageNo : styles.salvageYes,
+                  ]}
+                >
+                  {activeTriage.isDiscardMandatory
+                    ? t('NIE — BEZWZGLĘDNIE WYRZUĆ!')
+                    : t('TAK (Postępuj wg protokołu)')}
+                </Text>
+              </View>
+
+              <Text style={styles.triageSectionHeader}>{t('Główna przyczyna:')}</Text>
+              <Text style={styles.triageText}>{activeTriage.rootCause}</Text>
+
+              <Text style={styles.triageSectionHeader}>{t('Objawy:')}</Text>
+              <Text style={styles.triageText}>{activeTriage.symptoms}</Text>
+
+              <Text style={styles.triageSectionHeader}>{t('Natychmiastowe działania ratunkowe:')}</Text>
+              {activeTriage.stepByStepRescue.map((step, idx) => (
+                <View key={idx} style={styles.rescueStepRow}>
+                  <Text style={styles.rescueStepNum}>{idx + 1}.</Text>
+                  <Text style={styles.rescueStepText}>{step.replace(/^\d+\.\s*/, '')}</Text>
+                </View>
+              ))}
+
+              <Text style={styles.triageAdvice}>💡 {activeTriage.preventiveAdvice}</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Water Chemistry & Chloramine Neutralization */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>💧 {t('Chemia Wody & Neutralizacja Chloraminy')}</Text>
+          <Text style={styles.cardDesc}>
+            {t('Precyzyjne usuwanie dezynfektantów wodociągowych niszczących bakterie kwasu mlekowego')}
+          </Text>
+
+          <View style={styles.rowBetween}>
+            <Text style={styles.inlineLabel}>{t('Objętość wody (L):')}</Text>
+            <TextInput
+              style={styles.numInput}
+              keyboardType="numeric"
+              value={String(waterVolumeLiters)}
+              onChangeText={(v) => setWaterVolumeLiters(parseFloat(v) || 1)}
+            />
+          </View>
+
+          <Text style={styles.inputLabelMini}>{t('Typ środka w kranie:')}</Text>
+          <View style={styles.filterRow}>
+            <TouchableOpacity
+              style={[styles.filterPill, isChloramine && styles.filterPillActive]}
+              onPress={() => {
+                triggerHapticFeedback();
+                setIsChloramine(true);
+              }}
+            >
+              <Text style={[styles.filterPillText, isChloramine && styles.filterPillTextActive]}>
+                {t('Chloramina (NH2Cl)')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.filterPill, !isChloramine && styles.filterPillActive]}
+              onPress={() => {
+                triggerHapticFeedback();
+                setIsChloramine(false);
+              }}
+            >
+              <Text style={[styles.filterPillText, !isChloramine && styles.filterPillTextActive]}>
+                {t('Chlor (Cl2)')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.waterResultBox}>
+            <Text style={styles.waterResultTitle}>{t('Odchlorowanie / Neutralizacja:')}</Text>
+            <Text style={styles.waterResultLine}>
+              • {t('Witamina C (kwas L-askorbinowy):')}{' '}
+              <Text style={styles.boldText}>{dechlorCalc.vitaminCMgNeededForChloramine} mg</Text> ({(dechlorCalc.vitaminCMgNeededForChloramine / 1000).toFixed(3)} g)
+            </Text>
+            <Text style={styles.waterResultLine}>
+              • {t('Czas odparowania wolnego chloru:')}{' '}
+              <Text style={styles.boldText}>{dechlorCalc.freeChlorineDegassingHours}h</Text> ({t('min wrzenia')}: {dechlorCalc.boilingMinutesNeeded} min)
+            </Text>
+            <Text style={styles.waterResultDesc}>💡 {dechlorCalc.recommendation}</Text>
+          </View>
+
+          <Text style={styles.waterResultTitle}>{t('Twardość całkowita i bufor:')}</Text>
+          <View style={styles.rowBetween}>
+            <Text style={styles.inlineLabel}>{t('Wapń Ca (ppm):')}</Text>
+            <TextInput
+              style={styles.numInput}
+              keyboardType="numeric"
+              value={String(calciumPpm)}
+              onChangeText={(v) => setCalciumPpm(parseFloat(v) || 0)}
+            />
+          </View>
+          <View style={styles.rowBetween}>
+            <Text style={styles.inlineLabel}>{t('Magnez Mg (ppm):')}</Text>
+            <TextInput
+              style={styles.numInput}
+              keyboardType="numeric"
+              value={String(magnesiumPpm)}
+              onChangeText={(v) => setMagnesiumPpm(parseFloat(v) || 0)}
+            />
+          </View>
+          <View style={styles.hardnessResultBox}>
+            <Text style={styles.hardnessLine}>
+              • dGH: <Text style={styles.boldText}>{hardnessAnalysis.dGhTotalHardness}°d</Text> | dKH: <Text style={styles.boldText}>{hardnessAnalysis.dKhAlkalinity}°d</Text>
+            </Text>
+            <Text style={styles.hardnessLine}>
+              • {t('Przydatność dla sera:')} <Text style={styles.boldText}>{hardnessAnalysis.suitabilityForCheese}</Text>
+            </Text>
+            <Text style={styles.hardnessLine}>
+              • {t('Przydatność dla kombuchy/kiszonek:')} <Text style={styles.boldText}>{hardnessAnalysis.suitabilityForKombuchaAndVeg}</Text>
+            </Text>
+            <Text style={styles.hardnessDesc}>💡 {hardnessAnalysis.notes}</Text>
+          </View>
+        </View>
+
+        {/* Microbiological Flavor Wheel */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>🌸 {t('Koło Aromatów Mikrobiologicznych')}</Text>
+          <Text style={styles.cardDesc}>
+            {t('Przeglądaj deskryptory organoleptyczne i ich biochemiczne źródło')}
+          </Text>
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.triageScroll}>
+            {FLAVOR_CATEGORIES.map((cat) => {
+              const isSel = cat.id === selectedFlavorCatId;
+              return (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[styles.flavorCatPill, isSel && styles.flavorCatPillActive]}
+                  onPress={() => {
+                    triggerHapticFeedback();
+                    setSelectedFlavorCatId(cat.id);
+                  }}
+                >
+                  <Text style={[styles.flavorCatText, isSel && styles.flavorCatTextActive]}>
+                    {cat.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+
+          {activeDescriptors.map((desc) => (
+            <View key={desc.id} style={styles.flavorCard}>
+              <View style={styles.rowBetween}>
+                <Text style={styles.flavorTitle}>{desc.label}</Text>
+                <Text style={styles.flavorSubcat}>{desc.subcategory}</Text>
+              </View>
+              <Text style={styles.flavorDesc}>{desc.description}</Text>
+              <Text style={styles.flavorChem}>
+                ⚗️ {t('Związek chemiczny:')} <Text style={styles.boldText}>{desc.chemicalOrigin}</Text>
+              </Text>
+            </View>
+          ))}
+        </View>
+
         {/* Defect Doctor Section */}
         <Text style={styles.sectionHeader}>🩺 {t('Doktor Wad Fermentacyjnych')}</Text>
 
@@ -199,16 +451,16 @@ export default function SchoolScreen() {
               </View>
 
               <Text style={styles.defectSymptoms}>
-                <strong>{t('Objawy:')}</strong> {d.symptoms}
+                <Text style={styles.boldText}>{t('Objawy:')}</Text> {d.symptoms}
               </Text>
 
               {isExpanded && (
                 <View style={styles.defectDetailsBox}>
                   <Text style={styles.defectCause}>
-                    <strong>{t('Przyczyna:')}</strong> {d.cause}
+                    <Text style={styles.boldText}>{t('Przyczyna:')}</Text> {d.cause}
                   </Text>
                   <Text style={styles.defectAction}>
-                    <strong>{t('Działanie naprawcze:')}</strong> {d.action}
+                    <Text style={styles.boldText}>{t('Działanie naprawcze:')}</Text> {d.action}
                   </Text>
                 </View>
               )}
@@ -388,6 +640,266 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#0369A1',
     lineHeight: 18,
+    fontWeight: '600',
+  },
+  rowBetween: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  inlineLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#44403C',
+  },
+  numInput: {
+    width: 90,
+    height: 40,
+    backgroundColor: '#F5F5F4',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D6D3D1',
+    paddingHorizontal: 10,
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1C1917',
+    textAlign: 'right',
+  },
+  boldText: {
+    fontWeight: '800',
+  },
+  inputLabelMini: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#57534E',
+    marginTop: 6,
+    marginBottom: 6,
+  },
+  triageScroll: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  triagePill: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#F5F5F4',
+    borderRadius: 8,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+  },
+  triagePillActive: {
+    backgroundColor: '#FEF3C7',
+    borderColor: '#B45309',
+  },
+  triagePillFatal: {
+    borderColor: '#EF4444',
+  },
+  triagePillText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#57534E',
+  },
+  triagePillTextActive: {
+    color: '#92400E',
+    fontWeight: '700',
+  },
+  triageCard: {
+    backgroundColor: '#FFFBEB',
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    marginTop: 6,
+  },
+  triageCardFatal: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FECACA',
+  },
+  triageTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#1C1917',
+    flex: 1,
+    marginRight: 8,
+  },
+  urgencyBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  urgencyFatal: {
+    backgroundColor: '#DC2626',
+  },
+  urgencyCritical: {
+    backgroundColor: '#EA580C',
+  },
+  urgencyCaution: {
+    backgroundColor: '#D97706',
+  },
+  urgencyBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  salvageBox: {
+    backgroundColor: '#FFFFFF',
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 8,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+  },
+  salvageLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#78716C',
+  },
+  salvageValue: {
+    fontSize: 14,
+    fontWeight: '800',
+    marginTop: 2,
+  },
+  salvageYes: {
+    color: '#15803D',
+  },
+  salvageNo: {
+    color: '#DC2626',
+  },
+  triageSectionHeader: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#44403C',
+    marginTop: 8,
+    marginBottom: 2,
+  },
+  triageText: {
+    fontSize: 12,
+    color: '#57534E',
+    lineHeight: 18,
+  },
+  rescueStepRow: {
+    flexDirection: 'row',
+    marginTop: 4,
+    paddingLeft: 4,
+  },
+  rescueStepNum: {
+    width: 20,
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#B45309',
+  },
+  rescueStepText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#1C1917',
+    lineHeight: 18,
+  },
+  triageAdvice: {
+    fontSize: 11,
+    color: '#78350F',
+    fontStyle: 'italic',
+    marginTop: 10,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#FDE68A',
+  },
+  waterResultBox: {
+    backgroundColor: '#F0F9FF',
+    padding: 12,
+    borderRadius: 10,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#BAE6FD',
+  },
+  waterResultTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0369A1',
+    marginBottom: 6,
+  },
+  waterResultLine: {
+    fontSize: 12,
+    color: '#0C4A6E',
+    marginBottom: 4,
+  },
+  waterResultDesc: {
+    fontSize: 11,
+    color: '#075985',
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+  hardnessResultBox: {
+    backgroundColor: '#F8FAFC',
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 6,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  hardnessLine: {
+    fontSize: 12,
+    color: '#334155',
+    marginBottom: 3,
+  },
+  hardnessDesc: {
+    fontSize: 11,
+    color: '#475569',
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+  flavorCatPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    backgroundColor: '#F5F5F4',
+    borderRadius: 16,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+  },
+  flavorCatPillActive: {
+    backgroundColor: '#FEF3C7',
+    borderColor: '#B45309',
+  },
+  flavorCatText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#57534E',
+  },
+  flavorCatTextActive: {
+    color: '#92400E',
+    fontWeight: '700',
+  },
+  flavorCard: {
+    backgroundColor: '#FAFAF9',
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+  },
+  flavorTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#1C1917',
+    flex: 1,
+  },
+  flavorSubcat: {
+    fontSize: 11,
+    color: '#78716C',
+    fontWeight: '600',
+  },
+  flavorDesc: {
+    fontSize: 12,
+    color: '#44403C',
+    lineHeight: 17,
+    marginTop: 3,
+  },
+  flavorChem: {
+    fontSize: 11,
+    color: '#B45309',
+    marginTop: 4,
     fontWeight: '600',
   },
 });

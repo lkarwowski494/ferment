@@ -867,6 +867,26 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-CURD-025: Harmonogram Odwrócony Produkcji & Anti-Fatigue Sleep Guard**
+* **Opis:** Zaadaptowany z silnika *Piekarz* system planowania wstecznego na osi czasu (`reverse-scheduler.ts`). Użytkownik definiuje docelową godzinę zakończenia wyrobu sera (np. sobota 22:00, przed pójściem spać), a silnik wylicza dokładny moment startu podgrzewania mleka oraz sekwencję kroków.
+* **Algorytm i Bezpieczeństwo Kulinarne (Anti-Fatigue Guard):**
+  1. Wyliczanie wsteczne: $T_{start} = T_{cel} - \sum t_{krokow}$.
+  2. Analiza przedziału nocnego (23:00–06:00): Jeśli jakikolwiek aktywny krok wymagający interwencji (odwracanie w prasie, solenie, dogrzewanie) wypadnie w oknie snu, system generuje ostrzeżenie wysokiego priorytetu oraz rekomenduje wcześniejszą godzinę startu.
+* **Persona:** P1, P2, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-CURD-030: Odzysk Serwatki i Gospodarka Zero-Waste (Ricotta & Izotonik)**
+* **Opis:** Moduł zagospodarowania produktów ubocznych (`whey-utilization.ts`). Z 10 litrów mleka serowarskiego powstaje ok. 9 litrów słodkiej serwatki podpuszczkowej zawierającej cenne albuminy i globuliny.
+* **Zasady technologiczne:**
+  1. **Odzysk tradycyjnej Ricotty (Ziger):** Denaturacja białek w temperaturze 88–92°C z zakwaszeniem kwasem cytrynowym ($1.8\text{ g/L}$) lub octem. Obliczanie dodatku świeżego pełnego mleka (+10% / +20%) dla podwojenia kremowości i uzysku.
+  2. **Rzemieślniczy napój izotoniczny (Alpejska Rivella):** Receptura bilansująca serwatkę, sok z cytryny, miód/cukier, świeżą miętę i wodę mineralną (bogaty w potas i peptydy bioaktywne).
+* **Persona:** P1, P4, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B3_Narzedzia_Solenie_i_Solanki.md -->
@@ -930,6 +950,19 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
   * Obliczenie dawki 1.8% do 2.5% masy zważonego krążka.
   * Rozpisanie na 2 lub 3 równe porcje: aplikacja na górę i boki w dobie 1, obrót i aplikacja na dół w dobie 2.
 * **Persona:** P1, P2.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-SOL-020: Regeneracja i Wzmocnienie Stężenia Solanki (Brine Salinity Boost & Top-Up)**
+* **Opis:** Zaadaptowany z silnika *Słoik* kalkulator matematyczny bilansu masowego roztworów soli (`brine-topup.ts`). W procesie solenia serów kąpiel ulega ciągłemu rozcieńczaniu (ser oddaje wodę i pobiera sól).
+* **Równanie bilansowe:**
+  Ilość soli $m_{soli}$ do dosypania w celu podniesienia stężenia z $S_{1}\%$ do $S_{2}\%$ w objętości $V [L]$ bez wylewania solanki:
+  $$m_{soli} [g] = \frac{V \times 1000 \times (S_{2} - S_{1})}{100 - S_{2}}$$
+* **Kryteria akceptacji:**
+  1. Wylicza gramaturę soli kamiennej do dodania do naczynia solankowego.
+  2. Obsługuje scenariusz dolewki wody do słoików warzywnych, wyliczając dawkę soli kompensującą nową objętość.
+* **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
 ---
@@ -1211,6 +1244,17 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-MAG-020: Przelicznik Form i Ekwiwalentów Składników (Ingredient Substitutions Engine)**
+* **Opis:** Zaadaptowany z silnika *Oczko* kalkulator przeliczania form enzymów koagulujących, starterów mikrobiologicznych i soli mineralnych (`ingredient-substitutions.ts`).
+* **Kluczowe moduły przeliczeniowe:**
+  1. **Konwerter podpuszczki:** Przeliczanie mocy w IMCU na różne postacie handlowe: płynna (200 IMCU/ml), proszek mikrobiologiczny Fromase (2000 IMCU/g), tabletki mikrobiologiczne Meito (ok. 2500 IMCU/tabl) oraz pasta jagnięca/koźlęca z aktywnością lipolityczną (100 IMCU/g).
+  2. **Ekwiwalenty kultur naturalnych (zamiast DVS):** Zastępowanie kultur liofilizowanych naturalnymi starterami — świeżą żywą maślanką/zsiadłym mlekiem z mleka surowego (mezofile, $18\text{ ml/L}$) lub żywym gęstym jogurtem greckim (termofile, $15\text{ g/L}$).
+  3. **Postacie chlorku wapnia ($CaCl_2$):** Bezwodny ($111\text{ g/mol}$) vs dwuwodny dihydrate ($147\text{ g/mol}$) vs roztwór wodny 33% i 10%.
+* **Persona:** P1, P2, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B8_Narzedzia_Zegarki_LiveActivity_Sensory.md -->
@@ -1330,6 +1374,41 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ### **BR-EDU-020: Diagnostyk Chorób Kiszonek i Fermentów Roślinnych**
 * Diagnoza: kożuch drożdżowy Kahm vs pleśnie mikotoksynowe, mięknięcie ogórków (brak garbników/enzymy pektynazy), ciągliwość/śluzowatość solanki (*Leuconostoc* w niskiej temperaturze tworzący dekstran), przebarwienia czosnku na niebiesko-zielono (nieszkodliwe związki izoalliiny w środowisku kwasowym).
+
+---
+
+### **BR-EDU-025: SOR Ratunkowy Fermentacji & Triage Awaryjny (Emergency Recovery Protocols)**
+* **Opis:** Zaadaptowany z silnika *Słoik* protokół natychmiastowego ratowania zagrożonych partii biologicznych (`emergency-recovery.ts`).
+* **Szybka kategoryzacja usterki i plan ratunkowy:**
+  1. **Brak zestalenia skrzepu:** dogrzanie do 35°C w płaszczu wodnym, suplementacja $CaCl_2$, zadanie 50% świeżej podpuszczki bez wirowania. W ostateczności konwersja na twaróg kwasowy.
+  2. **Ucieczka kwasowości (przekwaszenie):** natychmiastowe zlanie kwaśnej serwatki, płukanie wodą 38°C (curd washing), redukcja czasu solenia o 25%.
+  3. **Śluzowata skórka w solance:** kąpiel naprawcza w zbuforowanej solance z 1% $CaCl_2$ i pH 5.2.
+  4. **Kożuszek Kahm na powierzchni:** zebranie cienkiej błony wyparzoną łyżką, sprawdzenie anaerobowości, dociążenie wsadu. Partia zdatna do spożycia.
+  5. **Zakażenie pleśnią grzybka SCOBY:** puszysta, zielona/czarna grzybnia z zarodnikami — **BEZWZGLĘDNY NAKAZ UTYLIZACJI (FATAL_DISCARD)** całego słoika ze względu na mikotoksyny wnikające w głąb płynu.
+  6. **Zatrzymana fermentacja octowa:** rozcieńczenie wsadu wodą do 5–6% ABV i zapewnienie stałego dopływu tlenu przez przewiewną gazę.
+* **Persona:** P1, P2, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-EDU-030: Chemia Wody & Neutralizacja Chloraminy (Water Chemistry Engine)**
+* **Opis:** Zaadaptowany z silnika *Napar* kalkulator uzdatniania wody wodociągowej dla mikrobiologii domowej (`water-chemistry.ts`).
+* **Zasady biochemiczne:**
+  * Chloramina ($NH_2Cl$) stosowana w nowoczesnych wodociągach nie ulatnia się podczas odstania i gotowania. Nawet śladowe ilości (0.5 ppm) zabijają bakterie kwasu mlekowego (*Lactobacillus*, *Lactococcus*) oraz drożdże kombuchy.
+  * **Neutralizacja chemiczna:** Zastosowanie kwasu L-askorbinowego (witaminy C) w proporcji $8\text{ mg}$ na każdy litr wody redukuje chloraminę do nieszkodliwych chlorków.
+  * **Bufor alkaliczny (dKH):** Wysoka zawartość wodorowęglanów ($dKH > 10$) buforuje kwas mlekowy, opóźniając osiągnięcie bezpiecznego pH < 4.2. Algorytm rekomenduje częściowe kupażowanie z wodą demineralizowaną/RO.
+* **Persona:** P1, P4, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-EDU-035: Koło Aromatów Mikrobiologicznych (Microbiological Flavor Wheel)**
+* **Opis:** Zaadaptowane z silnika sensorycznego *Napar* 6-osiowe organoleptyczne koło smaków i zapachów (`flavor-wheel-data.ts`).
+* **Struktura leksykonu sensorycznego:**
+  * 5 głównych klas: Mleczne & Maślane, Owocowo-Kwasowe, Orzechowo-Karmelowe, Ziemisto-Grzybowe, Zwierzęco-Pikantne.
+  * 15 podkategorii i 40 deskryptorów przypisanych do związków chemicznych (diacetyl, kwas L-mlekowy, octan etylu, kwas masłowy, kwas izowalerianowy, 1-okten-3-ol, p-krezol) wraz z identyfikacją mikroorganizmów odpowiedzialnych za ich powstanie.
+* **Persona:** P1, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
 
 ---
 

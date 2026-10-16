@@ -2,30 +2,113 @@
 
 > **Ekosystem:** Apps4Brew Studio  
 > **Repozytorium:** `lkarwowski494/ferment`  
-> **Status:** Wersja robocza BRD 0.1 Master (74.5 stron znormalizowanych, 25 rozdziałów modularnych)
+> **Technologia:** Expo 57, React Native 0.86, TypeScript Strict, SQLite (tryb WAL)  
+> **Piramida Jakości:** 16 zestawów testów (100% PASS, 70 testów), pełna zgodność i18n (PL/EN, 309 kluczy), `npm run verify` zielony  
 
-## O projekcie
-**FERMENT** to kieszonkowy asystent domowego serowarstwa zagrodowego oraz zaawansowanej fermentacji warzywno-napojowej (kimchi, zakwasy, kombucha, żywe octy).
+---
 
-### Kluczowe moduły:
-1. **Kalkulator serowara:** Precyzyjne przeliczanie dawek podpuszczki w jednostkach IMCU, suplementacja chlorku wapnia ($CaCl_2$) dla mleka sklepowego/pasteryzowanego, dobór kultur mezofilnych i termofilnych, interaktywny stoper flokulacji (metoda mnożnika flokulacji Berridge'a).
-2. **Dojrzewalnia sera (Cave Log):** Monitorowanie leżakowania krążków w piwniczce (wilgotność względna, temperatura, obliczanie punktu rosy), automatyczny harmonogram obracania, przemywania skórki solanką z *Brevibacterium linens*, rozwój pleśni szlachetnych (*Penicillium camemberti/roqueforti*), woskowanie i śledzenie ubytku wagi (% shrinkage).
-3. **Asystent kiszonek i kimchi:** Precyzyjne solanki wagowe bazujące na całkowitej masie nastawu, zasalanie kapusty kimchi na sucho i w solance, 3 fazy mikrobiologiczne LAB, twarda bariera bezpieczeństwa botulinowego (pH < 4.6).
-4. **Asystent kombuchy i octów:** Dwuetapowa fermentacja kombuchy (1F tlenowa ze SCOBY -> 2F beztlenowa refermentacja CO2 w butelkach ze szacowaniem ciśnienia), dwustopniowa produkcja żywych octów owocowych (fermentacja alkoholowa drożdży -> tlenowa oksydacja kwasu octowego przez *Acetobacter*).
-5. **Ergonomia i sensory:** Apple Watch i Live Activity dla rąk oblepionych serwatką, bezprzewodowe czujniki BLE (RuuviTag, Mijia), wektorowy radar sensoryczny smaku i tekstury SVG.
+## 🧀 O projekcie
+**FERMENT** to profesjonalny asystent rzemieślniczego serowarstwa zagrodowego oraz zaawansowanej domowej mikrobiologii fermentacyjnej (baechu-kimchi, zakwasy warzywne, kombucha 1F/2F, żywe octy owocowe). Aplikacja powstała w oparciu o rygorystyczne standardy studia **Apps4Brew**, łącząc prostotę obsługi 1-Tap dla nowicjuszy z potężnym silnikiem kalkulacyjno-biochemicznym dla mistrzów rzemiosła.
 
-## Dokumentacja Biznesowa i Inżynieryjna (BRD)
-- Kompletne kompendium: [`FERMENT_BRD_Kompletne_Wydanie.md`](./FERMENT_BRD_Kompletne_Wydanie.md)
-- Moduły analityczne i techniczne: [`docs/brd/`](./docs/brd/)
-  - `00_START.md` — Streszczenie wykonawcze, warianty MVP, architektura i spis treści
-  - `00b_Jedna_lista_decyzji.md` — Rejestr 45 decyzji produktowo-technicznych (DEC-01…DEC-45)
-  - `00c_Sprzecznosci_i_weryfikacja.md` — Sprzeczności dziedzinowe i rozstrzygnięcia badawcze
-  - `A1_rozdz_1_3_Wizja_Problem_Persony.md` — Wizja, 16 zasad ZP, persony P1–P8, sytuacje SYT
-  - `A2_rozdz_4_6_1_Rynek_Przychod_Zakres.md` — Analiza rynku, model ekonomiczny Apps4Brew
-  - `A3a_rozdz_6_2_Tabela_zakresu_cz1.md` — Tabela zakresu serowarskiego Z-001…Z-120
-  - `A3b_rozdz_6_2_Tabela_zakresu_cz2.md` — Tabela zakresu fermentacji i platformy Z-121…Z-240
-  - `A3c_Etapy_Naklad_Warianty.md` — Szacunki nakładu pracy agenta, harmonogram
-  - `A4_rozdz_13_15_KPI_Marketing_ASO.md` — Prywatne KPI, ASO, kręgi dotarcia
-  - `B1…B8` — 8 modułów wymagań funkcjonalnych (BR-SER, BR-CURD, BR-SOL, BR-CAVE, BR-KISZ, BR-KOM, BR-MAG, BR-SYS)
-  - `C1…C4` — Szkoła, kompas diagnostyczny wad sera, 50 reguł dziedzinowych RD z wektorami testowymi, decyzje badacza
-  - `D1…D4` — 115 wymagań NFR, relacyjny model SQLite DDL (18 tabel), rejestr 50 ryzyk RYZ, 9-warstwowa strategia testów
+---
+
+## 🚀 Model Biznesowy Apps4Brew (Zero-Tolerance)
+- **Cennik:** 3,99 zł ($0.99) / miesięcznie | 19,99 zł ($4.99) / rocznie | 59,99 zł ($14.99) Lifetime (bez subskrypcji).
+- **14-dniowy bezwarunkowy okres próbny:** 100% funkcji odblokowanych od pierwszego uruchomienia. Brak sztucznych kłódek i fałszywych ograniczeń "Pro".
+- **Tryb Read-Only po wygaśnięciu trialu:** Użytkownik zachowuje dożywotni, nielimitowany dostęp do swoich danych, historii partii, notatek w Cave Logu oraz eksportu JSON/CSV. Akcje tworzenia nowych partii, dodawania ważeń, uruchamiania timerów flokulacji i druku arkuszy etykiet są chronione przez `<Apps4BrewPassModal />`.
+- **Przywracanie zakupów (`restorePurchases`):** Autentyczna weryfikacja istnienia wpisu licencyjnego w lokalnej tabeli SQLite `app_settings` z natychmiastowym reaktywnym powiadomieniem całego drzewa komponentów.
+- **Prywatność i Bezpieczeństwo Danych:** 100% offline, zero telemetrii, 10 rotacyjnych kopii bezpieczeństwa JSON zapisywanych po każdej mutacji oraz kopia bezpieczeństwa (`safetyBackup`) przed operacjami importu.
+
+---
+
+## 🔬 Nowe Moduły Rzemieślnicze (Zaadaptowane z projektów Napar, Piekarz, Słoik i Oczko)
+
+Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9 wyspecjalizowanych silników dziedzinowych:
+
+1. **Harmonogram Odwrócony Produkcji & Anti-Fatigue Guard (`src/core/reverse-scheduler.ts` — z projektu *Piekarz*):**
+   - Pozwala zaplanować godzinę zakończenia produkcji (np. sobota 22:00) i automatycznie wylicza wsteczny harmonogram etapów (ogrzewanie, flokulacja, krojenie ziarna, dogrzewanie, etapy prasowania).
+   - Wykrywa kolizje z oknem snu rzemieślnika (23:00–06:00), ostrzegając przed nocnym przewracaniem krążków w prasie i rekomendując optymalną porę startu.
+2. **Odzysk Serwatki i Zero-Waste (`src/core/whey-utilization.ts` — z projektu *Piekarz*):**
+   - 10 litrów mleka daje ~1 kg sera i aż ~9 litrów słodkiej serwatki.
+   - Silnik wylicza odzysk białek serwatkowych (albumin i globulin) w postaci tradycyjnej Ricotty (Ziger) w temp. 88–92°C z dawką kwasu cytrynowego, wzmocnienie uzysku mlekiem pełnym (+10% / +20%), recepturę na naturalny napój izotoniczny z serwatki (Alpejska Rivella) oraz suszone przysmaki z nadmiaru grzybka SCOBY.
+3. **Kalkulator Regeneracji i Wzmocnienia Solanki (`src/core/brine-topup.ts` — z projektu *Słoik*):**
+   - Dokładne obliczanie gramów soli kamiennej potrzebnych do przywrócenia rozcieńczonej kąpieli solankowej (np. z 16% z powrotem do 20%) lub uzupełnienia słoików wodą bez utraty docelowego zasolenia.
+4. **Chemia Wody & Neutralizacja Chloraminy (`src/core/water-chemistry.ts` — z projektu *Napar*):**
+   - Usuwanie chloru (odparowanie 24h / gotowanie 15 min) oraz chloraminy ($NH_2Cl$), która nie paruje i niszczy bakterie fermentacji mlekowej.
+   - Dozowanie witaminy C (kwasu L-askorbinowego, 8 mg/L) do natychmiastowej redukcji chloraminy.
+   - Analiza twardości ogólnej dGH ($Ca^{2+}$, $Mg^{2+}$) i alkaliczności buforowej dKH (wodorowęglany zapobiegające zakwaszeniu).
+5. **SOR Ratunkowy Fermentacji / Triage Awaryjny (`src/core/emergency-recovery.ts` — z projektu *Słoik*):**
+   - Natychmiastowe protokoły dla 6 krytycznych incydentów biologicznych: brak zestalenia skrzepu, ucieczka kwasowości (przekwaszenie gęstwy), śluzowata skórka w solance, kożuszek fermentacyjny Kahm, zakażenie pleśnią grzybka SCOBY (bezwzględny nakaz utylizacji) oraz zatrzymanie fermentacji octowej przez nadmiar alkoholu (>8% ABV).
+6. **Biblioteka Receptur Kanonicznych (`src/core/canonical-recipes.ts` — z projektów *Słoik* i *Piekarz*):**
+   - Standardowe receptury dziedzictwa serowarskiego i zielarskiego: Gouda Zagrodowa Półtwarda, Ser Koryciński Swojski, Feta Zagrodowa w Solance Oliwnej, Tradycyjne Baechu-Kimchi, Staropolski Zakwas z Buraków, Kombucha Sencha.
+   - 1-Tap ładowanie parametrów prosto do kalkulatorów.
+7. **Koło Aromatów Mikrobiologicznych (`src/core/flavor-wheel-data.ts` — z projektu *Napar*):**
+   - 5 głównych kategorii sensorycznych (Mleczne & Maślane, Owocowo-Kwasowe, Orzechowo-Karmelowe, Ziemisto-Grzybowe, Zwierzęco-Pikantne), 15 podkategorii i 40 deskryptorów smakowych powiązanych z ich biochemicznym źródłem (diacetyl, kwas mlekowy, octan etylu, geotrichum, kwas masłowy, fenole).
+8. **Przelicznik Form i Ekwiwalentów Składników (`src/core/ingredient-substitutions.ts` — z projektu *Oczko*):**
+   - Przeliczanie enzymów koagulujących: podpuszczka płynna 200 IMCU $\leftrightarrow$ proszek Fromase 2000 IMCU $\leftrightarrow$ tabletki Meito $\leftrightarrow$ pasta jagnięca z lipazą.
+   - Zastępowanie kultur DVS świeżą maślanką/zsiadłym mlekiem (mezofile) lub żywym jogurtem (termofile).
+   - Formy chlorku wapnia ($CaCl_2$ bezwodny vs dwuwodny vs roztwór 33% vs 10%).
+9. **Protokół Wymiany Receptur Offline (`src/core/recipe-share.ts` — z projektu *Napar*):**
+   - Udostępnianie receptur za pomocą kompaktowych deep-linków (`ferment://recipe?data=...`) i kodów QR.
+   - Sprawdzanie integralności danych algorytmem sumy kontrolnej DJB2 / CRC32 bez konieczności połączenia z chmurą.
+
+---
+
+## 🛠️ Weryfikacja i Piramida Testów
+Każdy commit w projekcie przechodzi przez zautomatyzowaną bramkę `npm run verify`:
+```bash
+# 1. Sprawdzenie typowania TypeScript (Strict Mode)
+npm run typecheck
+
+# 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
+npm run check:i18n
+
+# 3. Wykonanie 16 pakietów testowych Jest
+npm test
+
+# 4. Uruchomienie całościowej bramki
+npm run verify
+```
+
+Stan testów na dzień 16.10.2026:
+- **16 test suites PASS** (100%)
+- **70 unit & integration tests PASS** (100%)
+- **309 tekstów przetłumaczonych na PL i EN** (100% parytet)
+
+---
+
+## 📱 Ekrany Aplikacji
+1. **Kalkulator (`app/(tabs)/index.tsx`):**
+   - 3 tryby rzemieślnicze: 🧀 Serowarstwo | 🥬 Kiszonki & Kimchi | 🫖 Kombucha & Żywe Octy.
+   - 1-Tap start z kartami receptur kanonicznych i udostępnianiem `ferment://`.
+   - Harmonogram odwrócony (Anti-Fatigue Guard) z alertami kolizji ze snem.
+   - Tryb mokrych rąk (Keep-Awake).
+   - Zaawansowany akordeon biochemiczny Pro (stoper Berridge'a, dźwignia prasy, bufor solanki, Case Hardening Guard, regeneracja stężenia solanki, odzysk Ricotty z serwatki).
+2. **Partie & Dojrzewalnia (`app/(tabs)/explore.tsx`):**
+   - Lista partii i dziennik piwniczki (Cave Log).
+   - Rejestracja obracania krążków, przemywania solanką i monitorowanie ubytku wagi (% shrinkage).
+3. **Spiżarnia & Etykiety (`app/(tabs)/pantry.tsx`):**
+   - Stany magazynowe, kalkulator wydajności i kosztów partii.
+   - Przelicznik form enzymów, kultur naturalnych i roztworów $CaCl_2$.
+   - Drukowanie arkusza wektorowych etykiet samoprzylepnych A4 z kodami QR.
+4. **Wiedza & SOR Wad (`app/(tabs)/school.tsx`):**
+   - 6-osiowy wektorowy radar profilu sensorycznego SVG.
+   - SOR Ratunkowy Fermentacji (Triage Awaryjny z natychmiastowymi protokołami).
+   - Kalkulator uzdatniania wody i neutralizacji chloraminy witaminą C.
+   - Przeglądarka Koła Aromatów Mikrobiologicznych.
+   - Doktor Wad Fermentacyjnych (wczesne/późne wzdęcia, goryczka, pleśń).
+5. **Ustawienia (`app/(tabs)/settings.tsx`):**
+   - Stan licencji Apps4Brew Pass, przywracanie zakupów.
+   - Zarządzanie 10 rotacyjnymi kopiami zapasowymi SQLite.
+   - Przełącznik języka (PL / EN) i układu jednostek (Metryczny / Imperialny).
+
+---
+
+## 📖 Dokumentacja Biznesowa i Inżynieryjna (BRD)
+- Kompletne kompendium wydania: [`FERMENT_BRD_Kompletne_Wydanie.md`](./FERMENT_BRD_Kompletne_Wydanie.md)
+- Moduły analityczne i techniczne w katalogu [`docs/brd/`](./docs/brd/):
+  - `00_START.md` — Wprowadzenie, architektura, spis treści.
+  - `00b_Jedna_lista_decyzji.md` — Rejestr decyzji produktowo-architektonicznych.
+  - `B1_BR_SER_Serowarstwo.md` … `B8_BR_SYS_System.md` — Wymagania funkcjonalne.
+  - `C1_Szkoła_i_doktor_wad.md` … `C4_Decyzje_badacza.md` — Wiedza dziedzinowa i reguły biologiczne.
+  - `D1_NFR_Wymagania_pozafunkcjonalne.md` … `D4_Strategia_testow.md` — NFR, DDL bazy danych, macierz ryzyk i testy.
