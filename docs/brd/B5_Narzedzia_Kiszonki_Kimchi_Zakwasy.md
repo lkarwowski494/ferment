@@ -110,3 +110,24 @@
 * **Persona:** P2, P5.
 * **Priorytet:** MUST | **Etap:** MVP.
 
+---
+
+### **BR-KISZ-020: Dynamiczny Harmonogram Kamieni Milowych i Odgazowywania Słoików (Adaptive Fermentation Timeline & Jar Burping Engine)**
+* **Opis:** Adaptacyjny silnik harmonogramowania etapów fermentacji, terminów odgazowywania naczynia (burping) oraz punktów kontroli sensorycznej (tasting gates), skalowany kinetyką temperaturową $Q_{10}$ (`fermentation-timeline.ts`).
+* **Kluczowe reguły harmonogramowania:**
+  1. **Odgazowywanie słoików (Jar Burping Schedule):**
+     * Dla beztlenowych kiszonek warzywnych i refermentacji kombuchy (2F) w hermetycznych słojach generowany jest harmonogram codziennego uchylania wieczka przez pierwsze 2–4 dni w celu uwolnienia nadmiaru ciśnienia $CO_2$ i zapobieżenia pęknięciu szkła.
+  2. **Skalowanie kinetyką termiczną ($Q_{10} = 2.2$ dla LAB):**
+     * W temperaturze 25°C czas fermentacji ulega skróceniu o ok. 32% (tempo 1.48x); w 15°C proces ulega wydłużeniu o 47% (tempo 0.68x).
+  3. **Kamienie milowe procesu:**
+     * Dzień 1: faza burzliwa (*Leuconostoc mesenteroides*), gwałtowne odgazowywanie.
+     * Dzień 3: bariera biologiczna $pH \le 4.60$ (*Lactobacillus plantarum*), pierwsza degustacja kwasowości.
+     * Dzień 7: wyciszenie gazowania, rekomendacja schłodzenia do 4°C w celu zahamowania nadmiernego przekwaszania.
+     * Dzień 14: pełna dojrzałość stołowa i zbalansowana chrupkość.
+* **Kryteria akceptacji:**
+  1. Dynamiczne wyliczanie dat i godzin każdego kamienia milowego na podstawie znacznika czasu utworzenia partii (`createdAt`).
+  2. Prezentacja plakietki z alertem o odgazowywaniu oraz najbliższym zadaniem na karcie aktywnej partii w Dzienniku Partii.
+  3. Formułowanie spersonalizowanych zaleceń technologicznych w zależności od temperatury otoczenia.
+* **Persona:** P2, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+

@@ -1189,6 +1189,28 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-CAVE-031: Zagregowana Analityka Rzemieślnicza & Wskaźniki Produktywności (Artisan Production & Cave Statistics Engine)**
+* **Opis:** Narządzie analityczne agregujące całościową historię rzemieślniczą gospodarstwa/serowarni: wolumen przetworzonego mleka, sukces partii, obciążenie piwniczki dojrzewalniczej, średnią jakość sensoryczną oraz zsumowane oszczędności finansowe (`fermentation-statistics.ts`).
+* **Kluczowe wskaźniki rzemieślnicze:**
+  1. **Bilans partii i wskaźnik sukcesu:**
+     * Łączna liczba zarejestrowanych partii, liczba partii w toku vs zakończonych.
+     * Wskaźnik sukcesu technologicznego: $\text{SuccessRate} = (\text{BatchesCompleted} / \text{TotalBatches}) \times 100\%$.
+  2. **Skala surowcowa i obciążenie dojrzewalni:**
+     * Zsumowana objętość przerobionego mleka (w litrach) w podziale na gatunki (krowie, kozie, owcze).
+     * Liczba aktywnych krążków serów w piwniczce oraz ich sumaryczna masa w kilogramach po uwzględnieniu ubytku affinage.
+  3. **Wskaźnik jakości organoleptycznej:**
+     * Średnia ważona ocena sensoryczna partii w skali 0–100 pkt oraz rozkład klasyfikacyjny (Wybitny 90–100, Dobry 75–89, Akceptowalny 60–74, Wadliwy <60).
+  4. **Ekonomiczny bilans oszczędności vs rynek:**
+     * Szacowana oszczędność portfela użytkownika względem cen rzemieślniczych delikatesów ekologicznych (sery dojrzewające: ~45 zł / 10L mleka; kiszonki rzemieślnicze: ~35 zł / partię; kombucha craftowa: ~25 zł / 5L warkę).
+* **Kryteria akceptacji:**
+  1. Prezentacja rozwijanego panelu analitycznego na szczycie widoku Dziennika Partii.
+  2. Automatyczne, reaktywne przeliczanie metryk po dodaniu, zważeniu, ocenie sensorycznej lub zakończeniu partii.
+  3. Motywujące podsumowania postępów serowara i fermentatora domowego.
+* **Persona:** P1, P4, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B5_Narzedzia_Kiszonki_Kimchi_Zakwasy.md -->
@@ -1304,6 +1326,27 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
      * `totalVolume > jarCapacity`: `CRITICAL_SPILL` (blokada przed przelaniem naczynia).
   4. Rekomendacja optymalnej masy docisku (min. 20% masy warzyw).
 * **Persona:** P2, P5.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-KISZ-020: Dynamiczny Harmonogram Kamieni Milowych i Odgazowywania Słoików (Adaptive Fermentation Timeline & Jar Burping Engine)**
+* **Opis:** Adaptacyjny silnik harmonogramowania etapów fermentacji, terminów odgazowywania naczynia (burping) oraz punktów kontroli sensorycznej (tasting gates), skalowany kinetyką temperaturową $Q_{10}$ (`fermentation-timeline.ts`).
+* **Kluczowe reguły harmonogramowania:**
+  1. **Odgazowywanie słoików (Jar Burping Schedule):**
+     * Dla beztlenowych kiszonek warzywnych i refermentacji kombuchy (2F) w hermetycznych słojach generowany jest harmonogram codziennego uchylania wieczka przez pierwsze 2–4 dni w celu uwolnienia nadmiaru ciśnienia $CO_2$ i zapobieżenia pęknięciu szkła.
+  2. **Skalowanie kinetyką termiczną ($Q_{10} = 2.2$ dla LAB):**
+     * W temperaturze 25°C czas fermentacji ulega skróceniu o ok. 32% (tempo 1.48x); w 15°C proces ulega wydłużeniu o 47% (tempo 0.68x).
+  3. **Kamienie milowe procesu:**
+     * Dzień 1: faza burzliwa (*Leuconostoc mesenteroides*), gwałtowne odgazowywanie.
+     * Dzień 3: bariera biologiczna $pH \le 4.60$ (*Lactobacillus plantarum*), pierwsza degustacja kwasowości.
+     * Dzień 7: wyciszenie gazowania, rekomendacja schłodzenia do 4°C w celu zahamowania nadmiernego przekwaszania.
+     * Dzień 14: pełna dojrzałość stołowa i zbalansowana chrupkość.
+* **Kryteria akceptacji:**
+  1. Dynamiczne wyliczanie dat i godzin każdego kamienia milowego na podstawie znacznika czasu utworzenia partii (`createdAt`).
+  2. Prezentacja plakietki z alertem o odgazowywaniu oraz najbliższym zadaniem na karcie aktywnej partii w Dzienniku Partii.
+  3. Formułowanie spersonalizowanych zaleceń technologicznych w zależności od temperatury otoczenia.
+* **Persona:** P2, P5, P6.
 * **Priorytet:** MUST | **Etap:** MVP.
 
 ---
@@ -1438,6 +1481,23 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
   3. Lista kontrolna pielęgnacji i checklisty ochronne (tkanina bawełniana, brak metalowych narzędzi).
 * **Persona:** P2, P3, P5, P6.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
+### **BR-OCT-013: Tradycyjny Żywy Niefiltrowany Ocet Jabłkowy (Living Apple Cider Vinegar Heritage Recipe)**
+* **Opis:** Kanoniczna receptura rzemieślnicza żywego, biologicznie czynnego octu jabłkowego z matką octową (*Mycoderma aceti*), obejmująca 2-fazowy proces: fermentację alkoholową z dzikimi drożdżami oraz tlenowe utlenianie octowe przez *Acetobacter* (`canonical-recipes.ts`).
+* **Kluczowe parametry i reguły technologiczne:**
+  1. **Dwufazowy cykl biochemiczny:**
+     * Faza 1 (beztlenowa/półtlenowa, 14–21 dni): drożdże przekształcają cukry owocowe w etanol (target: 5–7% ABV).
+     * Faza 2 (tlenowa oksydacja, 4–6 tygodni): bakterie kwasu octowego utleniają etanol do kwasu octowego ($CH_3CH_2OH + O_2 \rightarrow CH_3COOH + H_2O$).
+  2. **Optymalne warunki środowiskowe:**
+     * Temperatura 20–25°C przy stałym dostępie tlenu atmosferycznego (naczynie zabezpieczone gęstą tkaniną bawełnianą przed muszkami owocówkami *Drosophila melanogaster*).
+     * Końcowe pH: $2.80 - 3.20$ (minimalne stężenie kwasu octowego $\ge 5\%$).
+* **Kryteria akceptacji:**
+  1. Dostępność receptury w bibliotece kanonicznej z dokładnymi proporcjami (jabłka ekologiczne, woda niechlorowana, cukier/miód, matka octowa).
+  2. Wyliczanie kamieni milowych w osi czasu: dekantacja owoców, tworzenie błonki celulozowej matki octowej, miareczkowanie kwasowości.
+* **Persona:** P3, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
 
 ---
 

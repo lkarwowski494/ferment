@@ -40,5 +40,9 @@ describe('Canonical Artisan Recipe Library', () => {
     const kombucha = getRecipesByCategory('KOMBUCHA');
     expect(kombucha.length).toBeGreaterThanOrEqual(1);
     expect(kombucha.every((k) => k.category === 'KOMBUCHA')).toBe(true);
+
+    const vinegar = getRecipesByCategory('VINEGAR');
+    expect(vinegar.length).toBeGreaterThanOrEqual(1);
+    expect(vinegar.every((v) => v.category === 'VINEGAR')).toBe(true);
   });
 });

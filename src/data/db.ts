@@ -43,6 +43,8 @@ export interface Batch {
   createdAt: number;
   status: BatchStatus;
   notes?: string;
+  milkVolumeLiters?: number;
+  sensoryScore?: number;
 }
 
 export interface CheeseBatchDetails {
@@ -99,6 +101,7 @@ export interface CaveCheeseWheel {
   lastBrushedAt?: number;
   piercedForBlueAt?: number;
   shrinkagePct: number;
+  status?: string;
 }
 
 export type CaveActionType =

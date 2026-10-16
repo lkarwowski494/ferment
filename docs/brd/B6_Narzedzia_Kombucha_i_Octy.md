@@ -124,4 +124,21 @@
 * **Persona:** P2, P3, P5, P6.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
+---
+
+### **BR-OCT-013: Tradycyjny Żywy Niefiltrowany Ocet Jabłkowy (Living Apple Cider Vinegar Heritage Recipe)**
+* **Opis:** Kanoniczna receptura rzemieślnicza żywego, biologicznie czynnego octu jabłkowego z matką octową (*Mycoderma aceti*), obejmująca 2-fazowy proces: fermentację alkoholową z dzikimi drożdżami oraz tlenowe utlenianie octowe przez *Acetobacter* (`canonical-recipes.ts`).
+* **Kluczowe parametry i reguły technologiczne:**
+  1. **Dwufazowy cykl biochemiczny:**
+     * Faza 1 (beztlenowa/półtlenowa, 14–21 dni): drożdże przekształcają cukry owocowe w etanol (target: 5–7% ABV).
+     * Faza 2 (tlenowa oksydacja, 4–6 tygodni): bakterie kwasu octowego utleniają etanol do kwasu octowego ($CH_3CH_2OH + O_2 \rightarrow CH_3COOH + H_2O$).
+  2. **Optymalne warunki środowiskowe:**
+     * Temperatura 20–25°C przy stałym dostępie tlenu atmosferycznego (naczynie zabezpieczone gęstą tkaniną bawełnianą przed muszkami owocówkami *Drosophila melanogaster*).
+     * Końcowe pH: $2.80 - 3.20$ (minimalne stężenie kwasu octowego $\ge 5\%$).
+* **Kryteria akceptacji:**
+  1. Dostępność receptury w bibliotece kanonicznej z dokładnymi proporcjami (jabłka ekologiczne, woda niechlorowana, cukier/miód, matka octowa).
+  2. Wyliczanie kamieni milowych w osi czasu: dekantacja owoców, tworzenie błonki celulozowej matki octowej, miareczkowanie kwasowości.
+* **Persona:** P3, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
 

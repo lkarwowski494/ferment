@@ -46,6 +46,8 @@ import {
   generateCaveWheelsCsv,
   shareCsvExport,
 } from '../../src/lib/csv-export';
+import { calculateFermentationStatistics } from '../../src/core/fermentation-statistics';
+import { getTimelineForBatch } from '../../src/core/fermentation-timeline';
 
 export default function BatchesScreen() {
   const {
@@ -89,12 +91,16 @@ export default function BatchesScreen() {
   const [expandedWheelHistoryId, setExpandedWheelHistoryId] = useState<string | null>(null);
   const [wheelActionsMap, setWheelActionsMap] = useState<Record<string, CaveActionLog[]>>({});
 
+  // Artisan Statistics Dashboard State
+  const [isStatsExpanded, setIsStatsExpanded] = useState<boolean>(true);
+
   const caveEnvResult = analyzeCaveEnvironment({
     tempCelsius: caveTemp,
     relativeHumidityPct: caveRh,
     caveType,
   });
   const affinageSchedule = getAffinageSchedule(caveType);
+  const fermentationStats = calculateFermentationStatistics(batches, caveWheels);
 
   const loadData = useCallback(async () => {
     const store = getSqliteStore();
@@ -429,6 +435,80 @@ export default function BatchesScreen() {
         {/* =================================================================== */}
         {activeTabSection === 'batches' && (
           <View>
+            {/* Artisan Analytics & Productivity Dashboard */}
+            <View style={styles.statsCard}>
+              <TouchableOpacity
+                style={styles.statsCardHeader}
+                onPress={() => {
+                  triggerHapticFeedback();
+                  setIsStatsExpanded(!isStatsExpanded);
+                }}
+                accessibilityRole="button"
+              >
+                <View>
+                  <Text style={styles.statsCardTitle}>📊 {t('Statystyki Produkcji & Rzemiosła')}</Text>
+                  <Text style={styles.statsCardSub}>
+                    {batches.length} {t('partii łącznie')} • {fermentationStats.successRatePct}% {t('sukcesu')}
+                  </Text>
+                </View>
+                <Text style={styles.statsToggleText}>{isStatsExpanded ? '▲' : '▼'}</Text>
+              </TouchableOpacity>
+
+              {isStatsExpanded && (
+                <View style={styles.statsGrid}>
+                  <View style={styles.statBox}>
+                    <Text style={styles.statBoxVal}>{fermentationStats.totalBatches}</Text>
+                    <Text style={styles.statBoxLabel}>{t('Partie Razem')}</Text>
+                    <Text style={styles.statBoxSub}>
+                      {fermentationStats.activeBatches} {t('akt.')} / {fermentationStats.completedBatches} {t('zak.')}
+                    </Text>
+                  </View>
+
+                  <View style={styles.statBox}>
+                    <Text style={styles.statBoxVal}>{fermentationStats.successRatePct}%</Text>
+                    <Text style={styles.statBoxLabel}>{t('Wskaźnik Sukcesu')}</Text>
+                    <Text style={styles.statBoxSub}>
+                      {fermentationStats.completedBatches}/{fermentationStats.totalBatches || 1} {t('udanych')}
+                    </Text>
+                  </View>
+
+                  <View style={styles.statBox}>
+                    <Text style={styles.statBoxVal}>{fermentationStats.totalMilkVolumeL} L</Text>
+                    <Text style={styles.statBoxLabel}>{t('Przetworzone Mleko')}</Text>
+                    <Text style={styles.statBoxSub}>
+                      {fermentationStats.cheeseBatches} {t('warzeń sera')}
+                    </Text>
+                  </View>
+
+                  <View style={styles.statBox}>
+                    <Text style={styles.statBoxVal}>{fermentationStats.activeCaveWheels}</Text>
+                    <Text style={styles.statBoxLabel}>{t('Krążki w Piwnicy')}</Text>
+                    <Text style={styles.statBoxSub}>
+                      {fermentationStats.totalCaveWeightKg.toFixed(1)} kg {t('dojrzewa')}
+                    </Text>
+                  </View>
+
+                  <View style={styles.statBox}>
+                    <Text style={styles.statBoxVal}>
+                      {fermentationStats.evaluatedCount > 0 ? `${fermentationStats.avgSensoryScore}/100` : '-'}
+                    </Text>
+                    <Text style={styles.statBoxLabel}>{t('Średnia Ocena')}</Text>
+                    <Text style={styles.statBoxSub}>
+                      {fermentationStats.evaluatedCount} {t('ocenionych partii')}
+                    </Text>
+                  </View>
+
+                  <View style={styles.statBox}>
+                    <Text style={[styles.statBoxVal, { color: '#166534' }]}>
+                      ~{fermentationStats.estimatedTotalSavingsPln} zł
+                    </Text>
+                    <Text style={styles.statBoxLabel}>{t('Oszczędność vs Sklep')}</Text>
+                    <Text style={styles.statBoxSub}>{t('70-85% oszczędności')}</Text>
+                  </View>
+                </View>
+              )}
+            </View>
+
             {/* Filter Pills */}
             <View style={styles.filterRow}>
               {(['ALL', 'CHEESE', 'VEG', 'BEV'] as const).map((filter) => (
@@ -509,6 +589,44 @@ export default function BatchesScreen() {
                         </TouchableOpacity>
                       ))}
                     </ScrollView>
+
+                    {/* Dynamic Fermentation Timeline & Jar Burping Scheduler */}
+                    {b.status !== 'COMPLETED' && b.status !== 'DISCARDED' && (() => {
+                      const timeline = getTimelineForBatch(b);
+                      const now = Date.now();
+                      const upcomingMilestone =
+                        timeline.milestones.find((m) => m.estimatedTimestamp > now) ||
+                        timeline.milestones[timeline.milestones.length - 1];
+
+                      return (
+                        <View style={styles.timelineBadgeBox}>
+                          <View style={styles.timelineHeaderRow}>
+                            <Text style={styles.timelineTitle}>
+                              ⏱️ {t('Harmonogram:')} {timeline.adjustedDays} {t('dni')} ({timeline.speedMultiplier}x {t('tempo')})
+                            </Text>
+                            {timeline.burpingDays.length > 0 && (
+                              <View style={styles.burpTag}>
+                                <Text style={styles.burpTagText}>
+                                  💨 {t('Odgazowanie 1-')}
+                                  {timeline.burpingDays.length} {t('d')}
+                                </Text>
+                              </View>
+                            )}
+                          </View>
+                          {upcomingMilestone && (
+                            <View style={styles.timelineNextStepRow}>
+                              <Text style={styles.timelineNextStepTitle}>
+                                📍 {t('Następny krok:')} {upcomingMilestone.title} ({upcomingMilestone.formattedDate})
+                              </Text>
+                              <Text style={styles.timelineNextStepDesc}>
+                                {upcomingMilestone.description}
+                              </Text>
+                            </View>
+                          )}
+                          <Text style={styles.timelineAdvice}>{timeline.summaryAdvicePl}</Text>
+                        </View>
+                      );
+                    })()}
 
                     {/* Existing Sensory Summary */}
                     {existingSensory && !isEvaluating && (
@@ -1572,5 +1690,122 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     color: '#57534E',
     marginTop: 2,
+  },
+  statsCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+  },
+  statsCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 4,
+  },
+  statsCardTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#1C1917',
+  },
+  statsCardSub: {
+    fontSize: 11,
+    color: '#78716C',
+    marginTop: 2,
+  },
+  statsToggleText: {
+    fontSize: 14,
+    color: '#78350F',
+    fontWeight: '700',
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F5F5F4',
+  },
+  statBox: {
+    width: '48%',
+    backgroundColor: '#FAF8F5',
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+  },
+  statBoxVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#78350F',
+  },
+  statBoxLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#1C1917',
+    marginTop: 2,
+  },
+  statBoxSub: {
+    fontSize: 10,
+    color: '#78716C',
+    marginTop: 2,
+  },
+  timelineBadgeBox: {
+    backgroundColor: '#F0FDF4',
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    marginVertical: 8,
+  },
+  timelineHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  timelineTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#166534',
+    flex: 1,
+  },
+  burpTag: {
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#86EFAC',
+  },
+  burpTagText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#166534',
+  },
+  timelineNextStepRow: {
+    marginTop: 4,
+    paddingTop: 4,
+    borderTopWidth: 1,
+    borderTopColor: '#DCFCE7',
+  },
+  timelineNextStepTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#14532D',
+  },
+  timelineNextStepDesc: {
+    fontSize: 10,
+    color: '#166534',
+    marginTop: 1,
+  },
+  timelineAdvice: {
+    fontSize: 10,
+    fontStyle: 'italic',
+    color: '#15803D',
+    marginTop: 4,
   },
 });

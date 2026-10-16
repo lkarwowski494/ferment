@@ -218,6 +218,35 @@ export const CANONICAL_RECIPES: CanonicalRecipe[] = [
       'Gdy smak osiągnie pożądany balans słodyczy i kwasu, przelej do butelek na refermentację 2F.',
     ],
   },
+  {
+    id: 'rec_ocet_jablkowy',
+    code: 'VN-APPLE-01',
+    name: 'Żywy Niefiltrowany Ocet Jabłkowy (ACV)',
+    category: 'VINEGAR',
+    difficulty: 'BEGINNER',
+    targetYieldPer10Units: '2.5 litra żywego octu z 2.5 kg jabłek',
+    totalProcessTime: '1h przygotowania + 3 tyg. fermentacji alkoholowej + 6 tyg. octowej',
+    agingDays: 60,
+    ingredients: [
+      { name: 'Jabłka ekologiczne (odmiany kwaśne)', category: 'VEG', quantityPerUnit: 1000, unit: 'g' },
+      { name: 'Woda niechlorowana przegotowana', category: 'MILK', quantityPerUnit: 1000, unit: 'ml' },
+      { name: 'Cukier trzcinowy lub miód pszczeli', category: 'SUGAR', quantityPerUnit: 50, unit: 'g' },
+      { name: 'Żywa matka octowa (Mycoderma aceti)', category: 'CULTURE', quantityPerUnit: 50, unit: 'g' },
+    ],
+    optimalConditions: {
+      targetTempC: '20–25°C (stały dostęp tlenu)',
+      phMilestone: 'pH 2.80–3.20 (min. 5% kwasu octowego)',
+    },
+    keyTechnique: 'Zapewnienie stałego napowietrzania z gęstą tkaniną i ochrona przed muszkami owocówkami umożliwia bakteriom Acetobacter pełne utlenienie etanolu do kwasu octowego.',
+    steps: [
+      'Umyj jabłka, pokrój w kostkę razem ze gniazdami nasiennymi i skórką.',
+      'Włóż owoce do słoja, zalej wodą z rozpuszczonym cukrem (owoce muszą być całkowicie przykryte).',
+      'Zabezpiecz słoik tkaniną z gumką i mieszaj codziennie przez pierwsze 10 dni.',
+      'Gdy owoce opadną na dno (zakończenie fermentacji burzliwej), odcedź płyn od cząstek owoców.',
+      'Dodaj matkę octową lub 100 ml żywego octu jabłkowego, aby przyspieszyć fermentację octową.',
+      'Pozostaw na 4–6 tygodni w spokoju, aż na powierzchni uformuje się galaretowaty dysk matki octowej i osiągniesz pH < 3.2.',
+    ],
+  },
 ];
 
 export function getCanonicalRecipe(id: string): CanonicalRecipe | undefined {

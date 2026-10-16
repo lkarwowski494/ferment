@@ -3,7 +3,7 @@
 > **Ekosystem:** Apps4Brew Studio  
 > **Repozytorium:** `lkarwowski494/ferment`  
 > **Technologia:** Expo 57, React Native 0.86, TypeScript Strict, SQLite (tryb WAL)  
-> **Piramida Jakości:** 16 zestawów testów (100% PASS, 70 testów), pełna zgodność i18n (PL/EN, 309 kluczy), `npm run verify` zielony  
+> **Piramida Jakości:** 35 zestawów testów (100% PASS, 161 testów), pełna zgodność i18n (PL/EN, 575 kluczy), `npm run verify` zielony  
 
 ---
 
@@ -111,32 +111,45 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
 29. **Zaawansowany Kalkulator Kosztów Partii & Affinage ROI (`src/core/batch-cost-engine.ts`):**
     - Pełny bilans ekonomiczny: surowce bazowe (mleko/warzywa/woda), dodatki (podpuszczka, kultury, sól, wosk), energia dogrzewania gęstwy serowarskiej oraz prąd chłodziarek piwnicznych/witryn (kWh $\times$ taryfa).
     - Wyliczanie kosztu partii, kosztu 1 kg i porcji 100g, porównanie z cenami ekologicznych delikatesów rzemieślniczych i prezentacja kwoty zaoszczędzonej w PLN (często 70–85% taniej niż w sklepie).
-
----
-
-## 🛠️ Weryfikacja i Piramida Testów
-Każdy commit w projekcie przechodzi przez zautomatyzowaną bramkę `npm run verify`:
-```bash
-# 1. Sprawdzenie typowania TypeScript (Strict Mode)
-npm run typecheck
-
-# 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
-npm run check:i18n
-
-# 3. Wykonanie 33 pakietów testowych Jest
-npm test
-
-# 4. Uruchomienie całościowej bramki
-npm run verify
-```
-
-Stan testów na dzień 16.10.2026:
-- **33 test suites PASS** (100%)
-- **154 unit & integration tests PASS** (100%)
-- **500 tekstów UI w kodzie przetłumaczonych na PL i EN (554 w słowniku EN, 100% parytet)**
-- **BRD: 91.3 stron znormalizowanych (164,341 znaków ze spacjami, 25 modularnych rozdziałów)**
-
----
+30. **Dynamiczny Harmonogram Kamieni Milowych i Odgazowywania Słoików (`src/core/fermentation-timeline.ts`):**
+    - Skalowanie osi czasu fermentacji kinetyką $Q_{10}$ w zależności od temperatury otoczenia.
+    - Harmonogram bezpiecznego odgazowywania słoików (jar burping) dla beztlenowych kiszonek i kombuchy 2F (dni 1–4) zapobiegający eksplozji szkła.
+    - Kamienie milowe: faza burzliwa, sforsowanie bariery biologicznej pH 4.60, wyciszenie fermentacji i rekomendowane schłodzenie do 4°C.
+    - Zintegrowane plakietki i alerty w kartach aktywnych partii w Dzienniku Partii.
+31. **Zagregowana Analityka Rzemieślnicza & Wskaźniki Produktywności (`src/core/fermentation-statistics.ts`):**
+    - Panel analityczny na szczycie Dziennika Partii: łączna liczba partii, aktywne vs zakończone, wskaźnik sukcesu technologicznego (%).
+    - Wolumen przerobionego mleka w litrach, liczba i łączna waga leżakujących krążków sera w piwniczce.
+    - Średnia ważona ocena sensoryczna (0–100 pkt) i profil wad.
+    - Zsumowane oszczędności finansowe gospodarstwa domowego vs ceny rzemieślnicze w PLN (70–85% oszczędności).
+32. **Tradycyjny Żywy Niefiltrowany Ocet Jabłkowy — Kanoniczna Receptura Dziedzictwa (`src/core/canonical-recipes.ts`):**
+    - 2-fazowy proces: faza dzikich drożdży (alkoholowa 14–21 dni) $\to$ faza tlenowa bakterii *Acetobacter* z matką octową (*Mycoderma aceti*, 4–6 tygodni).
+    - Pełna specyfikacja składników, optymalnych warunków (20–25°C, dostęp tlenu, pH < 3.20) i kroków technologicznych.
+127: 
+128: ---
+129: 
+130: ## 🛠️ Weryfikacja i Piramida Testów
+131: Każdy commit w projekcie przechodzi przez zautomatyzowaną bramkę `npm run verify`:
+132: ```bash
+133: # 1. Sprawdzenie typowania TypeScript (Strict Mode)
+134: npm run typecheck
+135: 
+136: # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
+137: npm run check:i18n
+138: 
+139: # 3. Wykonanie 35 pakietów testowych Jest
+140: npm test
+141: 
+142: # 4. Uruchomienie całościowej bramki
+143: npm run verify
+144: ```
+145: 
+146: Stan testów na dzień 16.10.2026:
+147: - **35 test suites PASS** (100%)
+148: - **161 unit & integration tests PASS** (100%)
+149: - **521 tekstów UI w kodzie przetłumaczonych na PL i EN (575 w słowniku EN, 100% parytet)**
+150: - **BRD: 94.1 stron znormalizowanych (169,396 znaków ze spacjami, 25 modularnych rozdziałów)**
+151: 
+152: ---
 
 ## 📱 Ekrany Aplikacji
 1. **Kalkulator (`app/(tabs)/index.tsx`):**

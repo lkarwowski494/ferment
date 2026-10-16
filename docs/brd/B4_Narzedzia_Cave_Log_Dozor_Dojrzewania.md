@@ -102,3 +102,25 @@
   * Historia czynności zapisywana w relacyjnej tabeli SQLite `cave_action_logs` i prezentowana w osi czasu krążka.
 * **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-CAVE-031: Zagregowana Analityka Rzemieślnicza & Wskaźniki Produktywności (Artisan Production & Cave Statistics Engine)**
+* **Opis:** Narządzie analityczne agregujące całościową historię rzemieślniczą gospodarstwa/serowarni: wolumen przetworzonego mleka, sukces partii, obciążenie piwniczki dojrzewalniczej, średnią jakość sensoryczną oraz zsumowane oszczędności finansowe (`fermentation-statistics.ts`).
+* **Kluczowe wskaźniki rzemieślnicze:**
+  1. **Bilans partii i wskaźnik sukcesu:**
+     * Łączna liczba zarejestrowanych partii, liczba partii w toku vs zakończonych.
+     * Wskaźnik sukcesu technologicznego: $\text{SuccessRate} = (\text{BatchesCompleted} / \text{TotalBatches}) \times 100\%$.
+  2. **Skala surowcowa i obciążenie dojrzewalni:**
+     * Zsumowana objętość przerobionego mleka (w litrach) w podziale na gatunki (krowie, kozie, owcze).
+     * Liczba aktywnych krążków serów w piwniczce oraz ich sumaryczna masa w kilogramach po uwzględnieniu ubytku affinage.
+  3. **Wskaźnik jakości organoleptycznej:**
+     * Średnia ważona ocena sensoryczna partii w skali 0–100 pkt oraz rozkład klasyfikacyjny (Wybitny 90–100, Dobry 75–89, Akceptowalny 60–74, Wadliwy <60).
+  4. **Ekonomiczny bilans oszczędności vs rynek:**
+     * Szacowana oszczędność portfela użytkownika względem cen rzemieślniczych delikatesów ekologicznych (sery dojrzewające: ~45 zł / 10L mleka; kiszonki rzemieślnicze: ~35 zł / partię; kombucha craftowa: ~25 zł / 5L warkę).
+* **Kryteria akceptacji:**
+  1. Prezentacja rozwijanego panelu analitycznego na szczycie widoku Dziennika Partii.
+  2. Automatyczne, reaktywne przeliczanie metryk po dodaniu, zważeniu, ocenie sensorycznej lub zakończeniu partii.
+  3. Motywujące podsumowania postępów serowara i fermentatora domowego.
+* **Persona:** P1, P4, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
