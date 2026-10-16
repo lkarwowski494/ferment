@@ -500,5 +500,11 @@ export const EN: Record<string, string> = {
   'Imbir-cytryna z miodem (14°Bx)': 'Ginger-lemon with honey (14°Bx)',
   'Sok z granatu (13°Bx)': 'Pomegranate juice (13°Bx)',
   'Syrop cukrowy (65°Bx)': 'Sugar syrup (65°Bx)',
+
+  // Pantry Inventory Actions
+  'Usuń Składnik': 'Delete Ingredient',
+  'Czy na pewno chcesz usunąć': 'Are you sure you want to delete',
+  'Brak składników w spiżarni': 'No ingredients in pantry',
+  'Dodaj mleko, enzymy, kultury lub sól, aby zarządzać zapasami i kosztami.': 'Add milk, enzymes, cultures or salt to manage stock and batch costs.',
 };
 

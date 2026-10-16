@@ -581,6 +581,19 @@ export async function savePantryItem(item: PantryItem): Promise<void> {
   else memPantry.push(item);
 }
 
+export async function deletePantryItem(itemId: string): Promise<void> {
+  const db = await getDb();
+  if (db) {
+    try {
+      await db.runAsync('DELETE FROM pantry_inventory WHERE id = ?', [itemId]);
+      return;
+    } catch {
+      // Fallback
+    }
+  }
+  memPantry = memPantry.filter((p) => p.id !== itemId);
+}
+
 export type CaveWheel = CaveCheeseWheel;
 
 export interface WeighLog {
@@ -787,6 +800,7 @@ export function getSqliteStore() {
     saveSensoryEvaluation,
     getPantryItems: getPantry,
     savePantryItem,
+    deletePantryItem,
     getWeighLogs: async (wheelId?: string): Promise<WeighLog[]> => {
       if (wheelId) {
         const actions = await getCaveActions(wheelId);

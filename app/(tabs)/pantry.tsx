@@ -101,6 +101,43 @@ export default function PantryScreen() {
     });
   };
 
+  const handleUpdateQuantity = (item: PantryItem, delta: number) => {
+    requireActionAccess(async () => {
+      triggerHapticFeedback();
+      const updated: PantryItem = {
+        ...item,
+        quantityAvailable: Math.max(0, Math.round((item.quantityAvailable + delta) * 10) / 10),
+      };
+      const store = getSqliteStore();
+      await store.savePantryItem(updated);
+      await createAutoBackup();
+      await loadPantry();
+    });
+  };
+
+  const handleDeleteItem = (item: PantryItem) => {
+    requireActionAccess(() => {
+      Alert.alert(
+        t('Usuń Składnik'),
+        `${t('Czy na pewno chcesz usunąć')} ${item.itemName}?`,
+        [
+          { text: t('Anuluj'), style: 'cancel' },
+          {
+            text: t('Usuń'),
+            style: 'destructive',
+            onPress: async () => {
+              triggerHapticFeedback();
+              const store = getSqliteStore();
+              await store.deletePantryItem(item.id);
+              await createAutoBackup();
+              await loadPantry();
+            },
+          },
+        ]
+      );
+    });
+  };
+
   const handlePrintLabels = () => {
     requireActionAccess(async () => {
       triggerHapticFeedback();
@@ -264,26 +301,63 @@ export default function PantryScreen() {
 
         {/* Inventory List */}
         <Text style={styles.sectionTitle}>{t('Stan Magazynowy')}</Text>
-        {pantryItems.map((item) => (
-          <View key={item.id} style={styles.pantryCard}>
-            <View style={styles.pantryCardHeader}>
-              <Text style={styles.pantryName}>{item.itemName}</Text>
-              <View style={styles.pantryCatBadge}>
-                <Text style={styles.pantryCatText}>{item.category}</Text>
+        {pantryItems.length === 0 ? (
+          <View style={styles.emptyBox}>
+            <Text style={styles.emptyIcon}>📦</Text>
+            <Text style={styles.emptyTitle}>{t('Brak składników w spiżarni')}</Text>
+            <Text style={styles.emptyDesc}>
+              {t('Dodaj mleko, enzymy, kultury lub sól, aby zarządzać zapasami i kosztami.')}
+            </Text>
+          </View>
+        ) : (
+          pantryItems.map((item) => (
+            <View key={item.id} style={styles.pantryCard}>
+              <View style={styles.pantryCardHeader}>
+                <Text style={styles.pantryName}>{item.itemName}</Text>
+                <View style={styles.pantryCatBadge}>
+                  <Text style={styles.pantryCatText}>{item.category}</Text>
+                </View>
+              </View>
+              <View style={styles.pantryCardFooter}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.pantryQty}>
+                    {item.quantityAvailable} {item.unit}
+                  </Text>
+                  {item.costPerUnitPln !== undefined && (
+                    <Text style={styles.pantryCost}>
+                      {item.costPerUnitPln.toFixed(2)} PLN / {item.unit}
+                    </Text>
+                  )}
+                </View>
+
+                {/* Steppers & Delete for dirty hands ergonomics */}
+                <View style={styles.pantryActionRow}>
+                  <TouchableOpacity
+                    style={styles.pantryQtyBtn}
+                    onPress={() => handleUpdateQuantity(item, -1)}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.pantryQtyBtnText}>-1</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.pantryQtyBtn}
+                    onPress={() => handleUpdateQuantity(item, 1)}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.pantryQtyBtnText}>+1</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.pantryDeleteBtn}
+                    onPress={() => handleDeleteItem(item)}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.pantryDeleteBtnText}>🗑️</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-            <View style={styles.pantryCardFooter}>
-              <Text style={styles.pantryQty}>
-                {item.quantityAvailable} {item.unit}
-              </Text>
-              {item.costPerUnitPln !== undefined && (
-                <Text style={styles.pantryCost}>
-                  {item.costPerUnitPln.toFixed(2)} PLN / {item.unit}
-                </Text>
-              )}
-            </View>
-          </View>
-        ))}
+          ))
+        )}
 
         {/* Yield & Economics Calculator */}
         <View style={styles.yieldCard}>
@@ -845,5 +919,61 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#B45309',
     marginTop: 2,
+  },
+  pantryActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  pantryQtyBtn: {
+    width: 38,
+    height: 38,
+    backgroundColor: '#E7E5E4',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pantryQtyBtnText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#1C1917',
+  },
+  pantryDeleteBtn: {
+    width: 38,
+    height: 38,
+    backgroundColor: '#FEE2E2',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pantryDeleteBtnText: {
+    fontSize: 14,
+  },
+  emptyBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 36,
+    paddingHorizontal: 20,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+    marginBottom: 16,
+  },
+  emptyIcon: {
+    fontSize: 40,
+    marginBottom: 8,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1C1917',
+    marginBottom: 4,
+  },
+  emptyDesc: {
+    fontSize: 13,
+    color: '#78716C',
+    textAlign: 'center',
+    lineHeight: 18,
   },
 });
