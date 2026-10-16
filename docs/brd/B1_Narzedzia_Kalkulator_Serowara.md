@@ -88,3 +88,17 @@
 ### **BR-SER-020…035: Zarządzanie Kulturami Starterowymi DVI**
 * Baza szczepów: *Lactococcus lactis* subsp. *lactis*, *L. lactis* subsp. *cremoris*, *L. diacetylactis*, *Streptococcus thermophilus*, *Lactobacillus helveticus*, *L. delbrueckii*.
 * Wyliczanie czasu przed-zakwaszania (pre-ripening) w temperaturze inokulacji (30–38°C) przez 30–60 minut przed dodaniem podpuszczki.
+
+---
+
+### **BR-MOLD-001: Dobór i Geometria Formy Serowarskiej (Mold Sizing & Curd Geometry)**
+* **Opis:** Obliczanie kubatury form serowarskich (cylindrycznych i prostopadłościennych), objętości gęstwy nieodprasowanej oraz weryfikacja stopnia napełnienia formy.
+* **Format obliczeń:**
+  * Cylindryczne: $V = \pi r^2 h$. Prostopadłościenne: $V = a \cdot b \cdot h$.
+  * Przelicznik objętości skrzepu przed odciekiem: ~1.7 L objętości na 1 kg gotowego sera.
+  * Baza szablonów: Kadova Gouda (1 kg, 2 kg), Forma Korycińska, Camembert, Feta/Twaróg prostokątna.
+* **Kryteria akceptacji:**
+  1. Wizualizacja stopnia wypełnienia (%) oraz statusu pojemności (wystarczająca vs za mała).
+  2. Automatyczne rekomendowanie optymalnej formy na podstawie zadanej objętości mleka i spodziewanego plonu.
+* **Persona:** P1, P2, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP.

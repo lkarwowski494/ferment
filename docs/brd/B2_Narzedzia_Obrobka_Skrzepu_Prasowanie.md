@@ -88,3 +88,17 @@
 * **Persona:** P1, P4, P6.
 * **Priorytet:** MUST | **Etap:** MVP.
 
+---
+
+### **BR-PRESS-015: Holenderska Prasa Dźwigniowa & Kaskada Prasowania (Dutch Lever & Rind Guard)**
+* **Opis:** Fizyka prasy dźwigniowej z kompensacją tary belki oraz kaskadowy program formowania skórki (`press-cascade.ts`).
+* **Formuła nacisku z tarą ramienia:**
+  $$F_{laczna} = M_{odwaznik} \times \left(\frac{L_{ramie}}{L_{forma}}\right) + M_{ramie} \times \left(\frac{L_{ramie} / 2}{L_{forma}}\right)$$
+* **Ochrona przed Rind Entrapment (Zakleszczenie Serwatki):**
+  1. Faza 1 (45 min): Lekki nacisk (1.5x waga sera), swobodny odpływ serwatki bez zamykania porów.
+  2. Faza 2 (120 min): Pierwszy obrót krążka, wyrównanie powierzchni (3.5x waga sera).
+  3. Faza 3 (12h): Pełny docisk zamykający mikroszczeliny (7.5x waga sera).
+  4. Blokada: Ostrzeżenie przed aplikacją maksymalnego obciążenia w fazie 1.
+* **Persona:** P1, P2, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+

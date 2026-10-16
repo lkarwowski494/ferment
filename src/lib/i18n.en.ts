@@ -369,5 +369,53 @@ export const EN: Record<string, string> = {
   'Dwuwodny CaCl2 * 2H2O:': 'Dihydrate CaCl2 * 2H2O:',
   'Roztwór płynny 33%:': 'Liquid solution 33%:',
   'Roztwór płynny 10%:': 'Liquid solution 10%:',
+
+  // Cave Environment & Affinage
+  'Klimat Piwniczki (Psychrometria & VPD)': 'Cave Climate (Psychrometry & VPD)',
+  'VPD:': 'VPD:',
+  'Punkt rosy:': 'Dew point:',
+  'Gouda / Cheddar': 'Gouda / Cheddar',
+  'Ser Maziowy (B. linens)': 'Washed Rind (B. linens)',
+  'Temperatura (°C):': 'Temperature (°C):',
+  'Wilgotność RH (%):': 'Humidity RH (%):',
+  'ALARM: Zagrożenie Case Hardening!': 'ALARM: Case Hardening Hazard!',
+  'ALARM: Ryzyko Kondensacji i Pleśni!': 'ALARM: Condensation & Mold Risk!',
+  'Klimat Optymalny (Brak Ryzyka)': 'Climate Optimal (No Risk)',
+  'Rekomendowany Harmonogram Pielęgnacji (Affinage):': 'Recommended Affinage Schedule:',
+
+  // Mold Sizing
+  'Dobór i Geometria Formy Serowarskiej': 'Cheese Mold Sizing & Curd Geometry',
+  'Oczekiwany uzysk:': 'Expected yield:',
+  'sera z': 'cheese from',
+  'mleka': 'milk',
+  'Wybierz formę standardową:': 'Select standard mold:',
+  'Objętość świeżego skrzepu przed odciekiem:': 'Raw curd volume before whey runoff:',
+  'Stopień wypełnienia formy:': 'Mold fill level:',
+  'Pojemność wystarczająca': 'Sufficient capacity',
+  'Uwaga: Forma może być za mała!': 'Warning: Mold might be too small!',
+
+  // Dutch Lever Press & Cascaded Pressing
+  'Dźwignia Holenderska (z tarą)': 'Dutch Lever (with tare)',
+  'Nacisk Bezpośredni / Śruba': 'Direct Press / Spindle',
+  'Długość ramienia (cm):': 'Arm length (cm):',
+  'Odległość formy od osi (cm):': 'Mold distance from pivot (cm):',
+  'Masa własna belki (tara kg):': 'Arm self weight (tare kg):',
+  'Przełożenie:': 'Ratio:',
+  'Tara ramienia:': 'Arm tare:',
+  'Siła łączna:': 'Total force:',
+  'Kaskadowy Program Prasowania': 'Cascaded Pressing Program',
+
+  // LAB Kinetics
+  'Kinetyka Kwasowa LAB (Monitor Zakwaszania)': 'LAB Acidification Kinetics Monitor',
+  'Oczekiwane pH po': 'Expected pH after',
+  'Zmierzone:': 'Measured:',
+
+  // Vinegar Titration (TA)
+  'Miareczkowanie Kwasowości Octu (TA z NaOH 0.1M)': 'Vinegar Acidity Titration (TA with 0.1M NaOH)',
+  'Objętość próbki octu (ml):': 'Vinegar sample volume (ml):',
+  'Zużyty 0.1M NaOH (ml do różu):': '0.1M NaOH used (ml to pink):',
+  'Kwasowość całkowita:': 'Total titratable acidity:',
+  'kwasu octowego': 'acetic acid',
+  'Klasyfikacja:': 'Classification:',
 };
 

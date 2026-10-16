@@ -25,6 +25,11 @@ import {
 } from '../../src/data/sqlite-store';
 import { createAutoBackup } from '../../src/lib/backup';
 import { triggerHapticFeedback } from '../../src/lib/timer-audio';
+import {
+  analyzeCaveEnvironment,
+  getAffinageSchedule,
+  CheeseCaveType,
+} from '../../src/core/cave-environment';
 
 export default function BatchesScreen() {
   const {
@@ -44,6 +49,19 @@ export default function BatchesScreen() {
   // Weighing modal state
   const [weighWheelId, setWeighWheelId] = useState<string | null>(null);
   const [newWeightInput, setNewWeightInput] = useState<string>('');
+
+  // Cave Environment Psychrometry State
+  const [isCaveEnvOpen, setIsCaveEnvOpen] = useState<boolean>(true);
+  const [caveTemp, setCaveTemp] = useState<number>(12);
+  const [caveRh, setCaveRh] = useState<number>(85);
+  const [caveType, setCaveType] = useState<CheeseCaveType>('HARD_GOUDA_CHEDDAR');
+
+  const caveEnvResult = analyzeCaveEnvironment({
+    tempCelsius: caveTemp,
+    relativeHumidityPct: caveRh,
+    caveType,
+  });
+  const affinageSchedule = getAffinageSchedule(caveType);
 
   const loadData = useCallback(async () => {
     const store = getSqliteStore();
@@ -241,6 +259,108 @@ export default function BatchesScreen() {
         {/* =================================================================== */}
         {activeTabSection === 'cave' && (
           <View>
+            {/* Psychrometric VPD & Cave Climate Guard */}
+            <View style={styles.wheelCard}>
+              <TouchableOpacity
+                style={styles.cardHeader}
+                onPress={() => {
+                  triggerHapticFeedback();
+                  setIsCaveEnvOpen(!isCaveEnvOpen);
+                }}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.wheelTag}>🌡️ {t('Klimat Piwniczki (Psychrometria & VPD)')}</Text>
+                  <Text style={styles.wheelLocation}>
+                    {t('VPD:')} {caveEnvResult.vaporPressureDeficitKpa} kPa | {t('Punkt rosy:')} {caveEnvResult.dewPointCelsius}°C
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 14, color: '#78716C' }}>{isCaveEnvOpen ? '▲' : '▼'}</Text>
+              </TouchableOpacity>
+
+              {isCaveEnvOpen && (
+                <View style={{ marginTop: 8, gap: 8 }}>
+                  <View style={styles.sectionTabs}>
+                    <TouchableOpacity
+                      style={[styles.sectionTab, caveType === 'HARD_GOUDA_CHEDDAR' && styles.sectionTabActive]}
+                      onPress={() => {
+                        triggerHapticFeedback();
+                        setCaveType('HARD_GOUDA_CHEDDAR');
+                      }}
+                    >
+                      <Text style={[styles.sectionTabText, caveType === 'HARD_GOUDA_CHEDDAR' && styles.sectionTabTextActive]}>
+                        🧀 {t('Gouda / Cheddar')}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.sectionTab, caveType === 'WASHED_RIND_LINENS' && styles.sectionTabActive]}
+                      onPress={() => {
+                        triggerHapticFeedback();
+                        setCaveType('WASHED_RIND_LINENS');
+                      }}
+                    >
+                      <Text style={[styles.sectionTabText, caveType === 'WASHED_RIND_LINENS' && styles.sectionTabTextActive]}>
+                        🟧 {t('Ser Maziowy (B. linens)')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={{ flexDirection: 'row', gap: 8 }}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 11, color: '#78716C', marginBottom: 2 }}>{t('Temperatura (°C):')}</Text>
+                      <TextInput
+                        style={styles.inlineWeighInput}
+                        keyboardType="numeric"
+                        value={String(caveTemp)}
+                        onChangeText={(v) => setCaveTemp(parseFloat(v) || 0)}
+                      />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 11, color: '#78716C', marginBottom: 2 }}>{t('Wilgotność RH (%):')}</Text>
+                      <TextInput
+                        style={styles.inlineWeighInput}
+                        keyboardType="numeric"
+                        value={String(caveRh)}
+                        onChangeText={(v) => setCaveRh(parseFloat(v) || 0)}
+                      />
+                    </View>
+                  </View>
+
+                  <View style={[
+                    styles.weightBox,
+                    caveEnvResult.status === 'CASE_HARDENING_WARNING' && { backgroundColor: '#FEF2F2', borderColor: '#EF4444', borderWidth: 1 },
+                    caveEnvResult.status === 'CONDENSATION_MOLD_RISK' && { backgroundColor: '#FEF2F2', borderColor: '#F59E0B', borderWidth: 1 }
+                  ]}>
+                    <Text style={[
+                      { fontSize: 13, fontWeight: '700', color: '#166534' },
+                      caveEnvResult.status !== 'OPTIMAL' && { color: '#DC2626' }
+                    ]}>
+                      {caveEnvResult.status === 'CASE_HARDENING_WARNING'
+                        ? `⚠️ ${t('ALARM: Zagrożenie Case Hardening!')}`
+                        : caveEnvResult.status === 'CONDENSATION_MOLD_RISK'
+                        ? `⚠️ ${t('ALARM: Ryzyko Kondensacji i Pleśni!')}`
+                        : `✅ ${t('Klimat Optymalny (Brak Ryzyka)')}`}
+                    </Text>
+                    <Text style={{ fontSize: 11, color: '#44403C', marginTop: 4 }}>
+                      {caveEnvResult.environmentalNotes}
+                    </Text>
+                    <Text style={{ fontSize: 11, color: '#78350F', fontWeight: '600', marginTop: 4 }}>
+                      💡 {caveEnvResult.recommendation}
+                    </Text>
+                  </View>
+
+                  {/* Affinage Schedule */}
+                  <Text style={{ fontSize: 12, fontWeight: '800', color: '#44403C', marginTop: 4 }}>
+                    📅 {t('Rekomendowany Harmonogram Pielęgnacji (Affinage):')}
+                  </Text>
+                  {affinageSchedule.map((s) => (
+                    <View key={s.dayInCave} style={{ backgroundColor: '#FAF8F5', padding: 8, borderRadius: 8 }}>
+                      <Text style={{ fontSize: 12, fontWeight: '700', color: '#78350F' }}>{s.title}</Text>
+                      <Text style={{ fontSize: 11, color: '#57534E', marginTop: 2 }}>{s.instructions}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
             {caveWheels.length === 0 ? (
               <View style={styles.emptyBox}>
                 <Text style={styles.emptyIcon}>🪵</Text>

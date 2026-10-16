@@ -51,6 +51,19 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
 9. **Protokół Wymiany Receptur Offline (`src/core/recipe-share.ts` — z projektu *Napar*):**
    - Udostępnianie receptur za pomocą kompaktowych deep-linków (`ferment://recipe?data=...`) i kodów QR.
    - Sprawdzanie integralności danych algorytmem sumy kontrolnej DJB2 / CRC32 bez konieczności połączenia z chmurą.
+10. **Dobór i Geometria Form Serowarskich (`src/core/mold-sizing.ts`):**
+    - Obliczanie kubatury form cylindrycznych ($V = \pi r^2 h$) i prostopadłościennych ($V = a \cdot b \cdot h$).
+    - Wyliczanie objętości surowej gęstwy przed odciekiem serwatki (~1.7 L/kg sera) oraz stopnia wypełnienia i dopasowania do standardowych form (Kadova Gouda, Korycin, Camembert, Feta).
+11. **Holenderska Prasa Dźwigniowa & Kaskada Prasowania (`src/core/press-cascade.ts`):**
+    - Mechanika ramienia dźwigniowego z kompensacją masy własnej belki (tara ramienia).
+    - 3-etapowy program kaskadowego prasowania (faza 1: ułożenie gęstwy 1.5x waga sera, faza 2: obrót i ułożenie skórki 3.5x, faza 3: zamknięcie szczelin 7.5x) z blokadą przed wadą *rind entrapment* (zakleszczenie serwatki).
+12. **Psychrometria Piwniczki, VPD & Affinage Care (`src/core/cave-environment.ts`):**
+    - Precyzyjna psychrometria: Prężność pary nasyconej, rzeczywistej, punkt rosy i Deficyt Prężności Pary (VPD w kPa).
+    - Wczesne wykrywanie alarmów Case Hardening ($VPD > 0.32\text{ kPa}$) oraz ryzyka kondensacji i czarnej pleśni ($RH > 94\%$).
+    - Harmonogram pielęgnacji skórki krążków (obracanie, przemywanie solanką 4–18%, szczotkowanie, woskowanie).
+13. **Kinetyka Kwasowa LAB & Miareczkowanie Octu (`src/core/fermentation-kinetics.ts`):**
+    - Modelowanie kinetyki spadku pH w fermentacji mlekowej (faza *Leuconostoc* $\to$ *Lactobacillus plantarum* $\to$ plateau).
+    - Laboratoryjny kalkulator miareczkowania kwasowości octu (TA z roztworem $0.1\text{ M NaOH}$) wyliczający rzeczywisty $\% \text{ kwasu octowego}$ z klasyfikacją spożywczą.
 
 ---
 
@@ -63,7 +76,7 @@ npm run typecheck
 # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
 npm run check:i18n
 
-# 3. Wykonanie 16 pakietów testowych Jest
+# 3. Wykonanie 20 pakietów testowych Jest
 npm test
 
 # 4. Uruchomienie całościowej bramki
@@ -71,9 +84,9 @@ npm run verify
 ```
 
 Stan testów na dzień 16.10.2026:
-- **16 test suites PASS** (100%)
-- **70 unit & integration tests PASS** (100%)
-- **309 tekstów przetłumaczonych na PL i EN** (100% parytet)
+- **20 test suites PASS** (100%)
+- **85 unit & integration tests PASS** (100%)
+- **347 tekstów przetłumaczonych na PL i EN** (100% parytet)
 
 ---
 
@@ -83,10 +96,24 @@ Stan testów na dzień 16.10.2026:
    - 1-Tap start z kartami receptur kanonicznych i udostępnianiem `ferment://`.
    - Harmonogram odwrócony (Anti-Fatigue Guard) z alertami kolizji ze snem.
    - Tryb mokrych rąk (Keep-Awake).
-   - Zaawansowany akordeon biochemiczny Pro (stoper Berridge'a, dźwignia prasy, bufor solanki, Case Hardening Guard, regeneracja stężenia solanki, odzysk Ricotty z serwatki).
-2. **Partie & Dojrzewalnia (`app/(tabs)/explore.tsx`):**
+   - Zaawansowany akordeon biochemiczny Pro:
+     - Stoper Berridge'a i cięcie skrzepu.
+     - Dobór i geometria formy serowarskiej (standardowe szablony Kadova, Korycin, Camembert, Feta).
+     - Holenderska prasa dźwigniowa z tarą ramienia i 3-etapowym programem kaskadowym (ochrona przed rind entrapment).
+     - Buforowana solanka serowarska z $CaCl_2$ i pH 5.2–5.4.
+     - Dogrzewanie gęstwy i Case Hardening Guard.
+     - Regeneracja i wzmocnienie stężenia solanki bez wylewania roztworu.
+     - Odzysk słodkiej serwatki na tradycyjną Ricottę (Ziger) i napój izotoniczny Rivella.
+     - Botulinum Guard (bariera pH 4.60) i Monitor Kinetyki Zakwaszania LAB.
+     - Asystent tradycyjnego Kimchi (proporcje kleiku, gochugaru, soli).
+     - Kombucha 2F Bottle Pressure Guard (ochrona przed wybuchem butelek).
+     - Żywe octy owocowe i miareczkowanie kwasowości całkowitej TA z $0.1\text{ M NaOH}$.
+2. **Partie & Dojrzewalnia (`app/(tabs)/batches.tsx`):**
    - Lista partii i dziennik piwniczki (Cave Log).
+   - Psychrometr piwniczki z pomiarem VPD, punktu rosy i alarmem Case Hardening vs Kondensacja.
+   - Harmonogram pielęgnacji skórki (Affinage Care) dla serów twardych i maziowych.
    - Rejestracja obracania krążków, przemywania solanką i monitorowanie ubytku wagi (% shrinkage).
+   - Skaner kodów QR partii i krążków.
 3. **Spiżarnia & Etykiety (`app/(tabs)/pantry.tsx`):**
    - Stany magazynowe, kalkulator wydajności i kosztów partii.
    - Przelicznik form enzymów, kultur naturalnych i roztworów $CaCl_2$.

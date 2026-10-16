@@ -790,6 +790,20 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-MOLD-001: Dobór i Geometria Formy Serowarskiej (Mold Sizing & Curd Geometry)**
+* **Opis:** Obliczanie kubatury form serowarskich (cylindrycznych i prostopadłościennych), objętości gęstwy nieodprasowanej oraz weryfikacja stopnia napełnienia formy.
+* **Format obliczeń:**
+  * Cylindryczne: $V = \pi r^2 h$. Prostopadłościenne: $V = a \cdot b \cdot h$.
+  * Przelicznik objętości skrzepu przed odciekiem: ~1.7 L objętości na 1 kg gotowego sera.
+  * Baza szablonów: Kadova Gouda (1 kg, 2 kg), Forma Korycińska, Camembert, Feta/Twaróg prostokątna.
+* **Kryteria akceptacji:**
+  1. Wizualizacja stopnia wypełnienia (%) oraz statusu pojemności (wystarczająca vs za mała).
+  2. Automatyczne rekomendowanie optymalnej formy na podstawie zadanej objętości mleka i spodziewanego plonu.
+* **Persona:** P1, P2, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B2_Narzedzia_Obrobka_Skrzepu_Prasowanie.md -->
@@ -883,6 +897,20 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
   1. **Odzysk tradycyjnej Ricotty (Ziger):** Denaturacja białek w temperaturze 88–92°C z zakwaszeniem kwasem cytrynowym ($1.8\text{ g/L}$) lub octem. Obliczanie dodatku świeżego pełnego mleka (+10% / +20%) dla podwojenia kremowości i uzysku.
   2. **Rzemieślniczy napój izotoniczny (Alpejska Rivella):** Receptura bilansująca serwatkę, sok z cytryny, miód/cukier, świeżą miętę i wodę mineralną (bogaty w potas i peptydy bioaktywne).
 * **Persona:** P1, P4, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-PRESS-015: Holenderska Prasa Dźwigniowa & Kaskada Prasowania (Dutch Lever & Rind Guard)**
+* **Opis:** Fizyka prasy dźwigniowej z kompensacją tary belki oraz kaskadowy program formowania skórki (`press-cascade.ts`).
+* **Formuła nacisku z tarą ramienia:**
+  $$F_{laczna} = M_{odwaznik} \times \left(\frac{L_{ramie}}{L_{forma}}\right) + M_{ramie} \times \left(\frac{L_{ramie} / 2}{L_{forma}}\right)$$
+* **Ochrona przed Rind Entrapment (Zakleszczenie Serwatki):**
+  1. Faza 1 (45 min): Lekki nacisk (1.5x waga sera), swobodny odpływ serwatki bez zamykania porów.
+  2. Faza 2 (120 min): Pierwszy obrót krążka, wyrównanie powierzchni (3.5x waga sera).
+  3. Faza 3 (12h): Pełny docisk zamykający mikroszczeliny (7.5x waga sera).
+  4. Blokada: Ostrzeżenie przed aplikacją maksymalnego obciążenia w fazie 1.
+* **Persona:** P1, P2, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
 ---
@@ -1047,6 +1075,21 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-CAVE-025: Psychrometria Piwniczki, VPD & Case Hardening Guard**
+* **Opis:** Ciągła analiza mikroklimatu dojrzewalni w oparciu o Deficyt Prężności Pary (VPD) i punkt rosy (`cave-environment.ts`).
+* **Wskaźniki psychrometryczne:**
+  * Prężność pary nasyconej: $VP_{sat} = 0.61078 \times \exp((17.27 \times T)/(T + 237.3))\text{ kPa}$.
+  * Deficyt Prężności Pary: $VPD = VP_{sat} \times (1 - RH/100)$.
+  * Punkt rosy $T_{dp}$ i delta temperaturowa.
+* **Inwarianty bezpieczeństwa dojrzewania:**
+  1. $VPD > 0.32\text{ kPa}$ lub $RH < 75\%$: **Alarm Case Hardening** (skórka twardnieje za szybko, blokując ucieczkę serwatki z wnętrza).
+  2. $RH > 94\%$ lub delta do punktu rosy $< 1.0^\circ\text{C}$: **Alarm Kondensacji** (krople na krążku, rozwój dzikich pleśni Mucor/Aspergillus).
+  3. Harmonogram affinage: generowanie etapów (obracanie, przemywanie solanką 4–18%, szczotkowanie, woskowanie) dla wybranego stylu sera.
+* **Persona:** P1, P2, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B5_Narzedzia_Kiszonki_Kimchi_Zakwasy.md -->
@@ -1119,6 +1162,21 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-LAB-010: Monitor Kinetyki Zakwaszania LAB (Acidification Curve & Safety Guard)**
+* **Opis:** Modelowanie dynamiki spadku pH w czasie i ocena aktywności bakterii kwasu mlekowego (`fermentation-kinetics.ts`).
+* **Wzorzec kinetyki fermentacji spontanicznej:**
+  * Faza rozruchu (0–24h): *Leuconostoc mesenteroides* obniża pH do ~5.20.
+  * Faza krytyczna (24–48h): przejście przez barierę $pH \le 4.60$ (blokada jadu kiełbasianego).
+  * Faza dojrzała (48–72h+): dominacja *Lactobacillus plantarum* z docelowym plateau $pH \approx 3.60 - 3.90$.
+* **Kryteria akceptacji:**
+  1. Wyliczanie teoretycznego pH oczekiwanego dla danego czasu od nastawienia.
+  2. Generowanie alarmu krytycznego przy braku zakwaszenia po 72h ($pH > 4.60$).
+  3. Sugestie interwencyjne przy spowolnionej fermentacji (docieplenie, kontrola wody).
+* **Persona:** P2, P4, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B6_Narzedzia_Kombucha_i_Octy.md -->
@@ -1176,6 +1234,18 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
   2. System wylicza przewidywaną kwasowość octu (% kwasu octowego).
   3. Jeśli wsad alkoholowy ma > 8% ABV (np. mocne wino), aplikacja nakazuje rozcieńczenie czystą wodą: bakterie octowe ulegają inhibicji przy zbyt wysokim stężeniu etanolu.
 * **Persona:** P3, P7.
+* **Priorytet:** MUST | **Etap:** 1.1.
+
+---
+
+### **BR-VIN-020: Miareczkowanie Kwasowości Miareczkowej Octu (Titratable Acidity TA)**
+* **Opis:** Precyzyjne laboratoryjne wyznaczanie rzeczywistego stężenia kwasu octowego metodą miareczkowania roztworem $0.1\text{ M NaOH}$ w obecności fenoloftaleiny (`fermentation-kinetics.ts`).
+* **Formuła chemiczna:**
+  $$\% \text{ Kwasu Octowego (w/v)} = \frac{V_{NaOH}\text{ [ml]} \times 0.0060052}{V_{probki}\text{ [ml]}} \times 100\%$$
+* **Kryteria akceptacji:**
+  1. Klasyfikacja wyrobu: poniżej 5.0% (substandard, łagodny ocet stołowy), 5.0–6.0% (standardowy ocet stołowy zgodny z normą spożywczą), powyżej 6.0% (moc marynatowa).
+  2. Ostrzeżenie przy zbyt niskiej kwasowości o obniżonej trwałości mikrobiologicznej octu.
+* **Persona:** P3, P6, P7.
 * **Priorytet:** MUST | **Etap:** 1.1.
 
 ---

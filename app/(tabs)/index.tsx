@@ -66,6 +66,19 @@ import {
   encodeRecipeToShareUri,
   decodeRecipeFromShareUri,
 } from '../../src/core/recipe-share';
+import {
+  calculateCylindricalMoldVolume,
+  calculateCurdAndMoldFitting,
+  STANDARD_MOLD_TEMPLATES,
+} from '../../src/core/mold-sizing';
+import {
+  calculateDutchLeverPress,
+  generatePressingCascadeProgram,
+} from '../../src/core/press-cascade';
+import {
+  evaluateLabFermentation,
+  calculateVinegarTitration,
+} from '../../src/core/fermentation-kinetics';
 
 export default function CalculatorScreen() {
   const {
@@ -117,6 +130,18 @@ export default function CalculatorScreen() {
   const [wheyMilkBoostLiters, setWheyMilkBoostLiters] = useState<number>(1);
   const [currentBrineSalinity, setCurrentBrineSalinity] = useState<number>(16);
   const [targetBrineSalinity, setTargetBrineSalinity] = useState<number>(20);
+
+  // --- MOLD SIZING & PRESS CASCADE ---
+  const [selectedMoldTemplateId, setSelectedMoldTemplateId] = useState<string>('kadova_gouda_1kg');
+  const [isPressCascadeOpen, setIsPressCascadeOpen] = useState<boolean>(false);
+  const [pressMechanism, setPressMechanism] = useState<'DIRECT' | 'DUTCH_LEVER'>('DUTCH_LEVER');
+  const [armLengthCm, setArmLengthCm] = useState<number>(60);
+  const [moldDistCm, setMoldDistCm] = useState<number>(20);
+  const [armWeightKg, setArmWeightKg] = useState<number>(2.0);
+
+  // --- VINEGAR TITRATION STATE ---
+  const [vinegarSampleMl, setVinegarSampleMl] = useState<number>(1);
+  const [naohTiterMl, setNaohTiterMl] = useState<number>(8.5);
 
   // Active Flocculation Timer
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
@@ -243,6 +268,22 @@ export default function CalculatorScreen() {
     craftMode === 'cheese' ? 'CHEESE' : craftMode === 'veg' ? 'VEG_FERMENT' : 'KOMBUCHA'
   );
   const selectedRecipe = CANONICAL_RECIPES.find((r) => r.id === selectedRecipeId);
+
+  const moldFittingCalc = calculateCurdAndMoldFitting(milkLiters, 10.5, selectedMoldTemplateId);
+  const dutchLeverCalc = calculateDutchLeverPress({
+    armTotalLengthCm: armLengthCm,
+    moldDistanceCm: moldDistCm,
+    armSelfWeightKg: armWeightKg,
+    weightHungKg: pressWeightKg,
+    moldDiameterCm: moldDiamCm,
+  });
+  const pressingCascadeProg = generatePressingCascadeProgram(
+    selectedRecipe ? selectedRecipe.name : 'Gouda Zagrodowa',
+    moldFittingCalc.expectedYieldKg,
+    moldDiamCm
+  );
+  const labKineticsCalc = evaluateLabFermentation(fermentHours, measuredPh);
+  const vinegarTitrationCalc = calculateVinegarTitration(vinegarSampleMl, naohTiterMl);
 
   const handleSaveBatch = () => {
     requireActionAccess(async () => {
@@ -655,9 +696,73 @@ export default function CalculatorScreen() {
                   </View>
                 </View>
 
-                {/* 2. Pressing Pressure & Leverage */}
+                {/* Mold Sizing & Curd Geometry */}
+                <View style={styles.proCard}>
+                  <Text style={styles.proCardTitle}>🧀 {t('Dobór i Geometria Formy Serowarskiej')}</Text>
+                  <Text style={styles.proCardDesc}>
+                    {t('Oczekiwany uzysk:')} <Text style={styles.boldText}>{moldFittingCalc.expectedYieldKg} kg</Text> {t('sera z')} {milkLiters}L {t('mleka')}
+                  </Text>
+                  <Text style={styles.inputLabelMini}>{t('Wybierz formę standardową:')}</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                    {STANDARD_MOLD_TEMPLATES.map((m) => {
+                      const isSel = m.id === selectedMoldTemplateId;
+                      return (
+                        <TouchableOpacity
+                          key={m.id}
+                          style={[styles.presetPill, isSel && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setSelectedMoldTemplateId(m.id);
+                            if (m.diameterCm) setMoldDiamCm(m.diameterCm);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, isSel && styles.presetPillTextActive]}>
+                            {m.name} ({m.targetCheeseWeightKg} kg)
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ScrollView>
+                  <View style={styles.flocResultBox}>
+                    <Text style={styles.flocResultText}>
+                      • {t('Objętość świeżego skrzepu przed odciekiem:')}{' '}
+                      <Text style={styles.boldText}>{moldFittingCalc.rawCurdVolumeLiters} L</Text>
+                    </Text>
+                    <Text style={styles.flocResultSub}>
+                      • {t('Stopień wypełnienia formy:')} {moldFittingCalc.fillPercentage}% (
+                      {moldFittingCalc.isMoldSufficient ? t('Pojemność wystarczająca') : t('Uwaga: Forma może być za mała!')})
+                    </Text>
+                  </View>
+                </View>
+
+                {/* 2. Pressing Pressure & Dutch Lever */}
                 <View style={styles.proCard}>
                   <Text style={styles.proCardTitle}>⚖️ {t('Kalkulator Nacisku i Dźwigni Prasy')}</Text>
+                  <View style={styles.typeSelectorRow}>
+                    <TouchableOpacity
+                      style={[styles.typePill, pressMechanism === 'DUTCH_LEVER' && styles.typePillActive]}
+                      onPress={() => {
+                        triggerHapticFeedback();
+                        setPressMechanism('DUTCH_LEVER');
+                      }}
+                    >
+                      <Text style={[styles.typePillText, pressMechanism === 'DUTCH_LEVER' && styles.typePillTextActive]}>
+                        {t('Dźwignia Holenderska (z tarą)')}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.typePill, pressMechanism === 'DIRECT' && styles.typePillActive]}
+                      onPress={() => {
+                        triggerHapticFeedback();
+                        setPressMechanism('DIRECT');
+                      }}
+                    >
+                      <Text style={[styles.typePillText, pressMechanism === 'DIRECT' && styles.typePillTextActive]}>
+                        {t('Nacisk Bezpośredni / Śruba')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
                   <View style={styles.rowBetween}>
                     <Text style={styles.inlineLabel}>{t('Średnica formy (cm):')}</Text>
                     <TextInput
@@ -667,6 +772,7 @@ export default function CalculatorScreen() {
                       onChangeText={(v) => setMoldDiamCm(parseFloat(v) || 1)}
                     />
                   </View>
+
                   <View style={styles.rowBetween}>
                     <Text style={styles.inlineLabel}>{t('Masa obciążnika (kg):')}</Text>
                     <TextInput
@@ -676,14 +782,80 @@ export default function CalculatorScreen() {
                       onChangeText={(v) => setPressWeightKg(parseFloat(v) || 0)}
                     />
                   </View>
+
+                  {pressMechanism === 'DUTCH_LEVER' && (
+                    <View>
+                      <View style={styles.rowBetween}>
+                        <Text style={styles.inlineLabel}>{t('Długość ramienia (cm):')}</Text>
+                        <TextInput
+                          style={styles.numInput}
+                          keyboardType="numeric"
+                          value={String(armLengthCm)}
+                          onChangeText={(v) => setArmLengthCm(parseFloat(v) || 10)}
+                        />
+                      </View>
+                      <View style={styles.rowBetween}>
+                        <Text style={styles.inlineLabel}>{t('Odległość formy od osi (cm):')}</Text>
+                        <TextInput
+                          style={styles.numInput}
+                          keyboardType="numeric"
+                          value={String(moldDistCm)}
+                          onChangeText={(v) => setMoldDistCm(parseFloat(v) || 5)}
+                        />
+                      </View>
+                      <View style={styles.rowBetween}>
+                        <Text style={styles.inlineLabel}>{t('Masa własna belki (tara kg):')}</Text>
+                        <TextInput
+                          style={styles.numInput}
+                          keyboardType="numeric"
+                          value={String(armWeightKg)}
+                          onChangeText={(v) => setArmWeightKg(parseFloat(v) || 0)}
+                        />
+                      </View>
+                    </View>
+                  )}
+
                   <View style={styles.pressureResultBox}>
                     <Text style={styles.pressureValue}>
-                      {pressCalc.pressureKgCm2.toFixed(3)} kg/cm² ({pressCalc.pressurePsi.toFixed(2)} PSI)
+                      {pressMechanism === 'DUTCH_LEVER'
+                        ? `${dutchLeverCalc.pressureKgPerCm2.toFixed(3)} kg/cm² (${dutchLeverCalc.pressurePsi.toFixed(2)} PSI)`
+                        : `${pressCalc.pressureKgCm2.toFixed(3)} kg/cm² (${pressCalc.pressurePsi.toFixed(2)} PSI)`}
                     </Text>
                     <Text style={styles.pressureSub}>
-                      {t('Powierzchnia:')} {pressCalc.surfaceAreaCm2.toFixed(1)} cm² | {t('Siła:')} {pressCalc.appliedForceKg.toFixed(1)} kg
+                      {pressMechanism === 'DUTCH_LEVER'
+                        ? `${t('Przełożenie:')} ${dutchLeverCalc.mechanicalAdvantageRatio}x | ${t('Tara ramienia:')} +${dutchLeverCalc.tareForceFromArmKg} kg | ${t('Siła łączna:')} ${dutchLeverCalc.totalAppliedForceKg} kg`
+                        : `${t('Powierzchnia:')} ${pressCalc.surfaceAreaCm2.toFixed(1)} cm² | ${t('Siła:')} ${pressCalc.appliedForceKg.toFixed(1)} kg`}
                     </Text>
                   </View>
+
+                  {/* 3-Stage Cascaded Pressing Schedule */}
+                  <TouchableOpacity
+                    style={[styles.rowBetween, { marginTop: 10, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#E7E5E4' }]}
+                    onPress={() => {
+                      triggerHapticFeedback();
+                      setIsPressCascadeOpen(!isPressCascadeOpen);
+                    }}
+                  >
+                    <Text style={styles.cardMiniTitle}>📋 {t('Kaskadowy Program Prasowania')}</Text>
+                    <Text style={styles.accordionArrow}>{isPressCascadeOpen ? '▲' : '▼'}</Text>
+                  </TouchableOpacity>
+
+                  {isPressCascadeOpen && (
+                    <View style={{ marginTop: 6, gap: 8 }}>
+                      {pressingCascadeProg.stages.map((st) => (
+                        <View key={st.stageNumber} style={styles.timelineRow}>
+                          <Text style={styles.timelineTime}>{st.durationMinutes} m</Text>
+                          <View style={styles.timelineContent}>
+                            <Text style={styles.timelineName}>{st.name} ({st.targetForceKg} kg / {st.recommendedPressurePsi} PSI)</Text>
+                            <Text style={styles.timelineDesc}>{st.actionInstruction}</Text>
+                          </View>
+                        </View>
+                      ))}
+                      <View style={styles.warningAlert}>
+                        <Text style={styles.warningAlertText}>⚠️ {pressingCascadeProg.rindEntrapmentWarning}</Text>
+                      </View>
+                    </View>
+                  )}
                 </View>
 
                 {/* 3. Saturated Brine Buffer */}
@@ -902,6 +1074,22 @@ export default function CalculatorScreen() {
                   </View>
                 </View>
 
+                {/* LAB Acidification Kinetics */}
+                <View style={[styles.proCard, labKineticsCalc.status === 'CRITICAL_HAZARD' && styles.cardDanger]}>
+                  <Text style={styles.proCardTitle}>📈 {t('Kinetyka Kwasowa LAB (Monitor Zakwaszania)')}</Text>
+                  <Text style={styles.proCardDesc}>
+                    {t('Oczekiwane pH po')} {fermentHours}h: <Text style={styles.boldText}>{labKineticsCalc.expectedPh}</Text> | {t('Zmierzone:')} <Text style={styles.boldText}>{measuredPh}</Text>
+                  </Text>
+                  <View style={styles.safetyBox}>
+                    <Text style={[styles.safetyStatus, labKineticsCalc.status !== 'OPTIMAL' && styles.safetyDanger]}>
+                      {labKineticsCalc.message}
+                    </Text>
+                    <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                      💡 {labKineticsCalc.recommendedAction}
+                    </Text>
+                  </View>
+                </View>
+
                 {/* Kimchi Assistant */}
                 <View style={styles.proCard}>
                   <Text style={styles.proCardTitle}>🥬 {t('Asystent Tradycyjnego Kimchi')}</Text>
@@ -1058,6 +1246,41 @@ export default function CalculatorScreen() {
                     </Text>
                     <Text style={[styles.vinegarAlert, vinegarCalc.isAbvTooHigh && styles.vinegarAlertDanger]}>
                       {vinegarCalc.message}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Titratable Acidity (TA) with 0.1M NaOH */}
+                <View style={styles.proCard}>
+                  <Text style={styles.proCardTitle}>🧪 {t('Miareczkowanie Kwasowości Octu (TA z NaOH 0.1M)')}</Text>
+                  <View style={styles.rowBetween}>
+                    <Text style={styles.inlineLabel}>{t('Objętość próbki octu (ml):')}</Text>
+                    <TextInput
+                      style={styles.numInput}
+                      keyboardType="numeric"
+                      value={String(vinegarSampleMl)}
+                      onChangeText={(v) => setVinegarSampleMl(parseFloat(v) || 1)}
+                    />
+                  </View>
+                  <View style={styles.rowBetween}>
+                    <Text style={styles.inlineLabel}>{t('Zużyty 0.1M NaOH (ml do różu):')}</Text>
+                    <TextInput
+                      style={styles.numInput}
+                      keyboardType="numeric"
+                      value={String(naohTiterMl)}
+                      onChangeText={(v) => setNaohTiterMl(parseFloat(v) || 0)}
+                    />
+                  </View>
+                  <View style={styles.vinegarBox}>
+                    <Text style={styles.vinegarText}>
+                      • {t('Kwasowość całkowita:')}{' '}
+                      <Text style={styles.boldText}>{vinegarTitrationCalc.aceticAcidPercentage}% {t('kwasu octowego')}</Text>
+                    </Text>
+                    <Text style={styles.vinegarText}>
+                      • {t('Klasyfikacja:')} <Text style={styles.boldText}>{vinegarTitrationCalc.classification}</Text>
+                    </Text>
+                    <Text style={[styles.vinegarAlert, !vinegarTitrationCalc.isFoodGradeSafe && styles.vinegarAlertDanger]}>
+                      {vinegarTitrationCalc.notes}
                     </Text>
                   </View>
                 </View>

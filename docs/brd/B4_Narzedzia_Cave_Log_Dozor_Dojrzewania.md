@@ -70,3 +70,18 @@
   * Wykres liniowy utraty wagi. Typowy ubytek dla sera twardego po 3 miesiącach to 8–14%. Przekroczenie 20% sygnalizuje zbyt suchą komorę dojrzewalniczą.
 * **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-CAVE-025: Psychrometria Piwniczki, VPD & Case Hardening Guard**
+* **Opis:** Ciągła analiza mikroklimatu dojrzewalni w oparciu o Deficyt Prężności Pary (VPD) i punkt rosy (`cave-environment.ts`).
+* **Wskaźniki psychrometryczne:**
+  * Prężność pary nasyconej: $VP_{sat} = 0.61078 \times \exp((17.27 \times T)/(T + 237.3))\text{ kPa}$.
+  * Deficyt Prężności Pary: $VPD = VP_{sat} \times (1 - RH/100)$.
+  * Punkt rosy $T_{dp}$ i delta temperaturowa.
+* **Inwarianty bezpieczeństwa dojrzewania:**
+  1. $VPD > 0.32\text{ kPa}$ lub $RH < 75\%$: **Alarm Case Hardening** (skórka twardnieje za szybko, blokując ucieczkę serwatki z wnętrza).
+  2. $RH > 94\%$ lub delta do punktu rosy $< 1.0^\circ\text{C}$: **Alarm Kondensacji** (krople na krążku, rozwój dzikich pleśni Mucor/Aspergillus).
+  3. Harmonogram affinage: generowanie etapów (obracanie, przemywanie solanką 4–18%, szczotkowanie, woskowanie) dla wybranego stylu sera.
+* **Persona:** P1, P2, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.

@@ -62,3 +62,18 @@
   * **Pleśń (Mold / Aspergillus / Penicillium):** plamisty porost z widocznymi meszkowatymi włoskami (grzybnia), kolory: zielony, czarny, niebieski, różowy lub puszysty biały. Zapach stęchły, ziemisty. Instrukcja: **Wyrzucić cały nastaw! Toksyny grzybowe przenikają w głąb roztworu.**
 * **Persona:** P2, P4, P5.
 * **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-LAB-010: Monitor Kinetyki Zakwaszania LAB (Acidification Curve & Safety Guard)**
+* **Opis:** Modelowanie dynamiki spadku pH w czasie i ocena aktywności bakterii kwasu mlekowego (`fermentation-kinetics.ts`).
+* **Wzorzec kinetyki fermentacji spontanicznej:**
+  * Faza rozruchu (0–24h): *Leuconostoc mesenteroides* obniża pH do ~5.20.
+  * Faza krytyczna (24–48h): przejście przez barierę $pH \le 4.60$ (blokada jadu kiełbasianego).
+  * Faza dojrzała (48–72h+): dominacja *Lactobacillus plantarum* z docelowym plateau $pH \approx 3.60 - 3.90$.
+* **Kryteria akceptacji:**
+  1. Wyliczanie teoretycznego pH oczekiwanego dla danego czasu od nastawienia.
+  2. Generowanie alarmu krytycznego przy braku zakwaszenia po 72h ($pH > 4.60$).
+  3. Sugestie interwencyjne przy spowolnionej fermentacji (docieplenie, kontrola wody).
+* **Persona:** P2, P4, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP.
