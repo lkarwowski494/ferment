@@ -804,6 +804,33 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-SER-040: Skład Biochemiczny i Klasyfikacja Codex Alimentarius (MFFB, FDM, S/M Ratio)**
+* **Opis:** Silnik analityczny klasyfikujący ser według międzynarodowego standardu CODEX STAN 283-1978 oraz monitorujący krytyczną równowagę soli w fazie wodnej (`cheese-composition-engine.ts`).
+* **Wzory chemiczne i biochemiczne:**
+  1. **MFFB (Moisture on a Fat-Free Basis %):**
+     $$MFFB = \frac{\% \text{Moisture}}{100\% - \% \text{Fat}} \times 100\%$$
+     * `< 51.0%`: `EXTRA_HARD` (Parmezan, Grana Padano, Sbrinz)
+     * `51.0% - 56.0%`: `HARD` (Cheddar, Dojrzała Gouda, Emmentaler)
+     * `56.0% - 63.0%`: `SEMI_HARD` (Młoda Gouda, Edam, Tilsit)
+     * `63.0% - 69.0%`: `SEMI_SOFT` (Ser Koryciński, Havarti, Butterkäse)
+     * `> 69.0%`: `SOFT` (Feta, Camembert, Twaróg, Ricotta)
+  2. **FDM (Fat in Dry Matter %):**
+     $$FDM = \frac{\% \text{Fat}}{100\% - \% \text{Moisture}} \times 100\%$$
+     * `HIGH_FAT` ($\ge 60\%$), `FULL_FAT` ($45–60\%$), `MEDIUM_FAT` ($25–45\%$), `LOW_FAT` ($10–25\%$), `SKIM` ($<10\%$)
+  3. **Salt-in-Moisture (S/M %):**
+     $$S/M = \frac{\% \text{Salt}}{\% \text{Moisture}} \times 100\%$$
+     * `S/M < 4.0% (UNDER_SALTED_ACIDIC)`: Nadmierna aktywność bakterii starterowych i chymozyny; akumulacja gorzkich hydrofobowych peptydów (wada technologiczna goryczki).
+     * `S/M = 4.0% - 6.0% (OPTIMAL_BALANCED)`: Idealna proteoliza i rozwój bukietu aromatycznego podczas affinage.
+     * `S/M > 6.0% (OVER_SALTED_INHIBITED)`: Zahamowanie enzymów proteolitycznych, zatrzymanie dojrzewania, krucha sucha struktura.
+* **Kryteria akceptacji:**
+  1. Automatyczne obliczanie suchej masy, wskaźnika MFFB, FDM i relacji S/M.
+  2. Prezentacja oficjalnych klas konsystencji i tłuszczowości z opisem handlowym.
+  3. Alerty biochemiczne i rekomendacje technologiczne dotyczące czasu solenia.
+* **Persona:** P1, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B2_Narzedzia_Obrobka_Skrzepu_Prasowanie.md -->
@@ -1394,6 +1421,26 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-KOM-025: Hotel SCOBY & Zarządzanie Matecznikiem Kultur Żywych (Mother Colony Hotel & Invariant Safety)**
+* **Opis:** Moduł zarządzania długoterminową rezerwą starterową dla kolonii symbiotycznych: Hotel SCOBY, Matka Octowa (*Mycoderma aceti*), Ziarna Kefiru Mlecznego, Kryształy Wodne (Tibicos) oraz Serwatka Mateczna (`culture-hotel-engine.ts`).
+* **Kluczowe reguły biologiczne:**
+  1. **Harmonogram zasilania i głodu:**
+     * Hotel SCOBY w temp. pokojowej: nominalne zasilanie słodką herbatą (25–30% objętości) co 35 dni; krytyczny próg głodu po 60 dniach. W chłodzie (lodówka 4°C): zasilanie co 90 dni, limit 150 dni.
+     * Matka octowa: napowietrzenie i zasilenie 5% etanolem co 28 dni.
+     * Ziarna kefiru: room temp 24–48h; chłodnia co 14 dni. Przyrost ziaren: typowo +15% na cykl fermentacyjny.
+  2. **Bariera antypleśniowa ($pH \le 3.20$):**
+     * Jeśli pH w hotelu wzrośnie powyżej 3.20 (kombucha) lub 3.40 (ocet), system natychmiast generuje alarm krytyczny (ryzyko zasiedlenia przez zarodniki pleśni *Penicillium* / *Aspergillus*) i nakazuje natychmiastowe dokwaszenie.
+  3. **Wskaźnik autolizy drożdży (Yeast Sludge Purge):**
+     * Gdy warstwa martwego osadu drożdżowego na dnie słoja przekroczy 2.0 cm, generowane jest zalecenie dekantacji i płukania naczynia, aby zapobiec autolizie i uwalnianiu do roztworu nieprzyjemnych nut siarkowych.
+* **Kryteria akceptacji:**
+  1. Reaktywna ocena stanu witalności kolonii (`HEALTHY_ACTIVE`, `DUE_FOR_FEEDING`, `STARVATION_RISK`, `DORMANT_REFRIGERATED`).
+  2. Precyzyjna receptura dolewki (objętość płynu, gramatura cukru, liści herbaty).
+  3. Lista kontrolna pielęgnacji i checklisty ochronne (tkanina bawełniana, brak metalowych narzędzi).
+* **Persona:** P2, P3, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B7_Narzedzia_Spizarnia_Naczynia_Etykiety.md -->
@@ -1491,6 +1538,30 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
   3. Bezpieczne udostępnianie pliku przez natywny mechanizm `expo-sharing` (współdzielenie z arkuszami Excel, Google Sheets, AirDrop).
   4. Dostępność również w trybie READ-ONLY po wygaśnięciu okresu próbnego (prawo użytkownika do własnych danych).
 * **Persona:** P1, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-MAG-015: Zaawansowany Kalkulator Kosztów Partii, Energii i Oszczędności Domowych (Batch Cost & Affinage ROI)**
+* **Opis:** Kalkulator ekonomiczny partii rzemieślniczej (`batch-cost-engine.ts`) modelujący realny koszt wytworzenia sera dojrzewającego, kiszonek i kombuchy, uwzględniający energię cieplną podgrzewania mleka, zużycie prądu przez chłodziarki piwniczne/witryny winiarskie oraz porównanie z cenami rynkowymi delikatesów ekologicznych.
+* **Struktura kosztów w modelu:**
+  1. **Surowce bazowe i dodatki:**
+     * Mleko zagrodowe (PLN/L), warzywa ekologiczne (PLN/kg), woda filtrowana.
+     * Kultury DVS, podpuszczka IMCU, $CaCl_2$, sól kamienna niejodowana, cukier, liście herbaty.
+     * Opakowania i powłoki (wosk serowarski, polioctan, woreczki próżniowe, kapsle koronowe).
+  2. **Energia technologiczna:**
+     * Gotowanie / dogrzewanie gęstwy serowarskiej: $P\text{ [kW]} \times t\text{ [h]} \times \text{cena kWh}$ (domyślnie 1.15 PLN/kWh).
+     * Dojrzewalnia sera (Affinage Cave Chiller): $\text{Dni} \times 0.6\text{ kWh/dzień} \times \text{cena kWh}$.
+  3. **Wskaźniki jednostkowe i ROI:**
+     * Koszt całkowity partii (PLN).
+     * Koszt wyrobu gotowego po odcieku serwatki i ubytku masy w piwniczce (PLN/kg lub PLN/L).
+     * Koszt porcji 100g (PLN).
+     * Oszczędność względem odpowiedników rzemieślniczych (np. rzemieślnicza Gouda zagrodowa: 110 PLN/kg, surowa kombucha: 22 PLN/L, kiszonki bio: 48 PLN/kg) z wyliczeniem kwoty zaoszczędzonej w PLN i procentowo (%).
+* **Kryteria akceptacji:**
+  1. Przełącznik profilu rzemiosła: 🧀 Serowarstwo | 🥬 Kiszonki & Kimchi | 🫖 Kombucha.
+  2. Dynamiczny przelicznik kosztów w czasie rzeczywistym.
+  3. Podsumowanie finansowe prezentowane użytkownikowi w czytelnym boksie z gratulacjami oszczędności.
+* **Persona:** P1, P2, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
 ---

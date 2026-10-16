@@ -104,3 +104,24 @@
 * **Persona:** P3, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
+---
+
+### **BR-KOM-025: Hotel SCOBY & Zarządzanie Matecznikiem Kultur Żywych (Mother Colony Hotel & Invariant Safety)**
+* **Opis:** Moduł zarządzania długoterminową rezerwą starterową dla kolonii symbiotycznych: Hotel SCOBY, Matka Octowa (*Mycoderma aceti*), Ziarna Kefiru Mlecznego, Kryształy Wodne (Tibicos) oraz Serwatka Mateczna (`culture-hotel-engine.ts`).
+* **Kluczowe reguły biologiczne:**
+  1. **Harmonogram zasilania i głodu:**
+     * Hotel SCOBY w temp. pokojowej: nominalne zasilanie słodką herbatą (25–30% objętości) co 35 dni; krytyczny próg głodu po 60 dniach. W chłodzie (lodówka 4°C): zasilanie co 90 dni, limit 150 dni.
+     * Matka octowa: napowietrzenie i zasilenie 5% etanolem co 28 dni.
+     * Ziarna kefiru: room temp 24–48h; chłodnia co 14 dni. Przyrost ziaren: typowo +15% na cykl fermentacyjny.
+  2. **Bariera antypleśniowa ($pH \le 3.20$):**
+     * Jeśli pH w hotelu wzrośnie powyżej 3.20 (kombucha) lub 3.40 (ocet), system natychmiast generuje alarm krytyczny (ryzyko zasiedlenia przez zarodniki pleśni *Penicillium* / *Aspergillus*) i nakazuje natychmiastowe dokwaszenie.
+  3. **Wskaźnik autolizy drożdży (Yeast Sludge Purge):**
+     * Gdy warstwa martwego osadu drożdżowego na dnie słoja przekroczy 2.0 cm, generowane jest zalecenie dekantacji i płukania naczynia, aby zapobiec autolizie i uwalnianiu do roztworu nieprzyjemnych nut siarkowych.
+* **Kryteria akceptacji:**
+  1. Reaktywna ocena stanu witalności kolonii (`HEALTHY_ACTIVE`, `DUE_FOR_FEEDING`, `STARVATION_RISK`, `DORMANT_REFRIGERATED`).
+  2. Precyzyjna receptura dolewki (objętość płynu, gramatura cukru, liści herbaty).
+  3. Lista kontrolna pielęgnacji i checklisty ochronne (tkanina bawełniana, brak metalowych narzędzi).
+* **Persona:** P2, P3, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+

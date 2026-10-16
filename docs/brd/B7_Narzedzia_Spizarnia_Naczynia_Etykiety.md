@@ -92,5 +92,30 @@
 * **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
 
+---
+
+### **BR-MAG-015: Zaawansowany Kalkulator Kosztów Partii, Energii i Oszczędności Domowych (Batch Cost & Affinage ROI)**
+* **Opis:** Kalkulator ekonomiczny partii rzemieślniczej (`batch-cost-engine.ts`) modelujący realny koszt wytworzenia sera dojrzewającego, kiszonek i kombuchy, uwzględniający energię cieplną podgrzewania mleka, zużycie prądu przez chłodziarki piwniczne/witryny winiarskie oraz porównanie z cenami rynkowymi delikatesów ekologicznych.
+* **Struktura kosztów w modelu:**
+  1. **Surowce bazowe i dodatki:**
+     * Mleko zagrodowe (PLN/L), warzywa ekologiczne (PLN/kg), woda filtrowana.
+     * Kultury DVS, podpuszczka IMCU, $CaCl_2$, sól kamienna niejodowana, cukier, liście herbaty.
+     * Opakowania i powłoki (wosk serowarski, polioctan, woreczki próżniowe, kapsle koronowe).
+  2. **Energia technologiczna:**
+     * Gotowanie / dogrzewanie gęstwy serowarskiej: $P\text{ [kW]} \times t\text{ [h]} \times \text{cena kWh}$ (domyślnie 1.15 PLN/kWh).
+     * Dojrzewalnia sera (Affinage Cave Chiller): $\text{Dni} \times 0.6\text{ kWh/dzień} \times \text{cena kWh}$.
+  3. **Wskaźniki jednostkowe i ROI:**
+     * Koszt całkowity partii (PLN).
+     * Koszt wyrobu gotowego po odcieku serwatki i ubytku masy w piwniczce (PLN/kg lub PLN/L).
+     * Koszt porcji 100g (PLN).
+     * Oszczędność względem odpowiedników rzemieślniczych (np. rzemieślnicza Gouda zagrodowa: 110 PLN/kg, surowa kombucha: 22 PLN/L, kiszonki bio: 48 PLN/kg) z wyliczeniem kwoty zaoszczędzonej w PLN i procentowo (%).
+* **Kryteria akceptacji:**
+  1. Przełącznik profilu rzemiosła: 🧀 Serowarstwo | 🥬 Kiszonki & Kimchi | 🫖 Kombucha.
+  2. Dynamiczny przelicznik kosztów w czasie rzeczywistym.
+  3. Podsumowanie finansowe prezentowane użytkownikowi w czytelnym boksie z gratulacjami oszczędności.
+* **Persona:** P1, P2, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP.
+
+
 
 

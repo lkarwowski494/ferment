@@ -101,6 +101,16 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
 26. **Standaryzowany Eksport Dziennika Produkcyjnego do RFC 4180 CSV (`src/lib/csv-export.ts`):**
     - Eksport partii produkcyjnych, krążków dojrzewalni oraz spiżarni do formatu CSV z obsługą natywnego udostępniania (`expo-sharing`).
     - Dostępność eksportu danych również w trybie READ-ONLY po wygaśnięciu okresu próbnego.
+27. **Skład Biochemiczny & Klasyfikacja Codex Alimentarius (`src/core/cheese-composition-engine.ts`):**
+    - Międzynarodowy standard CODEX STAN 283-1978: wilgotność w masie beztłuszczowej (MFFB) $\to$ klasyfikacja twardości (Extra Hard, Hard, Semi-Hard, Semi-Soft, Soft).
+    - Tłuszcz w suchej masie (FDM) $\to$ klasyfikacja tłuszczowości (High Fat, Full Fat, Medium Fat, Low Fat, Skim).
+    - Kluczowy niezmiennik biochemiczny Salt-in-Moisture (S/M %): optymalny zakres 4.0–6.0%, wczesne wykrywanie ryzyka goryczki technologicznej ($S/M < 4.0\%$) oraz zahamowania dojrzewania ($S/M > 6.0\%$).
+28. **Hotel SCOBY & Matecznik Kultur Żywych (`src/core/culture-hotel-engine.ts`):**
+    - Bezpieczna rezerwa starterowa dla: Hotelu SCOBY, Matki Octowej (*Mycoderma aceti*), ziaren kefiru mlecznego, kryształów wodnych (Tibicos) i serwatki matecznej.
+    - Automatyczne wyliczanie interwałów karmienia, dawki słodkiej herbaty/etanolu, alarmy głodowe, monitoring bariery antypleśniowej ($pH \le 3.20$) oraz detekcja konieczności usunięcia osadu drożdżowego (trub purge $> 2\text{ cm}$).
+29. **Zaawansowany Kalkulator Kosztów Partii & Affinage ROI (`src/core/batch-cost-engine.ts`):**
+    - Pełny bilans ekonomiczny: surowce bazowe (mleko/warzywa/woda), dodatki (podpuszczka, kultury, sól, wosk), energia dogrzewania gęstwy serowarskiej oraz prąd chłodziarek piwnicznych/witryn (kWh $\times$ taryfa).
+    - Wyliczanie kosztu partii, kosztu 1 kg i porcji 100g, porównanie z cenami ekologicznych delikatesów rzemieślniczych i prezentacja kwoty zaoszczędzonej w PLN (często 70–85% taniej niż w sklepie).
 
 ---
 
@@ -113,7 +123,7 @@ npm run typecheck
 # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
 npm run check:i18n
 
-# 3. Wykonanie 30 pakietów testowych Jest
+# 3. Wykonanie 33 pakietów testowych Jest
 npm test
 
 # 4. Uruchomienie całościowej bramki
@@ -121,10 +131,10 @@ npm run verify
 ```
 
 Stan testów na dzień 16.10.2026:
-- **30 test suites PASS** (100%)
-- **138 unit & integration tests PASS** (100%)
-- **469 tekstów UI w kodzie przetłumaczonych na PL i EN (520 w słowniku EN, 100% parytet)**
-- **BRD: 88.2 stron znormalizowanych (158,813 znaków ze spacjami, 25 modularnych rozdziałów)**
+- **33 test suites PASS** (100%)
+- **154 unit & integration tests PASS** (100%)
+- **500 tekstów UI w kodzie przetłumaczonych na PL i EN (554 w słowniku EN, 100% parytet)**
+- **BRD: 91.3 stron znormalizowanych (164,341 znaków ze spacjami, 25 modularnych rozdziałów)**
 
 ---
 

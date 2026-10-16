@@ -95,6 +95,8 @@ import {
 import { calculateFermentationQ10 } from '../../src/core/fermentation-q10';
 import { calculateCrockHeadspace } from '../../src/core/crock-headspace';
 import { analyzeRefractometerBrix } from '../../src/core/refractometer-alcohol';
+import { calculateCheeseComposition } from '../../src/core/cheese-composition-engine';
+import { analyzeCultureHotel, LiveCultureType } from '../../src/core/culture-hotel-engine';
 
 export default function CalculatorScreen() {
   const {
@@ -190,6 +192,18 @@ export default function CalculatorScreen() {
   // --- OPTICAL REFRACTOMETER ALCOHOL STATE ---
   const [originalBrixInput, setOriginalBrixInput] = useState<number>(12);
   const [currentBrixInput, setCurrentBrixInput] = useState<number>(5.5);
+
+  // --- CHEESE COMPOSITION (CODEX ALIMENTARIUS) ---
+  const [cheeseMoisturePct, setCheeseMoisturePct] = useState<number>(42.0);
+  const [cheeseFatPct, setCheeseFatPct] = useState<number>(28.0);
+  const [cheeseSaltPct, setCheeseSaltPct] = useState<number>(2.0);
+
+  // --- LIVE CULTURE HOTEL & MOTHER COLONY ---
+  const [hotelCultureType, setHotelCultureType] = useState<LiveCultureType>('KOMBUCHA_SCOBY_HOTEL');
+  const [hotelDaysSinceFed, setHotelDaysSinceFed] = useState<number>(14);
+  const [hotelVolumeMl, setHotelVolumeMl] = useState<number>(2000);
+  const [hotelSludgeDepthCm, setHotelSludgeDepthCm] = useState<number>(0.8);
+  const [hotelPh, setHotelPh] = useState<number>(2.8);
 
   // Active Flocculation Timer
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
@@ -433,6 +447,35 @@ export default function CalculatorScreen() {
         originalBrix: originalBrixInput,
         currentBrix: currentBrixInput,
         purpose: craftMode === 'beverage' ? 'KOMBUCHA' : 'VINEGAR_CIDER',
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const cheeseCompositionCalc = (() => {
+    try {
+      return calculateCheeseComposition({
+        moisturePercentage: cheeseMoisturePct,
+        fatPercentage: cheeseFatPct,
+        saltPercentage: cheeseSaltPct,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const cultureHotelCalc = (() => {
+    try {
+      const now = Date.now();
+      return analyzeCultureHotel({
+        cultureType: hotelCultureType,
+        lastFedTimestamp: now - hotelDaysSinceFed * 24 * 60 * 60 * 1000,
+        nowTimestamp: now,
+        currentTempC: ambientTempC,
+        measuredPh: hotelPh,
+        currentLiquidVolumeMl: hotelVolumeMl,
+        yeastSludgeDepthCm: hotelSludgeDepthCm,
       });
     } catch {
       return null;
@@ -1395,6 +1438,67 @@ export default function CalculatorScreen() {
                     </View>
                   )}
                 </View>
+
+                {/* 10. Codex Alimentarius Composition & S/M Ratio */}
+                {cheeseCompositionCalc && (
+                  <View style={[styles.proCard, cheeseCompositionCalc.smStatus !== 'OPTIMAL_BALANCED' && styles.cardDanger]}>
+                    <Text style={styles.proCardTitle}>⚖️ {t('Skład Biochemiczny & Klasyfikacja Codex Alimentarius')}</Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Standard CODEX STAN 283-1978: MFFB, FDM oraz relacja Salt-in-Moisture (S/M)')}
+                    </Text>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Szacowana wilgotność sera (%):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(cheeseMoisturePct)}
+                        onChangeText={(v) => setCheeseMoisturePct(parseFloat(v) || 1)}
+                      />
+                    </View>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Zawartość tłuszczu w serze (%):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(cheeseFatPct)}
+                        onChangeText={(v) => setCheeseFatPct(parseFloat(v) || 0)}
+                      />
+                    </View>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Stężenie soli w serze (%):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(cheeseSaltPct)}
+                        onChangeText={(v) => setCheeseSaltPct(parseFloat(v) || 0)}
+                      />
+                    </View>
+                    <View style={styles.brineResultBox}>
+                      <Text style={styles.brineText}>
+                        • {t('MFFB (woda w masie beztłuszczowej):')}{' '}
+                        <Text style={styles.boldText}>{cheeseCompositionCalc.mffbPercentage}%</Text> → {cheeseCompositionCalc.firmnessLabelPl}
+                      </Text>
+                      <Text style={styles.brineText}>
+                        • {t('FDM (tłuszcz w suchej masie):')}{' '}
+                        <Text style={styles.boldText}>{cheeseCompositionCalc.fdmPercentage}%</Text> → {cheeseCompositionCalc.fatLabelPl}
+                      </Text>
+                      <Text style={styles.brineText}>
+                        • {t('Salt-in-Moisture (S/M):')}{' '}
+                        <Text style={styles.boldText}>{cheeseCompositionCalc.saltInMoisturePercentage}%</Text> ({cheeseCompositionCalc.dryMatterPercentage}% {t('suchej masy')})
+                      </Text>
+                      <Text style={[
+                        styles.safetyStatus,
+                        cheeseCompositionCalc.smStatus !== 'OPTIMAL_BALANCED' && styles.safetyDanger,
+                        { marginTop: 4 }
+                      ]}>
+                        {cheeseCompositionCalc.smMessagePl}
+                      </Text>
+                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                        💡 {cheeseCompositionCalc.recommendations[0]}
+                      </Text>
+                    </View>
+                  </View>
+                )}
               </View>
             )}
           </View>
@@ -1916,6 +2020,92 @@ export default function CalculatorScreen() {
                       ]}>
                         {refractometerAlcoholCalc.recommendation}
                       </Text>
+                    </View>
+                  </View>
+                )}
+
+                {/* Live Culture Hotel & Mother Colony Preservation */}
+                {cultureHotelCalc && (
+                  <View style={[styles.proCard, (cultureHotelCalc.healthStatus === 'STARVATION_RISK' || cultureHotelCalc.isMoldHazard) && styles.cardDanger]}>
+                    <Text style={styles.proCardTitle}>🏨 {t('Hotel SCOBY & Matecznik Kultur Żywych')}</Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Zarządzanie rezerwą starterową, dokarmianiem i zabezpieczeniem przed pleśnią')}
+                    </Text>
+
+                    {/* Culture Type Pills */}
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {[
+                        { id: 'KOMBUCHA_SCOBY_HOTEL' as const, label: t('Hotel SCOBY') },
+                        { id: 'VINEGAR_MOTHER' as const, label: t('Matka Octowa') },
+                        { id: 'MILK_KEFIR_GRAINS' as const, label: t('Kefir Mleczny') },
+                        { id: 'WATER_KEFIR_TIBICOS' as const, label: t('Kefir Wodny (Tibicos)') },
+                        { id: 'WHEY_STARTER_LEVAIN' as const, label: t('Serwatka Mateczna') },
+                      ].map((cult) => (
+                        <TouchableOpacity
+                          key={cult.id}
+                          style={[styles.presetPill, hotelCultureType === cult.id && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setHotelCultureType(cult.id);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, hotelCultureType === cult.id && styles.presetPillTextActive]}>
+                            {cult.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Dni od ostatniego zasilenia:')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(hotelDaysSinceFed)}
+                        onChangeText={(v) => setHotelDaysSinceFed(parseFloat(v) || 0)}
+                      />
+                    </View>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Objętość płynu w słoiku (ml):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(hotelVolumeMl)}
+                        onChangeText={(v) => setHotelVolumeMl(parseFloat(v) || 100)}
+                      />
+                    </View>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Osad drożdżowy na dnie (cm):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(hotelSludgeDepthCm)}
+                        onChangeText={(v) => setHotelSludgeDepthCm(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.safetyBox}>
+                      <Text style={[
+                        styles.safetyStatus,
+                        cultureHotelCalc.healthStatus === 'STARVATION_RISK' || cultureHotelCalc.isMoldHazard
+                          ? styles.safetyDanger
+                          : cultureHotelCalc.healthStatus === 'DUE_FOR_FEEDING'
+                          ? { color: '#B45309' }
+                          : { color: '#15803D' }
+                      ]}>
+                        • {t('Stan kolonii:')} {cultureHotelCalc.statusLabelPl}
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Planowane zasilenie:')} {cultureHotelCalc.feedingSchedule.feedLiquidVolumeMl} ml {t('płynu')} ({cultureHotelCalc.feedingSchedule.feedSugarGrams}g {t('cukru')})
+                      </Text>
+                      <Text style={styles.recipeDetailText}>
+                        💡 {cultureHotelCalc.feedingSchedule.recommendedFeedingRatioPl}
+                      </Text>
+                      {cultureHotelCalc.actionAlerts.map((alert, idx) => (
+                        <Text key={idx} style={[styles.safetyStatus, styles.safetyDanger, { marginTop: 4 }]}>
+                          ⚠️ {alert}
+                        </Text>
+                      ))}
                     </View>
                   </View>
                 )}

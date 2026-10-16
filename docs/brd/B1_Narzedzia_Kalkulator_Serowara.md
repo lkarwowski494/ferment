@@ -102,3 +102,31 @@
   2. Automatyczne rekomendowanie optymalnej formy na podstawie zadanej objętości mleka i spodziewanego plonu.
 * **Persona:** P1, P2, P5, P6.
 * **Priorytet:** MUST | **Etap:** MVP.
+
+---
+
+### **BR-SER-040: Skład Biochemiczny i Klasyfikacja Codex Alimentarius (MFFB, FDM, S/M Ratio)**
+* **Opis:** Silnik analityczny klasyfikujący ser według międzynarodowego standardu CODEX STAN 283-1978 oraz monitorujący krytyczną równowagę soli w fazie wodnej (`cheese-composition-engine.ts`).
+* **Wzory chemiczne i biochemiczne:**
+  1. **MFFB (Moisture on a Fat-Free Basis %):**
+     $$MFFB = \frac{\% \text{Moisture}}{100\% - \% \text{Fat}} \times 100\%$$
+     * `< 51.0%`: `EXTRA_HARD` (Parmezan, Grana Padano, Sbrinz)
+     * `51.0% - 56.0%`: `HARD` (Cheddar, Dojrzała Gouda, Emmentaler)
+     * `56.0% - 63.0%`: `SEMI_HARD` (Młoda Gouda, Edam, Tilsit)
+     * `63.0% - 69.0%`: `SEMI_SOFT` (Ser Koryciński, Havarti, Butterkäse)
+     * `> 69.0%`: `SOFT` (Feta, Camembert, Twaróg, Ricotta)
+  2. **FDM (Fat in Dry Matter %):**
+     $$FDM = \frac{\% \text{Fat}}{100\% - \% \text{Moisture}} \times 100\%$$
+     * `HIGH_FAT` ($\ge 60\%$), `FULL_FAT` ($45–60\%$), `MEDIUM_FAT` ($25–45\%$), `LOW_FAT` ($10–25\%$), `SKIM` ($<10\%$)
+  3. **Salt-in-Moisture (S/M %):**
+     $$S/M = \frac{\% \text{Salt}}{\% \text{Moisture}} \times 100\%$$
+     * `S/M < 4.0% (UNDER_SALTED_ACIDIC)`: Nadmierna aktywność bakterii starterowych i chymozyny; akumulacja gorzkich hydrofobowych peptydów (wada technologiczna goryczki).
+     * `S/M = 4.0% - 6.0% (OPTIMAL_BALANCED)`: Idealna proteoliza i rozwój bukietu aromatycznego podczas affinage.
+     * `S/M > 6.0% (OVER_SALTED_INHIBITED)`: Zahamowanie enzymów proteolitycznych, zatrzymanie dojrzewania, krucha sucha struktura.
+* **Kryteria akceptacji:**
+  1. Automatyczne obliczanie suchej masy, wskaźnika MFFB, FDM i relacji S/M.
+  2. Prezentacja oficjalnych klas konsystencji i tłuszczowości z opisem handlowym.
+  3. Alerty biochemiczne i rekomendacje technologiczne dotyczące czasu solenia.
+* **Persona:** P1, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+

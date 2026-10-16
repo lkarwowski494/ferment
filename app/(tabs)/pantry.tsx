@@ -29,6 +29,7 @@ import {
   convertCacl2Forms,
   RennetSubstitutionResult,
 } from '../../src/core/ingredient-substitutions';
+import { calculateBatchCost, ProductionCraftType } from '../../src/core/batch-cost-engine';
 
 export default function PantryScreen() {
   const {
@@ -49,10 +50,12 @@ export default function PantryScreen() {
   const [newItemUnit, setNewItemUnit] = useState('L');
   const [newItemCost, setNewItemCost] = useState('3.50');
 
-  // Yield calculator inputs
+  // Yield & Cost calculator inputs
   const [calcMilkLiters, setCalcMilkLiters] = useState<number>(20);
   const [calcCheeseKg, setCalcCheeseKg] = useState<number>(2.1);
   const [calcBatchCost, setCalcBatchCost] = useState<number>(75);
+  const [costCraftType, setCostCraftType] = useState<ProductionCraftType>('CHEESE');
+  const [costAgingDays, setCostAgingDays] = useState<number>(60);
 
   // Ingredient Substitutions State
   const [substMilkLiters, setSubstMilkLiters] = useState<number>(10);
@@ -73,6 +76,19 @@ export default function PantryScreen() {
   const rennetSubstCalc = convertRennetForm(substMilkLiters, substRennetType);
   const cultureSubstCalc = getCultureNaturalSubstitute(substMilkLiters, substCultureType);
   const cacl2SubstCalc = convertCacl2Forms(substMilkLiters);
+
+  const fullBatchCostCalc = (() => {
+    try {
+      return calculateBatchCost({
+        craftType: costCraftType,
+        baseVolumeOrWeight: Math.max(0.1, calcMilkLiters),
+        expectedFinishedKgOrLiters: Math.max(0.1, calcCheeseKg),
+        agingDays: costCraftType === 'CHEESE' ? costAgingDays : 0,
+      });
+    } catch {
+      return null;
+    }
+  })();
 
   const handleSaveNewItem = () => {
     requireActionAccess(async () => {
@@ -374,9 +390,47 @@ export default function PantryScreen() {
 
         {/* Yield & Economics Calculator */}
         <View style={styles.yieldCard}>
-          <Text style={styles.yieldTitle}>🧀 {t('Kalkulator Wydajności i Kosztu Sera')}</Text>
+          <Text style={styles.yieldTitle}>💰 {t('Kalkulator Kosztów Partii & Oszczędności Domowych')}</Text>
+          <Text style={styles.headerSub}>
+            {t('Analiza kosztów surowca, energii grzewczej, chłodzenia piwniczki i zysku vs rynek rzemieślniczy')}
+          </Text>
+
+          {/* Craft Mode Picker */}
+          <View style={[styles.categoryPickerRow, { marginTop: 10, marginBottom: 10 }]}>
+            {[
+              { id: 'CHEESE' as const, label: '🧀 ' + t('Ser') },
+              { id: 'VEG_FERMENT' as const, label: '🥬 ' + t('Kiszonki') },
+              { id: 'KOMBUCHA' as const, label: '🫖 ' + t('Kombucha') },
+            ].map((cm) => (
+              <TouchableOpacity
+                key={cm.id}
+                style={[styles.catPill, costCraftType === cm.id && styles.catPillActive]}
+                onPress={() => {
+                  triggerHapticFeedback();
+                  setCostCraftType(cm.id);
+                  if (cm.id === 'CHEESE') {
+                    setCalcMilkLiters(20);
+                    setCalcCheeseKg(2.1);
+                  } else if (cm.id === 'VEG_FERMENT') {
+                    setCalcMilkLiters(5);
+                    setCalcCheeseKg(4.8);
+                  } else {
+                    setCalcMilkLiters(6);
+                    setCalcCheeseKg(5.5);
+                  }
+                }}
+              >
+                <Text style={[styles.catPillText, costCraftType === cm.id && styles.catPillTextActive]}>
+                  {cm.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
           <View style={styles.rowBetween}>
-            <Text style={styles.yieldLabel}>{t('Mleko (L):')}</Text>
+            <Text style={styles.yieldLabel}>
+              {costCraftType === 'CHEESE' ? t('Mleko (L):') : costCraftType === 'VEG_FERMENT' ? t('Masa warzyw (kg):') : t('Woda (L):')}
+            </Text>
             <TextInput
               style={styles.yieldInput}
               keyboardType="numeric"
@@ -385,7 +439,9 @@ export default function PantryScreen() {
             />
           </View>
           <View style={styles.rowBetween}>
-            <Text style={styles.yieldLabel}>{t('Uzyskany ser (kg):')}</Text>
+            <Text style={styles.yieldLabel}>
+              {costCraftType === 'KOMBUCHA' ? t('Gotowy napój (L):') : t('Uzyskany wyrób gotowy (kg):')}
+            </Text>
             <TextInput
               style={styles.yieldInput}
               keyboardType="numeric"
@@ -393,22 +449,34 @@ export default function PantryScreen() {
               onChangeText={(v) => setCalcCheeseKg(parseFloat(v) || 0)}
             />
           </View>
-          <View style={styles.rowBetween}>
-            <Text style={styles.yieldLabel}>{t('Całkowity koszt składników (PLN):')}</Text>
-            <TextInput
-              style={styles.yieldInput}
-              keyboardType="numeric"
-              value={String(calcBatchCost)}
-              onChangeText={(v) => setCalcBatchCost(parseFloat(v) || 0)}
-            />
-          </View>
+          {costCraftType === 'CHEESE' && (
+            <View style={styles.rowBetween}>
+              <Text style={styles.yieldLabel}>{t('Dni dojrzewania w piwniczce:')}</Text>
+              <TextInput
+                style={styles.yieldInput}
+                keyboardType="numeric"
+                value={String(costAgingDays)}
+                onChangeText={(v) => setCostAgingDays(parseInt(v, 10) || 0)}
+              />
+            </View>
+          )}
 
-          <View style={styles.yieldResultBox}>
-            <Text style={styles.yieldResultHighlight}>
-              {t('Wydajność:')} {yieldCalc.yieldPercentage}% | {yieldCalc.costPerKgOrLiter.toFixed(2)} PLN / kg
-            </Text>
-            <Text style={styles.yieldComment}>{yieldCalc.comment}</Text>
-          </View>
+          {fullBatchCostCalc && (
+            <View style={styles.yieldResultBox}>
+              <Text style={styles.yieldResultHighlight}>
+                {t('Koszt całkowity:')} {fullBatchCostCalc.totalBatchCost.toFixed(2)} PLN | {fullBatchCostCalc.costPerKgOrLiter.toFixed(2)} PLN / {costCraftType === 'KOMBUCHA' ? 'L' : 'kg'}
+              </Text>
+              <Text style={[styles.substResultLine, { marginTop: 6 }]}>
+                • {t('Surowce i dodatki:')} <Text style={styles.boldText}>{fullBatchCostCalc.ingredientsTotalCost.toFixed(2)} PLN</Text> | {t('Energia i chłodzenie:')} <Text style={styles.boldText}>{fullBatchCostCalc.energyTotalCost.toFixed(2)} PLN</Text>
+              </Text>
+              <Text style={[styles.substResultLine, { color: '#15803D', fontWeight: '700' }]}>
+                🎉 {t('Oszczędzasz względem rynku:')} {fullBatchCostCalc.savingsTotalPln.toFixed(2)} PLN ({fullBatchCostCalc.savingsPercentage}%)
+              </Text>
+              <Text style={styles.yieldComment}>
+                {fullBatchCostCalc.financialSummaryPl}
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Ingredient Forms & Substitutions Engine */}
