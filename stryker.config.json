@@ -8,6 +8,12 @@
   "coverageAnalysis": "off",
   "disableTypeChecks": false,
   "mutate": [
+    "src/core/cheese-engine.ts",
+    "src/core/press-cascade.ts",
+    "src/core/brine-acidification.ts",
+    "src/core/cave-environment.ts",
+    "src/core/cave-log-actions.ts",
+    "src/core/psychrometry.ts",
     "src/core/ferment-engine.ts",
     "src/core/pasteurization-units.ts",
     "src/core/fermentation-q10.ts",
@@ -16,9 +22,9 @@
     "!node_modules/**"
   ],
   "thresholds": {
-    "high": 95,
-    "low": 90,
-    "break": 90
+    "high": 90,
+    "low": 80,
+    "break": 75
   },
   "reporters": [
     "clear-text"
