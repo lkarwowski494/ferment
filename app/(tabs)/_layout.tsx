@@ -9,53 +9,44 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: '#78350F',
-        tabBarInactiveTintColor: '#78716C',
+        tabBarActiveTintColor: '#B86D3B',
+        tabBarInactiveTintColor: '#94A3B8',
         tabBarLabelStyle: styles.tabBarLabel,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: t('Kalkulator'),
+          title: t('SEROWAR'),
           tabBarIcon: ({ focused }) => (
             <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>🧀</Text>
           ),
         }}
       />
       <Tabs.Screen
-        name="batches"
+        name="dairy"
         options={{
-          title: t('Partie'),
+          title: t('Nabiał'),
           tabBarIcon: ({ focused }) => (
-            <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>📋</Text>
+            <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>🧈</Text>
           ),
         }}
       />
       <Tabs.Screen
-        name="pantry"
+        name="cave"
+        options={{
+          title: t('Dojrzewalnia'),
+          tabBarIcon: ({ focused }) => (
+            <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>🏔️</Text>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="pantry-knowledge"
         options={{
           title: t('Spiżarnia'),
           tabBarIcon: ({ focused }) => (
             <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>📦</Text>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="school"
-        options={{
-          title: t('Wiedza'),
-          tabBarIcon: ({ focused }) => (
-            <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>🎓</Text>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: t('Ustawienia'),
-          tabBarIcon: ({ focused }) => (
-            <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>⚙️</Text>
           ),
         }}
       />
@@ -65,20 +56,21 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#FAF8F5',
-    borderTopColor: '#E7E5E4',
+    backgroundColor: '#1E2229',
+    borderTopColor: '#374151',
     borderTopWidth: 1,
     height: 64,
     paddingBottom: 8,
     paddingTop: 6,
   },
   tabBarLabel: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   tabIcon: {
-    fontSize: 22,
-    opacity: 0.7,
+    fontSize: 20,
+    opacity: 0.75,
   },
   tabIconActive: {
     opacity: 1.0,
