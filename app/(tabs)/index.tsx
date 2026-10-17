@@ -190,6 +190,13 @@ import { ContinuousBrewCard } from '../../src/components/calculator/ContinuousBr
 import { PasteurizationUnitsCard } from '../../src/components/calculator/PasteurizationUnitsCard';
 import { VinegarStandardizationCard } from '../../src/components/calculator/VinegarStandardizationCard';
 import { KefirGrainsCard } from '../../src/components/calculator/KefirGrainsCard';
+import { CheeseFlocculationAndMoldCard } from '../../src/components/calculator/CheeseFlocculationAndMoldCard';
+import { CheesePressLeverCard } from '../../src/components/calculator/CheesePressLeverCard';
+import { CheeseBrineAndRegenCard } from '../../src/components/calculator/CheeseBrineAndRegenCard';
+import { CheeseCurdCookingAndSaltingCard } from '../../src/components/calculator/CheeseCurdCookingAndSaltingCard';
+import { CheeseWheyRecoveryAndLevainCard } from '../../src/components/calculator/CheeseWheyRecoveryAndLevainCard';
+import { CheeseBiochemAndCoatingCard } from '../../src/components/calculator/CheeseBiochemAndCoatingCard';
+import { CheeseSyneresisKineticsCard } from '../../src/components/calculator/CheeseSyneresisKineticsCard';
 
 
 
@@ -1499,1046 +1506,146 @@ export default function CalculatorScreen() {
 
             {isProExpanded && (
               <View style={styles.proAccordionBody}>
-                {/* 1. Flocculation Berridge Timer */}
-                <View style={styles.proCard}>
-                  <Text style={styles.proCardTitle}>
-                    ⏱️ {t('Punkt Flokulacji (Czas Zestalania Berridge\'a)')}
-                  </Text>
-                  <Text style={styles.proCardDesc}>
-                    {t('Mnożnik K')} = {flocMultiplier}x. {t('Czas flokulacji:')} {Math.floor(flocSecInput / 60)}m {flocSecInput % 60}s.
-                  </Text>
-                  <View style={styles.timerDisplay}>
-                    <Text style={styles.timerDigits}>
-                      {String(Math.floor(timerSeconds / 60)).padStart(2, '0')}:
-                      {String(timerSeconds % 60).padStart(2, '0')}
-                    </Text>
-                    {isTimerRunning ? (
-                      <TouchableOpacity style={styles.timerStopBtn} onPress={handleStopTimer}>
-                        <Text style={styles.timerBtnText}>{t('Zatrzymaj (Flokulacja!)')}</Text>
-                      </TouchableOpacity>
-                    ) : (
-                      <TouchableOpacity style={styles.timerStartBtn} onPress={handleStartTimer}>
-                        <Text style={styles.timerBtnText}>{t('Start Stopera')}</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                  <View style={styles.flocResultBox}>
-                    <Text style={styles.flocResultText}>
-                      {t('Całkowity czas do cięcia:')}{' '}
-                      <Text style={styles.boldText}>{Math.floor(flocCalc.totalCoagulationSeconds / 60)} min</Text>
-                    </Text>
-                    <Text style={styles.flocResultSub}>
-                      {t('Pozostało po zestaleniu:')} {Math.floor(flocCalc.remainingSecondsAfterFloc / 60)} min
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Mold Sizing & Curd Geometry */}
-                <View style={styles.proCard}>
-                  <Text style={styles.proCardTitle}>🧀 {t('Dobór i Geometria Formy Serowarskiej')}</Text>
-                  <Text style={styles.proCardDesc}>
-                    {t('Oczekiwany uzysk:')} <Text style={styles.boldText}>{moldFittingCalc.expectedYieldKg} kg</Text> {t('sera z')} {milkLiters}L {t('mleka')}
-                  </Text>
-                  <Text style={styles.inputLabelMini}>{t('Wybierz formę standardową:')}</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                    {STANDARD_MOLD_TEMPLATES.map((m) => {
-                      const isSel = m.id === selectedMoldTemplateId;
-                      return (
-                        <TouchableOpacity
-                          key={m.id}
-                          style={[styles.presetPill, isSel && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setSelectedMoldTemplateId(m.id);
-                            if (m.diameterCm) setMoldDiamCm(m.diameterCm);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, isSel && styles.presetPillTextActive]}>
-                            {m.name} ({m.targetCheeseWeightKg} kg)
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </ScrollView>
-                  <View style={styles.flocResultBox}>
-                    <Text style={styles.flocResultText}>
-                      • {t('Objętość świeżego skrzepu przed odciekiem:')}{' '}
-                      <Text style={styles.boldText}>{moldFittingCalc.rawCurdVolumeLiters} L</Text>
-                    </Text>
-                    <Text style={styles.flocResultSub}>
-                      • {t('Stopień wypełnienia formy:')} {moldFittingCalc.fillPercentage}% (
-                      {moldFittingCalc.isMoldSufficient ? t('Pojemność wystarczająca') : t('Uwaga: Forma może być za mała!')})
-                    </Text>
-                  </View>
-                </View>
-
-                {/* 2. Pressing Pressure & Dutch Lever */}
-                <View style={styles.proCard}>
-                  <Text style={styles.proCardTitle}>⚖️ {t('Kalkulator Nacisku i Dźwigni Prasy')}</Text>
-                  <View style={styles.typeSelectorRow}>
-                    <TouchableOpacity
-                      style={[styles.typePill, pressMechanism === 'DUTCH_LEVER' && styles.typePillActive]}
-                      onPress={() => {
-                        triggerHapticFeedback();
-                        setPressMechanism('DUTCH_LEVER');
-                      }}
-                    >
-                      <Text style={[styles.typePillText, pressMechanism === 'DUTCH_LEVER' && styles.typePillTextActive]}>
-                        {t('Dźwignia Holenderska (z tarą)')}
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.typePill, pressMechanism === 'DIRECT' && styles.typePillActive]}
-                      onPress={() => {
-                        triggerHapticFeedback();
-                        setPressMechanism('DIRECT');
-                      }}
-                    >
-                      <Text style={[styles.typePillText, pressMechanism === 'DIRECT' && styles.typePillTextActive]}>
-                        {t('Nacisk Bezpośredni / Śruba')}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Średnica formy (cm):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(moldDiamCm)}
-                      onChangeText={(v) => setMoldDiamCm(parseFloat(v) || 1)}
-                    />
-                  </View>
-
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Masa obciążnika (kg):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(pressWeightKg)}
-                      onChangeText={(v) => setPressWeightKg(parseFloat(v) || 0)}
-                    />
-                  </View>
-
-                  {pressMechanism === 'DUTCH_LEVER' && (
-                    <View>
-                      <View style={styles.rowBetween}>
-                        <Text style={styles.inlineLabel}>{t('Długość ramienia (cm):')}</Text>
-                        <TextInput
-                          style={styles.numInput}
-                          keyboardType="numeric"
-                          value={String(armLengthCm)}
-                          onChangeText={(v) => setArmLengthCm(parseFloat(v) || 10)}
-                        />
-                      </View>
-                      <View style={styles.rowBetween}>
-                        <Text style={styles.inlineLabel}>{t('Odległość formy od osi (cm):')}</Text>
-                        <TextInput
-                          style={styles.numInput}
-                          keyboardType="numeric"
-                          value={String(moldDistCm)}
-                          onChangeText={(v) => setMoldDistCm(parseFloat(v) || 5)}
-                        />
-                      </View>
-                      <View style={styles.rowBetween}>
-                        <Text style={styles.inlineLabel}>{t('Masa własna belki (tara kg):')}</Text>
-                        <TextInput
-                          style={styles.numInput}
-                          keyboardType="numeric"
-                          value={String(armWeightKg)}
-                          onChangeText={(v) => setArmWeightKg(parseFloat(v) || 0)}
-                        />
-                      </View>
-                    </View>
-                  )}
-
-                  <View style={styles.pressureResultBox}>
-                    <Text style={styles.pressureValue}>
-                      {pressMechanism === 'DUTCH_LEVER'
-                        ? `${dutchLeverCalc.pressureKgPerCm2.toFixed(3)} kg/cm² (${dutchLeverCalc.pressurePsi.toFixed(2)} PSI)`
-                        : `${pressCalc.pressureKgCm2.toFixed(3)} kg/cm² (${pressCalc.pressurePsi.toFixed(2)} PSI)`}
-                    </Text>
-                    <Text style={styles.pressureSub}>
-                      {pressMechanism === 'DUTCH_LEVER'
-                        ? `${t('Przełożenie:')} ${dutchLeverCalc.mechanicalAdvantageRatio}x | ${t('Tara ramienia:')} +${dutchLeverCalc.tareForceFromArmKg} kg | ${t('Siła łączna:')} ${dutchLeverCalc.totalAppliedForceKg} kg`
-                        : `${t('Powierzchnia:')} ${pressCalc.surfaceAreaCm2.toFixed(1)} cm² | ${t('Siła:')} ${pressCalc.appliedForceKg.toFixed(1)} kg`}
-                    </Text>
-                  </View>
-
-                  {/* 3-Stage Cascaded Pressing Schedule */}
-                  <TouchableOpacity
-                    style={[styles.rowBetween, { marginTop: 10, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#E7E5E4' }]}
-                    onPress={() => {
-                      triggerHapticFeedback();
-                      setIsPressCascadeOpen(!isPressCascadeOpen);
-                    }}
-                  >
-                    <Text style={styles.cardMiniTitle}>📋 {t('Kaskadowy Program Prasowania')}</Text>
-                    <Text style={styles.accordionArrow}>{isPressCascadeOpen ? '▲' : '▼'}</Text>
-                  </TouchableOpacity>
-
-                  {isPressCascadeOpen && (
-                    <View style={{ marginTop: 6, gap: 8 }}>
-                      {pressingCascadeProg.stages.map((st) => (
-                        <View key={st.stageNumber} style={styles.timelineRow}>
-                          <Text style={styles.timelineTime}>{st.durationMinutes} m</Text>
-                          <View style={styles.timelineContent}>
-                            <Text style={styles.timelineName}>{st.name} ({st.targetForceKg} kg / {st.recommendedPressurePsi} PSI)</Text>
-                            <Text style={styles.timelineDesc}>{st.actionInstruction}</Text>
-                          </View>
-                        </View>
-                      ))}
-                      <View style={styles.warningAlert}>
-                        <Text style={styles.warningAlertText}>⚠️ {pressingCascadeProg.rindEntrapmentWarning}</Text>
-                      </View>
-                    </View>
-                  )}
-                </View>
-
-                {/* 3. Saturated Brine Buffer & Acidification */}
-                <View style={styles.proCard}>
-                  <Text style={styles.proCardTitle}>🧂 {t('Zbuforowana Solanka Serowarska')}</Text>
-                  <Text style={styles.proCardDesc}>
-                    {t('Woda:')} {brineWaterLiters}L | {t('Stężenie:')} {brineSalinityPct}% NaCl
-                  </Text>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('pH wody kranowej:')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(brineWaterPh)}
-                      onChangeText={(v) => setBrineWaterPh(parseFloat(v) || 7.0)}
-                    />
-                  </View>
-                  <View style={styles.brineResultBox}>
-                    <Text style={styles.brineText}>
-                      • {t('Ilość soli:')} <Text style={styles.boldText}>{brineAcidCalc.saltKg} kg</Text>
-                    </Text>
-                    <Text style={styles.brineText}>
-                      • {t('Wymagany CaCl2 (2 g/L):')} <Text style={styles.boldText}>{brineAcidCalc.cacl2GramsNeeded}g</Text> ({t('zapobiega mięknięciu skórki')})
-                    </Text>
-                    <Text style={styles.brineText}>
-                      • {t('Kwas mlekowy 80% (do pH 5.20):')} <Text style={styles.boldText}>{brineAcidCalc.lacticAcidMlNeeded} {t('ml kwasu')}</Text>
-                    </Text>
-                    <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                      💡 {brineAcidCalc.equilibriumExplanation}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* 4. Case Hardening Guard */}
-                <View style={[styles.proCard, cookingRampCalc.isTooFast && styles.cardDanger]}>
-                  <Text style={styles.proCardTitle}>🔥 {t('Dogrzewanie Gęstwy & Case Hardening Guard')}</Text>
-                  <Text style={styles.proCardDesc}>
-                    {t('Z')} {cookStartTemp}°C {t('do')} {cookEndTemp}°C {t('w')} {cookDurationMin} min
-                  </Text>
-                  {cookingRampCalc.warning ? (
-                    <View style={styles.warningAlert}>
-                      <Text style={styles.warningAlertText}>⚠️ {cookingRampCalc.warning}</Text>
-                    </View>
-                  ) : (
-                    <Text style={styles.safeStatusText}>
-                      ✅ {t('Tempo dogrzewania bezpieczne (min. 2 min / 1°C).')}
-                    </Text>
-                  )}
-                </View>
-
-                {/* 5. Brine Salinity Boost & Regeneration */}
-                <View style={styles.proCard}>
-                  <Text style={styles.proCardTitle}>🧂 {t('Regeneracja i Wzmocnienie Stężenia Solanki')}</Text>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Aktualne stężenie solanki (%):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(currentBrineSalinity)}
-                      onChangeText={(v) => setCurrentBrineSalinity(parseFloat(v) || 0)}
-                    />
-                  </View>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Docelowe stężenie solanki (%):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(targetBrineSalinity)}
-                      onChangeText={(v) => setTargetBrineSalinity(parseFloat(v) || 0)}
-                    />
-                  </View>
-                  <View style={styles.brineResultBox}>
-                    <Text style={styles.brineText}>
-                      • {t('Sól do dosypania w celu przywrócenia stężenia:')}{' '}
-                      <Text style={styles.boldText}>{brineBoostCalc.saltGramsToAdd} g</Text>
-                    </Text>
-                    <Text style={styles.recipeDetailText}>
-                      {t('Rozpuść sól bezpośrednio w solance bez wylewania roztworu.')}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* 6. Whey Zero-Waste & Ricotta Recovery */}
-                <View style={styles.proCard}>
-                  <Text style={styles.proCardTitle}>♻️ {t('Odzysk Serwatki & Zero-Waste (Ricotta / Izotonik)')}</Text>
-                  <Text style={styles.proCardDesc}>
-                    {t('Dostępna serwatka słodka:')} <Text style={styles.boldText}>{sweetWheyLiters.toFixed(1)} L</Text>
-                  </Text>
-                  <Text style={styles.inputLabelMini}>{t('Dodatek pełnego mleka (wzmocnienie uzysku):')}</Text>
-                  <View style={styles.typeSelectorRow}>
-                    {[
-                      { boost: 0, label: t('Brak (czysta serwatka)') },
-                      { boost: 1, label: '+1 L (+10%)' },
-                      { boost: 2, label: '+2 L (+20%)' },
-                    ].map((opt) => (
-                      <TouchableOpacity
-                        key={opt.boost}
-                        style={[styles.typePill, wheyMilkBoostLiters === opt.boost && styles.typePillActive]}
-                        onPress={() => {
-                          triggerHapticFeedback();
-                          setWheyMilkBoostLiters(opt.boost);
-                        }}
-                      >
-                        <Text style={[styles.typePillText, wheyMilkBoostLiters === opt.boost && styles.typePillTextActive]}>
-                          {opt.label}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                  <View style={styles.brineResultBox}>
-                    <Text style={styles.brineText}>
-                      • {t('Przewidywany uzysk słodkiej Ricotty:')}{' '}
-                      <Text style={styles.boldText}>{ricottaCalc.estimatedRicottaYieldGrams} g</Text>
-                    </Text>
-                    <Text style={styles.brineText}>
-                      • {t('Dawka kwasu cytrynowego:')}{' '}
-                      <Text style={styles.boldText}>{ricottaCalc.citricAcidGramsNeeded} g</Text>
-                    </Text>
-                    <Text style={styles.brineText}>
-                      • {t('Docelowa temperatura koagulacji serwatki:')}{' '}
-                      <Text style={styles.boldText}>{ricottaCalc.heatingTargetTempC}°C</Text>
-                    </Text>
-                    <Text style={styles.brineText}>
-                      • {t('Napój izotoniczny z serwatki (Rivella):')}{' '}
-                      <Text style={styles.boldText}>{(wheyDrinkCalc.wheyLiters + wheyDrinkCalc.waterDilutionMl / 1000).toFixed(1)} L</Text> ({t('z dodatkiem soku jabłkowego 1:1')})
-                    </Text>
-                  </View>
-                </View>
-
-                {/* 7. Curd Washing / Delactosing */}
-                <View style={styles.proCard}>
-                  <Text style={styles.proCardTitle}>💧 {t('Przemywanie Ziarna & Odlaktozowanie (Gouda/Edam)')}</Text>
-                  <Text style={styles.proCardDesc}>
-                    {t('Obniżanie kwasowości i regulacja elastyczności miąższu dolewaniem gorącej wody')}
-                  </Text>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Odlana serwatka (L):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(washWheyDrainedLiters)}
-                      onChangeText={(v) => setWashWheyDrainedLiters(parseFloat(v) || 0)}
-                    />
-                  </View>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Temp. dolewanej wody (°C):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(washHotWaterTempC)}
-                      onChangeText={(v) => setWashHotWaterTempC(parseFloat(v) || 50)}
-                    />
-                  </View>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Docelowa temp. gęstwy (°C):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(washTargetTempC)}
-                      onChangeText={(v) => setWashTargetTempC(parseFloat(v) || 36)}
-                    />
-                  </View>
-                  {curdWashCalc && (
-                    <View style={styles.brineResultBox}>
-                      <Text style={styles.brineText}>
-                        • {t('Wymagana objętość gorącej wody:')}{' '}
-                        <Text style={styles.boldText}>{curdWashCalc.waterVolumeLiters} L</Text>
-                      </Text>
-                      <Text style={styles.brineText}>
-                        • {t('Stopień odlaktozowania wsadu:')}{' '}
-                        <Text style={styles.boldText}>{curdWashCalc.delactosingRatioPct}%</Text>
-                      </Text>
-                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                        💡 {curdWashCalc.techniqueRecommendation}
-                      </Text>
-                      {curdWashCalc.warnings.map((w, idx) => (
-                        <View key={idx} style={[styles.warningAlert, { marginTop: 6 }]}>
-                          <Text style={styles.warningAlertText}>⚠️ {w}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  )}
-                </View>
-
-                {/* 8. Cheddar Curd Milling & Dry Salting */}
-                <View style={styles.proCard}>
-                  <Text style={styles.proCardTitle}>🧂 {t('Solenie Ziarna w Masie (Milling Cheddara)')}</Text>
-                  <Text style={styles.proCardDesc}>
-                    {t('Precyzyjne solenie na sucho z uwzględnieniem odcieku pod prasą')}
-                  </Text>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Masa pociętego ziarna (g):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(cheddarCurdGrams)}
-                      onChangeText={(v) => setCheddarCurdGrams(parseFloat(v) || 0)}
-                    />
-                  </View>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Docelowa słoność sera (%):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(cheddarTargetSalinityPct)}
-                      onChangeText={(v) => setCheddarTargetSalinityPct(parseFloat(v) || 0)}
-                    />
-                  </View>
-                  {cheddarSaltingCalc && (
-                    <View style={styles.brineResultBox}>
-                      <Text style={styles.brineText}>
-                        • {t('Całkowita sól do zadania na sucho:')}{' '}
-                        <Text style={styles.boldText}>{cheddarSaltingCalc.totalSaltToApplyGrams} g</Text> ({t('w tym sól związana:')} {cheddarSaltingCalc.netSaltRetainedGrams}g)
-                      </Text>
-                      <View style={{ marginTop: 6 }}>
-                        {cheddarSaltingCalc.additions.map((step) => (
-                          <Text key={step.step} style={[styles.brineText, { fontSize: 13, marginBottom: 3 }]}>
-                            {step.step}. <Text style={styles.boldText}>{step.grams} g</Text> — {step.instruction}
-                          </Text>
-                        ))}
-                      </View>
-                    </View>
-                  )}
-                </View>
-
-                {/* 9. Cheese Wheel Coating & Wax Calculator */}
-                <View style={styles.proCard}>
-                  <Text style={styles.proCardTitle}>🛡️ {t('Woskowanie & Powłoki Ochronne Krążka')}</Text>
-                  <Text style={styles.proCardDesc}>
-                    {t('Obliczanie powierzchni krążka i zapotrzebowania na wosk serowarski lub polioctan')}
-                  </Text>
-                  <View style={styles.typeSelectorRow}>
-                    <TouchableOpacity
-                      style={[styles.typePill, coatingType === 'CHEESE_WAX' && styles.typePillActive]}
-                      onPress={() => {
-                        triggerHapticFeedback();
-                        setCoatingType('CHEESE_WAX');
-                      }}
-                    >
-                      <Text style={[styles.typePillText, coatingType === 'CHEESE_WAX' && styles.typePillTextActive]}>
-                        🧀 {t('Wosk Serowarski')}
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.typePill, coatingType === 'POLYVINYL_BREATHABLE' && styles.typePillActive]}
-                      onPress={() => {
-                        triggerHapticFeedback();
-                        setCoatingType('POLYVINYL_BREATHABLE');
-                      }}
-                    >
-                      <Text style={[styles.typePillText, coatingType === 'POLYVINYL_BREATHABLE' && styles.typePillTextActive]}>
-                        🛡️ {t('Powłoka Polioctanowa')}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Wysokość krążka (cm):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(coatingWheelHeightCm)}
-                      onChangeText={(v) => setCoatingWheelHeightCm(parseFloat(v) || 1)}
-                    />
-                  </View>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Liczba warstw (1-3):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(coatingLayers)}
-                      onChangeText={(v) => setCoatingLayers(parseInt(v, 10) || 1)}
-                    />
-                  </View>
-                  {wheelCoatingCalc && (
-                    <View style={styles.brineResultBox}>
-                      <Text style={styles.brineText}>
-                        • {t('Powierzchnia całkowita krążka:')}{' '}
-                        <Text style={styles.boldText}>{wheelCoatingCalc.surfaceAreaCm2} cm²</Text>
-                      </Text>
-                      <Text style={styles.brineText}>
-                        • {t('Zapotrzebowanie na wosk/powłokę:')}{' '}
-                        <Text style={styles.boldText}>{wheelCoatingCalc.totalGramsNeeded} g</Text> ({coatingLayers} {t('warstwy')})
-                      </Text>
-                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                        💡 {wheelCoatingCalc.recommendation}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-
-                {/* 10. Codex Alimentarius Composition & S/M Ratio */}
-                {cheeseCompositionCalc && (
-                  <View style={[styles.proCard, cheeseCompositionCalc.smStatus !== 'OPTIMAL_BALANCED' && styles.cardDanger]}>
-                    <Text style={styles.proCardTitle}>⚖️ {t('Skład Biochemiczny & Klasyfikacja Codex Alimentarius')}</Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Standard CODEX STAN 283-1978: MFFB, FDM oraz relacja Salt-in-Moisture (S/M)')}
-                    </Text>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Szacowana wilgotność sera (%):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(cheeseMoisturePct)}
-                        onChangeText={(v) => setCheeseMoisturePct(parseFloat(v) || 1)}
-                      />
-                    </View>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Zawartość tłuszczu w serze (%):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(cheeseFatPct)}
-                        onChangeText={(v) => setCheeseFatPct(parseFloat(v) || 0)}
-                      />
-                    </View>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Stężenie soli w serze (%):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(cheeseSaltPct)}
-                        onChangeText={(v) => setCheeseSaltPct(parseFloat(v) || 0)}
-                      />
-                    </View>
-                    <View style={styles.brineResultBox}>
-                      <Text style={styles.brineText}>
-                        • {t('MFFB (woda w masie beztłuszczowej):')}{' '}
-                        <Text style={styles.boldText}>{cheeseCompositionCalc.mffbPercentage}%</Text> → {cheeseCompositionCalc.firmnessLabelPl}
-                      </Text>
-                      <Text style={styles.brineText}>
-                        • {t('FDM (tłuszcz w suchej masie):')}{' '}
-                        <Text style={styles.boldText}>{cheeseCompositionCalc.fdmPercentage}%</Text> → {cheeseCompositionCalc.fatLabelPl}
-                      </Text>
-                      <Text style={styles.brineText}>
-                        • {t('Salt-in-Moisture (S/M):')}{' '}
-                        <Text style={styles.boldText}>{cheeseCompositionCalc.saltInMoisturePercentage}%</Text> ({cheeseCompositionCalc.dryMatterPercentage}% {t('suchej masy')})
-                      </Text>
-                      <Text style={[
-                        styles.safetyStatus,
-                        cheeseCompositionCalc.smStatus !== 'OPTIMAL_BALANCED' && styles.safetyDanger,
-                        { marginTop: 4 }
-                      ]}>
-                        {cheeseCompositionCalc.smMessagePl}
-                      </Text>
-                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                        💡 {cheeseCompositionCalc.recommendations[0]}
-                      </Text>
-                    </View>
-                  </View>
-                )}
-
-                {/* 11. Salt Diffusion & Brining Penetration Time (Fick's Second Law) */}
-                {brineDiffusionCalc && (
-                  <View style={styles.proCard}>
-                    <Text style={styles.proCardTitle}>🧂 {t('Dyfuzja Soli & Czas Solankowania (Prawo Ficka)')}</Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Nieustalona dyfuzja NaCl w głąb kazeiny, penetracja rdzenia krążka i zapobieganie przesoleniu')}
-                    </Text>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Masa krążka sera (kg):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(diffWheelWeightKg)}
-                        onChangeText={(v) => setDiffWheelWeightKg(parseFloat(v) || 0.1)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Średnica krążka (cm):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(diffDiameterCm)}
-                        onChangeText={(v) => setDiffDiameterCm(parseFloat(v) || 1)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Wysokość krążka (cm):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(diffHeightCm)}
-                        onChangeText={(v) => setDiffHeightCm(parseFloat(v) || 1)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Zasolenie solanki (%):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(diffBrineSalinityPct)}
-                        onChangeText={(v) => setDiffBrineSalinityPct(parseFloat(v) || 10)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Temperatura solanki (°C):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(diffBrineTempC)}
-                        onChangeText={(v) => setDiffBrineTempC(parseFloat(v) || 5)}
-                      />
-                    </View>
-
-                    <View style={styles.brineResultBox}>
-                      <Text style={styles.brineText}>
-                        • {t('Optymalny czas w solance:')}{' '}
-                        <Text style={styles.boldText}>{brineDiffusionCalc.recommendedBriningHours} {t('godz.')}</Text> ({brineDiffusionCalc.recommendedBriningDays} {t('dni')})
-                      </Text>
-                      <Text style={styles.brineText}>
-                        • {t('Tempo pochłaniania soli:')}{' '}
-                        <Text style={styles.boldText}>{brineDiffusionCalc.saltUptakeRateGramsPerHour} g/godz.</Text> ({t('łącznie:')} {brineDiffusionCalc.totalSaltAbsorbedGrams}g NaCl)
-                      </Text>
-                      <Text style={styles.brineText}>
-                        • {t('Odległość do rdzenia geometrycznego:')}{' '}
-                        <Text style={styles.boldText}>{brineDiffusionCalc.distanceToCoreCm} cm</Text> ({t('współczynnik dyfuzji:')} {brineDiffusionCalc.diffusionCoefficientCm2PerDay} cm²/d)
-                      </Text>
-                      <Text style={styles.brineText}>
-                        • {t('Czas wyrównania stężenia w rdzeniu:')}{' '}
-                        <Text style={styles.boldText}>{brineDiffusionCalc.daysToCoreEquilibration} {t('dni')}</Text>
-                      </Text>
-                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                        ℹ️ {brineDiffusionCalc.equilibrationSchedulePl}
-                      </Text>
-                      {brineDiffusionCalc.safetyWarningsPl.map((warn, i) => (
-                        <Text key={i} style={[styles.safetyStatus, styles.safetyDanger, { marginTop: 4 }]}>
-                          ⚠️ {warn}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
-
-                {/* 12. Mother Whey Levain & Starter Propagation (Sierroinnesto) */}
-                {wheyLevainCalc && (
-                  <View style={[styles.proCard, wheyLevainCalc.passageHealth.status === 'DEGENERATION_RESET_REQUIRED' && styles.cardDanger]}>
-                    <Text style={styles.proCardTitle}>🫙 {t('Zakwas Serwatkowy & Sierroinnesto (Mother Whey Levain)')}</Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Tradycyjna propagacja kultur matecznych z nieposolonej serwatki z poprzedniego warzenia')}
-                    </Text>
-
-                    {/* Culture Type Selector */}
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {[
-                        { id: 'THERMOPHILIC_ALPINE' as const, label: t('Sierroinnesto Alpejskie (43°C)') },
-                        { id: 'MESOPHILIC_FARMHOUSE' as const, label: t('Mezofilne Zagrodowe (30°C)') },
-                        { id: 'HIGHLAND_SMOKED' as const, label: t('Tatrzańskie / Oscypek (37°C)') },
-                        { id: 'VEGETABLE_BRINE_BACKSLOP' as const, label: t('Zakwas z Kiszonki (20°C)') },
-                      ].map((tItem) => (
-                        <TouchableOpacity
-                          key={tItem.id}
-                          style={[styles.presetPill, wheyLevainType === tItem.id && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setWheyLevainType(tItem.id);
-                            if (tItem.id === 'THERMOPHILIC_ALPINE') setWheyIncubationTempC(43);
-                            else if (tItem.id === 'MESOPHILIC_FARMHOUSE') setWheyIncubationTempC(30);
-                            else if (tItem.id === 'HIGHLAND_SMOKED') setWheyIncubationTempC(37);
-                            else if (tItem.id === 'VEGETABLE_BRINE_BACKSLOP') setWheyIncubationTempC(20);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, wheyLevainType === tItem.id && styles.presetPillTextActive]}>
-                            {tItem.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Objętość serwatki (ml):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(wheyVolumeMl)}
-                        onChangeText={(v) => setWheyVolumeMl(parseFloat(v) || 100)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Temperatura inkubacji (°C):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(wheyIncubationTempC)}
-                        onChangeText={(v) => setWheyIncubationTempC(parseFloat(v) || 20)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Czas inkubacji (godz.):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(wheyHoursIncubated)}
-                        onChangeText={(v) => setWheyHoursIncubated(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Aktualne pH serwatki:')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(wheyCurrentPh)}
-                        onChangeText={(v) => setWheyCurrentPh(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Pasaż / Generacja starteru:')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(wheyGeneration)}
-                        onChangeText={(v) => setWheyGeneration(parseInt(v, 10) || 1)}
-                      />
-                    </View>
-
-                    <View style={styles.brineResultBox}>
-                      <Text style={[
-                        styles.safetyStatus,
-                        wheyLevainCalc.isReadyForInoculation ? { color: '#15803D' } : { color: '#B45309' }
-                      ]}>
-                        • {t('Stan starteru:')} {wheyLevainCalc.statusLabelPl}
-                      </Text>
-
-                      <Text style={styles.brineText}>
-                        • {t('Doza do mleka:')} <Text style={styles.boldText}>{wheyLevainCalc.requiredStarterMl} ml</Text> ({wheyLevainCalc.inoculumRatioPct}% v/v {t('na')} {milkLiters}L {t('mleka')})
-                      </Text>
-
-                      <Text style={styles.brineText}>
-                        • {t('Optymalny czas inkubacji:')} <Text style={styles.boldText}>{wheyLevainCalc.optimalIncubationHours} {t('godz.')}</Text> ({t('pozostało')} {wheyLevainCalc.remainingHours}h {t('do')} pH {wheyLevainCalc.targetPhMin}–{wheyLevainCalc.targetPhMax})
-                      </Text>
-
-                      {wheyLevainCalc.passageHealth.warning && (
-                        <Text style={[styles.safetyStatus, styles.safetyDanger, { marginTop: 4 }]}>
-                          ⚠️ {wheyLevainCalc.passageHealth.warning}
-                        </Text>
-                      )}
-
-                      {wheyLevainCalc.craftRecommendations.map((rec, i) => (
-                        <Text key={i} style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                          💡 {rec}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
-
-                {/* Curd Syneresis & Casein Shrinkage Kinetics */}
-                {curdSyneresisCalc && (
-                  <View style={[styles.proCard, curdSyneresisCalc.caseHardeningVerdict === 'CRITICAL_CASE_HARDENING' && styles.cardDanger]}>
-                    <Text style={styles.proCardTitle}>🔪 {t('Kinetyka Synerezy Skrzepu & Dogrzewanie Ziarna')}</Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Wielkość ziarna (3-35mm), tempo podgrzewania (°C/min), ochrona przed zasklepieniem kazeiny i pH ocieku')}
-                    </Text>
-
-                    {/* Cheese Style Horizontal Pills */}
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {[
-                        { id: 'PARMESAN_GRANA' as const, label: t('Parmezan (3mm)') },
-                        { id: 'ALPINE_GRUYERE' as const, label: t('Alpejski (4mm)') },
-                        { id: 'GOUDA_EDAM' as const, label: t('Gouda (8mm)') },
-                        { id: 'CHEDDAR' as const, label: t('Cheddar (10mm)') },
-                        { id: 'CAMEMBERT_BRIE' as const, label: t('Camembert (18mm)') },
-                        { id: 'FETA_FRESH' as const, label: t('Feta / Świeży (28mm)') },
-                      ].map((st) => (
-                        <TouchableOpacity
-                          key={st.id}
-                          style={[styles.presetPill, syneresisStyle === st.id && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setSyneresisStyle(st.id);
-                            const cfg = CHEESE_SYNERESIS_CONFIGS[st.id];
-                            setSyneresisCutSizeMm(cfg.recommendedCutSizeMm);
-                            setSyneresisInitTempC(cfg.initialTempC);
-                            setSyneresisTargetTempC(cfg.maxCookingTempC);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, syneresisStyle === st.id && styles.presetPillTextActive]}>
-                            {st.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Rozmiar cięcia ziarna (mm):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(syneresisCutSizeMm)}
-                        onChangeText={(v) => setSyneresisCutSizeMm(parseFloat(v) || 1)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Temperatura docelowa (°C):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(syneresisTargetTempC)}
-                        onChangeText={(v) => setSyneresisTargetTempC(parseFloat(v) || 30)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Czas dogrzewania (min):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(syneresisHeatingMinutes)}
-                        onChangeText={(v) => setSyneresisHeatingMinutes(parseFloat(v) || 1)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Czas mieszania po dogrzaniu (min):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(syneresisStirMinutes)}
-                        onChangeText={(v) => setSyneresisStirMinutes(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('pH serwatki przy ocieku:')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(syneresisDrainPh)}
-                        onChangeText={(v) => setSyneresisDrainPh(parseFloat(v) || 6.4)}
-                      />
-                    </View>
-
-                    <View style={styles.brineResultBox}>
-                      <Text style={[
-                        styles.safetyStatus,
-                        curdSyneresisCalc.caseHardeningVerdict === 'CRITICAL_CASE_HARDENING'
-                          ? styles.safetyDanger
-                          : curdSyneresisCalc.caseHardeningVerdict === 'BORDERLINE_RATE'
-                          ? { color: '#B45309' }
-                          : { color: '#15803D' }
-                      ]}>
-                        • {t('Tempo dogrzewania:')} {curdSyneresisCalc.actualRampRateCPerMin}°C/min ({t('maks. zalecane:')} {curdSyneresisCalc.maxSafeRampRateCPerMin}°C/min)
-                      </Text>
-                      <Text style={styles.brineText}>
-                        • {curdSyneresisCalc.caseHardeningAlertPl}
-                      </Text>
-
-                      <Text style={[styles.brineText, { marginTop: 6 }]}>
-                        • {t('Wskaźnik synerezy:')} <Text style={styles.boldText}>{curdSyneresisCalc.syneresisIntensityIndex}/100</Text> | {t('Szacowana wilgotność:')} <Text style={styles.boldText}>{curdSyneresisCalc.expectedMoisturePct}%</Text> ({t('wzorzec:')} {curdSyneresisCalc.expectedMoistureMinPct}%–{curdSyneresisCalc.expectedMoistureMaxPct}%)
-                      </Text>
-
-                      <Text style={[
-                        styles.safetyStatus,
-                        curdSyneresisCalc.calciumRetentionVerdict !== 'OPTIMAL_MINERAL_BALANCE'
-                          ? { color: '#B45309' }
-                          : { color: '#15803D' },
-                        { marginTop: 4 }
-                      ]}>
-                        • {t('Wapń koloidalny:')} {curdSyneresisCalc.calciumImpactMessagePl}
-                      </Text>
-
-                      {curdSyneresisCalc.recommendations.map((rec, i) => (
-                        <Text key={i} style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                          💡 {rec}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
-
-                {/* Milk Species Coagulation & Proteolysis Profile */}
-                {milkSpeciesCalc && (
-                  <View style={styles.proCard}>
-                    <Text style={styles.proCardTitle}>
-                      🐑 {t('Morfologia Gatunkowa Mleka & Kazeina')}
-                    </Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Frakcje kazeiny, średnica kuleczek tłuszczu, dynamika enzymatyczna i szacowany uzysk sera')}
-                    </Text>
-
-                    <View style={styles.brineResultBox}>
-                      <Text style={[styles.safetyStatus, { color: '#15803D' }]}>
-                        • {milkSpeciesCalc.species.namePl} ({milkSpeciesCalc.species.scientificName})
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Dominująca frakcja kazeiny:')} <Text style={styles.boldText}>{milkSpeciesCalc.species.dominantCaseinFraction}</Text>
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Średnia kuleczek tłuszczowych:')} <Text style={styles.boldText}>{milkSpeciesCalc.species.meanFatGlobuleDiameterMicrons} µm</Text> | {t('Wapń:')} {milkSpeciesCalc.species.calciumMgPer100g} mg/100g
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Doza podpuszczki:')} <Text style={styles.boldText}>{milkSpeciesCalc.recommendedRennetImcuPerLiter} IMCU/L</Text> ({milkSpeciesCalc.rennetVolumeMlLiquid200Imcu} ml {t('na')} {milkLiters}L)
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Skorygowany mnożnik flokulacji:')} <Text style={styles.boldText}>{milkSpeciesCalc.effectiveFlocculationMultiplier}x</Text>
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Oczekiwany uzysk sera:')} <Text style={styles.boldText}>{milkSpeciesCalc.expectedCheeseYieldKg} kg</Text> ({milkSpeciesCalc.yieldRatioPct}%)
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Odzysk Ricotty z serwatki:')} <Text style={styles.boldText}>~{milkSpeciesCalc.wheyProteinRecoveryPotentialGrams} g</Text>
-                      </Text>
-
-                      <Text style={[styles.recipeDetailText, { marginTop: 6 }]}>
-                        💡 {milkSpeciesCalc.species.lipolysisAndFlavorNotesPl}
-                      </Text>
-
-                      {milkSpeciesCalc.craftNotes.map((note, idx) => (
-                        <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 3 }}>
-                          • {note}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
-
-                {/* Brine Densitometry & Hydrometer Temp Compensation */}
-                {brineDensitometryCalc && (
-                  <View style={styles.proCard}>
-                    <Text style={styles.proCardTitle}>
-                      ⚖️ {t('Areometria Solanki & Kompensacja Temperatury')}
-                    </Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Przeliczanie stopni Salometru (°Sal), Baumé (°Bé), gęstości SG i % NaCl z korektą termiczną')}
-                    </Text>
-
-                    {/* Unit selector */}
-                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Jednostka pomiaru:')}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {[
-                        { id: 'PERCENT_WT' as const, label: '% NaCl (wag.)' },
-                        { id: 'SALOMETER' as const, label: '°Sal (Salometr)' },
-                        { id: 'BAUME' as const, label: '°Bé (Baumé)' },
-                        { id: 'SPECIFIC_GRAVITY' as const, label: 'SG (Gęstość)' },
-                      ].map((u) => (
-                        <TouchableOpacity
-                          key={u.id}
-                          style={[styles.presetPill, brineDensityUnit === u.id && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setBrineDensityUnit(u.id);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, brineDensityUnit === u.id && styles.presetPillTextActive]}>
-                            {u.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Odczyt areometru:')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(brineMeasuredValue)}
-                        onChangeText={(v) => setBrineMeasuredValue(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Temperatura solanki (°C):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(brineSampleTempC)}
-                        onChangeText={(v) => setBrineSampleTempC(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Objętość solanki (L):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(brineVolumeLitersInput)}
-                        onChangeText={(v) => setBrineVolumeLitersInput(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Profil docelowy solanki:')}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {(Object.keys(BRINE_TARGET_PROFILES) as BrineTargetProfileKey[]).map((pk) => {
-                        const prof = BRINE_TARGET_PROFILES[pk];
-                        return (
-                          <TouchableOpacity
-                            key={pk}
-                            style={[styles.presetPill, brineTargetProfile === pk && styles.presetPillActive]}
-                            onPress={() => {
-                              triggerHapticFeedback();
-                              setBrineTargetProfile(pk);
-                            }}
-                          >
-                            <Text style={[styles.presetPillText, brineTargetProfile === pk && styles.presetPillTextActive]}>
-                              {prof.namePl.split(' (')[0]}
-                            </Text>
-                          </TouchableOpacity>
-                        );
-                      })}
-                    </ScrollView>
-
-                    <View style={styles.brineResultBox}>
-                      <Text style={[
-                        styles.safetyStatus,
-                        brineDensitometryCalc.status === 'SUPER_SATURATED' || brineDensitometryCalc.status === 'TOO_DILUTE'
-                          ? styles.safetyDanger
-                          : { color: '#15803D' }
-                      ]}>
-                        • {t('Status roztworu:')} {brineDensitometryCalc.status}
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Gęstość skorygowana SG:')} <Text style={styles.boldText}>{brineDensitometryCalc.temperatureCorrectedSg}</Text> ({t('Korekta termiczna SG:')} {brineDensitometryCalc.thermalOffsetSg > 0 ? `+${brineDensitometryCalc.thermalOffsetSg}` : brineDensitometryCalc.thermalOffsetSg})
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Zasolenie NaCl:')} <Text style={styles.boldText}>{brineDensitometryCalc.percentNacl}%</Text> | {t('Stopnie Salometru:')} <Text style={styles.boldText}>{brineDensitometryCalc.salometerDegrees}°Sal</Text> | {t('Stopnie Baumé:')} <Text style={styles.boldText}>{brineDensitometryCalc.baumeDegrees}°Bé</Text>
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('NaCl na litr solanki:')} <Text style={styles.boldText}>{brineDensitometryCalc.gramsNaclPerLiterBrine} g/L</Text> ({t('NaCl na litr wody:')} {brineDensitometryCalc.gramsNaclPerLiterWater} g/L)
-                      </Text>
-
-                      {brineDensitometryCalc.saltAdjustmentGrams !== undefined && (
-                        <Text style={[styles.recipeDetailText, { marginTop: 6 }]}>
-                          🧂 {t('Dodatek soli do celu:')} <Text style={styles.boldText}>{brineDensitometryCalc.saltAdjustmentGrams} g</Text> ({t('do')} {BRINE_TARGET_PROFILES[brineTargetProfile].namePl})
-                        </Text>
-                      )}
-
-                      {brineDensitometryCalc.alertsPl.map((alert, idx) => (
-                        <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
-                          ⚠️ {alert}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
+                <CheeseFlocculationAndMoldCard
+                  flocMultiplier={flocMultiplier}
+                  flocSecInput={flocSecInput}
+                  timerSeconds={timerSeconds}
+                  isTimerRunning={isTimerRunning}
+                  handleStartTimer={handleStartTimer}
+                  handleStopTimer={handleStopTimer}
+                  flocCalc={flocCalc}
+                  moldFittingCalc={moldFittingCalc}
+                  milkLiters={milkLiters}
+                  selectedMoldTemplateId={selectedMoldTemplateId}
+                  setSelectedMoldTemplateId={setSelectedMoldTemplateId}
+                  setMoldDiamCm={setMoldDiamCm}
+                />
+                <CheesePressLeverCard
+                  pressMechanism={pressMechanism}
+                  setPressMechanism={setPressMechanism}
+                  moldDiamCm={moldDiamCm}
+                  setMoldDiamCm={setMoldDiamCm}
+                  pressWeightKg={pressWeightKg}
+                  setPressWeightKg={setPressWeightKg}
+                  armLengthCm={armLengthCm}
+                  setArmLengthCm={setArmLengthCm}
+                  moldDistCm={moldDistCm}
+                  setMoldDistCm={setMoldDistCm}
+                  armWeightKg={armWeightKg}
+                  setArmWeightKg={setArmWeightKg}
+                  dutchLeverCalc={dutchLeverCalc}
+                  pressCalc={pressCalc}
+                  isPressCascadeOpen={isPressCascadeOpen}
+                  setIsPressCascadeOpen={setIsPressCascadeOpen}
+                  pressingCascadeProg={pressingCascadeProg}
+                />
+                <CheeseBrineAndRegenCard
+                  brineWaterLiters={brineWaterLiters}
+                  brineSalinityPct={brineSalinityPct}
+                  brineWaterPh={brineWaterPh}
+                  setBrineWaterPh={setBrineWaterPh}
+                  brineAcidCalc={brineAcidCalc}
+                  currentBrineSalinity={currentBrineSalinity}
+                  setCurrentBrineSalinity={setCurrentBrineSalinity}
+                  targetBrineSalinity={targetBrineSalinity}
+                  setTargetBrineSalinity={setTargetBrineSalinity}
+                  brineBoostCalc={brineBoostCalc}
+                  brineDensitometryCalc={brineDensitometryCalc}
+                  brineDensityUnit={brineDensityUnit}
+                  setBrineDensityUnit={setBrineDensityUnit}
+                  brineMeasuredValue={brineMeasuredValue}
+                  setBrineMeasuredValue={setBrineMeasuredValue}
+                  brineSampleTempC={brineSampleTempC}
+                  setBrineSampleTempC={setBrineSampleTempC}
+                  brineVolumeLitersInput={brineVolumeLitersInput}
+                  setBrineVolumeLitersInput={setBrineVolumeLitersInput}
+                  brineTargetProfile={brineTargetProfile}
+                  setBrineTargetProfile={setBrineTargetProfile}
+                />
+                <CheeseCurdCookingAndSaltingCard
+                  cookingRampCalc={cookingRampCalc}
+                  cookStartTemp={cookStartTemp}
+                  cookEndTemp={cookEndTemp}
+                  cookDurationMin={cookDurationMin}
+                  washWheyDrainedLiters={washWheyDrainedLiters}
+                  setWashWheyDrainedLiters={setWashWheyDrainedLiters}
+                  washHotWaterTempC={washHotWaterTempC}
+                  setWashHotWaterTempC={setWashHotWaterTempC}
+                  washTargetTempC={washTargetTempC}
+                  setWashTargetTempC={setWashTargetTempC}
+                  curdWashCalc={curdWashCalc}
+                  cheddarCurdGrams={cheddarCurdGrams}
+                  setCheddarCurdGrams={setCheddarCurdGrams}
+                  cheddarTargetSalinityPct={cheddarTargetSalinityPct}
+                  setCheddarTargetSalinityPct={setCheddarTargetSalinityPct}
+                  cheddarSaltingCalc={cheddarSaltingCalc}
+                />
+                <CheeseWheyRecoveryAndLevainCard
+                  sweetWheyLiters={sweetWheyLiters}
+                  wheyMilkBoostLiters={wheyMilkBoostLiters}
+                  setWheyMilkBoostLiters={setWheyMilkBoostLiters}
+                  ricottaCalc={ricottaCalc}
+                  wheyDrinkCalc={wheyDrinkCalc}
+                  wheyLevainCalc={wheyLevainCalc}
+                  wheyLevainType={wheyLevainType}
+                  setWheyLevainType={setWheyLevainType}
+                  setWheyIncubationTempC={setWheyIncubationTempC}
+                  wheyVolumeMl={wheyVolumeMl}
+                  setWheyVolumeMl={setWheyVolumeMl}
+                  wheyIncubationTempC={wheyIncubationTempC}
+                  wheyHoursIncubated={wheyHoursIncubated}
+                  setWheyHoursIncubated={setWheyHoursIncubated}
+                  wheyCurrentPh={wheyCurrentPh}
+                  setWheyCurrentPh={setWheyCurrentPh}
+                  wheyGeneration={wheyGeneration}
+                  setWheyGeneration={setWheyGeneration}
+                  milkLiters={milkLiters}
+                />
+                <CheeseBiochemAndCoatingCard
+                  coatingType={coatingType}
+                  setCoatingType={setCoatingType}
+                  coatingWheelHeightCm={coatingWheelHeightCm}
+                  setCoatingWheelHeightCm={setCoatingWheelHeightCm}
+                  coatingLayers={coatingLayers}
+                  setCoatingLayers={setCoatingLayers}
+                  wheelCoatingCalc={wheelCoatingCalc}
+                  cheeseMoisturePct={cheeseMoisturePct}
+                  setCheeseMoisturePct={setCheeseMoisturePct}
+                  cheeseFatPct={cheeseFatPct}
+                  setCheeseFatPct={setCheeseFatPct}
+                  cheeseSaltPct={cheeseSaltPct}
+                  setCheeseSaltPct={setCheeseSaltPct}
+                  cheeseCompositionCalc={cheeseCompositionCalc}
+                  diffWheelWeightKg={diffWheelWeightKg}
+                  setDiffWheelWeightKg={setDiffWheelWeightKg}
+                  diffDiameterCm={diffDiameterCm}
+                  setDiffDiameterCm={setDiffDiameterCm}
+                  diffHeightCm={diffHeightCm}
+                  setDiffHeightCm={setDiffHeightCm}
+                  diffBrineSalinityPct={diffBrineSalinityPct}
+                  setDiffBrineSalinityPct={setDiffBrineSalinityPct}
+                  diffBrineTempC={diffBrineTempC}
+                  setDiffBrineTempC={setDiffBrineTempC}
+                  brineDiffusionCalc={brineDiffusionCalc}
+                  milkSpeciesCalc={milkSpeciesCalc}
+                  milkLiters={milkLiters}
+                />
+                <CheeseSyneresisKineticsCard
+                  curdSyneresisCalc={curdSyneresisCalc}
+                  syneresisStyle={syneresisStyle}
+                  setSyneresisStyle={setSyneresisStyle}
+                  setSyneresisCutSizeMm={setSyneresisCutSizeMm}
+                  setSyneresisInitTempC={setSyneresisInitTempC}
+                  setSyneresisTargetTempC={setSyneresisTargetTempC}
+                  syneresisCutSizeMm={syneresisCutSizeMm}
+                  syneresisTargetTempC={syneresisTargetTempC}
+                  syneresisHeatingMinutes={syneresisHeatingMinutes}
+                  setSyneresisHeatingMinutes={setSyneresisHeatingMinutes}
+                  syneresisStirMinutes={syneresisStirMinutes}
+                  setSyneresisStirMinutes={setSyneresisStirMinutes}
+                  syneresisDrainPh={syneresisDrainPh}
+                  setSyneresisDrainPh={setSyneresisDrainPh}
+                />
               </View>
             )}
           </View>
