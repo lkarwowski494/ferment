@@ -56,7 +56,7 @@ W całej aplikacji SEROWAR (we wszystkich 35 językach i na każdym ekranie) obo
 ### **2.5 Komunikaty Błędów i Puste Stany**
 * **Brak blokujących wyskakujących okienek sukcesu:** Pomyślny zapis objawia się zamknięciem arkusza i natychmiastowym pojawieniem się wpisu na liście.
 * **Precyzja komunikatów błędów:** Zakaz ogólnikowych alertów typu „Błąd”. Komunikat musi precyzować naturę problemu: *„Nieprawidłowa objętość mleka — wpisz wartość od 1.0 do 200.0 litrów”*, *„Temperatura przekracza bezpieczną granicę — zdejmij garnek z ognia”*.
-* **Puste stany (Empty States):** Gdy lista jest pusta, prezentowana jest estetyczna ilustracja tematyczna, zrozumiałe wyjaśnienie i wyrazisty przycisk CTA (np. *„Brak dojrzewających krążków w jaskini serowej”* + przycisk *„+ Dodaj pierwszy ser”*).
+* **Puste stany (Empty States):** Gdy lista jest pusta, prezentowany jest techniczny schemat partii lub karta szablonu startowego (np. Gouda / Koryciński) ze zrozumiałym wyjaśnieniem i wyrazistym przyciskiem CTA (np. *„Brak dojrzewających krążków w jaskini serowej”* + przycisk *„+ Rozpocznij pierwszą partię”*). Obowiązuje kategoryczny zakaz generycznych pustych ilustracji wektorowych oraz 3D clip-artów AI.
 
 ---
 
@@ -88,6 +88,11 @@ Kolorystyka aplikacji czerpie bezpośrednio z naturalnych odcieni wiejskiego prz
 ### **3.3 Ergonomia Pracy w Kuchni („Hands in Whey”)**
 * **Strefa Kciuka (Thumb Zone):** Wszystkie kluczowe kontrolki operacyjne umieszczone w dolnych 40% ekranu.
 * **Minimalne Pole Dotykowe:** Każdy element klikalny posiada wymiar minimum **48 × 48 pt** (z powiększonym polem `hitSlop` min. 10 pt na stronę) — serowar operujący dłońmi w rękawicach lub wilgotnymi palcami nie może chybić przycisku.
+
+### **3.4 Kategoryczny Zakaz Estetyki AI (Anti-AI Slop Mandate) i Mikro-Ramki 1px**
+* **Zakaz szablonów AI:** Kategoryczny zakaz fioletowo-różowych gradientów, pływających kolorowych bąbli, modnych rozmytych cieni (`box-shadow: 0 20px 40px rgba(0,0,0,0.1)`) oraz generowanych w 3D monet/diamentów.
+* **Fizyczne Mikro-Ramki 1px (Tactile 1px Borders):** Wszystkie karty, kafelki, formularze i przyciski posiadają wyrazistą ramkę `borderWidth: 1` (`#374151` w trybie Dark, `#E2E8F0` w trybie Light) zapewniającą natychmiastowe rozróżnienie krawędzi w trudnych warunkach piwnicy serowarskiej.
+* **Liczby Tabelaryczne (`tabular-nums`):** Wszelkie wartości numeryczne, stopery, wagi, pH, IMCU i wskaźniki ciśnienia prasy posiadają właściwość `tabular-nums` lub krój stałej szerokości (`IBM Plex Mono`).
 
 ---
 

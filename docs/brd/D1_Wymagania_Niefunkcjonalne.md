@@ -35,3 +35,8 @@
 * **NFR-APPLE-002 (Guideline 3.1.2 — Subskrypcje i Płatności):** Przejrzysty ekran zakupu SEROWAR PRO z wyraźnym oznaczeniem cen, brakiem ukrytych kosztów, automatycznym przywracaniem zakupów (Restore Purchases). Kopia zapasowa i eksport danych są bezpłatne na zawsze.
 * **NFR-APPLE-003 (Guideline 4.3 — Brak Spamu):** Aplikacja stanowi unikalny, głęboki kombajn technologiczny (kalkulatory IMCU, flokulacja, Cave Log, relacyjna baza partii), odróżniający się od prostych liczników.
 * **NFR-APPLE-004 (Guideline 5.1.1 — Ochrona Danych):** Brak wymogu podawania jakichkolwiek danych osobowych w celu korzystania z aplikacji.
+
+### **7. Grupa NFR-CRAFT: Standard Estetyki Rzemieślniczej i Zakaz Generowania AI (Anti-AI Slop Mandate)**
+* **NFR-CRAFT-001 (Kategoryczny zakaz estetyki AI):** Interfejs kategorycznie wyklucza szablonowe artefakty AI: pastelowe fioletowo-różowe gradienty, neonowe bąble, rozmyte cienie (`box-shadow`), generyczne wektory 3D oraz clip-arty w pustych stanach.
+* **NFR-CRAFT-002 (Paleta materiałów fizycznych):** Zastosowanie wyłącznie autentycznych barw surowców i wyposażenia serowarskiego (Cellar Slate `#1E2229`, Butter Cream `#FDFBF7`, Aged Rind Ochre `#C68A4C`, Copper Vat `#B86D3B`, Whey Amber `#D99B26`, Curd White `#FFFFFF`).
+* **NFR-CRAFT-003 (Dotykowy rygor 1px i Tabular Nums):** Fizyczne mikro-ramki 1px (`borderWidth: 1`) o wysokim kontraście na granicach elementów oraz bezwzględne formatowanie cyfr pomiarowych właściwością `tabular-nums` / monospace.
