@@ -1,10 +1,9 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
 import IndexScreen from '../app/(tabs)/index';
-import BatchesScreen from '../app/(tabs)/batches';
-import PantryScreen from '../app/(tabs)/pantry';
-import SchoolScreen from '../app/(tabs)/school';
-import SettingsScreen from '../app/(tabs)/settings';
+import DairyScreen from '../app/(tabs)/dairy';
+import CaveScreen from '../app/(tabs)/cave';
+import PantryKnowledgeScreen from '../app/(tabs)/pantry-knowledge';
 
 // Mock audio/camera/native bridge dependencies for fast Node rendering
 jest.mock('expo-camera', () => ({
@@ -38,12 +37,12 @@ describe('AST Matrix Routes Coverage (BR-TEST-028, EKRAN)', () => {
     });
   });
 
-  it('renders /(tabs)/batches route', async () => {
-    const route = '/(tabs)/batches';
-    expect(route).toBe('/(tabs)/batches');
+  it('renders /(tabs)/dairy route', async () => {
+    const route = '/(tabs)/dairy';
+    expect(route).toBe('/(tabs)/dairy');
     let tree: any;
     await act(async () => {
-      tree = renderer.create(<BatchesScreen />);
+      tree = renderer.create(<DairyScreen />);
       await flushPromises();
     });
     expect(tree).toBeTruthy();
@@ -52,12 +51,12 @@ describe('AST Matrix Routes Coverage (BR-TEST-028, EKRAN)', () => {
     });
   });
 
-  it('renders /(tabs)/pantry route', async () => {
-    const route = '/(tabs)/pantry';
-    expect(route).toBe('/(tabs)/pantry');
+  it('renders /(tabs)/cave route', async () => {
+    const route = '/(tabs)/cave';
+    expect(route).toBe('/(tabs)/cave');
     let tree: any;
     await act(async () => {
-      tree = renderer.create(<PantryScreen />);
+      tree = renderer.create(<CaveScreen />);
       await flushPromises();
     });
     expect(tree).toBeTruthy();
@@ -66,26 +65,12 @@ describe('AST Matrix Routes Coverage (BR-TEST-028, EKRAN)', () => {
     });
   });
 
-  it('renders /(tabs)/school route', async () => {
-    const route = '/(tabs)/school';
-    expect(route).toBe('/(tabs)/school');
+  it('renders /(tabs)/pantry-knowledge route', async () => {
+    const route = '/(tabs)/pantry-knowledge';
+    expect(route).toBe('/(tabs)/pantry-knowledge');
     let tree: any;
     await act(async () => {
-      tree = renderer.create(<SchoolScreen />);
-      await flushPromises();
-    });
-    expect(tree).toBeTruthy();
-    act(() => {
-      tree.unmount();
-    });
-  });
-
-  it('renders /(tabs)/settings route', async () => {
-    const route = '/(tabs)/settings';
-    expect(route).toBe('/(tabs)/settings');
-    let tree: any;
-    await act(async () => {
-      tree = renderer.create(<SettingsScreen />);
+      tree = renderer.create(<PantryKnowledgeScreen />);
       await flushPromises();
     });
     expect(tree).toBeTruthy();
