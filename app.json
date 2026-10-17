@@ -2,7 +2,7 @@
   "expo": {
     "name": "Ferment",
     "slug": "ferment",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "scheme": "ferment",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,12 +14,11 @@
       "backgroundColor": "#1C1917"
     },
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.apps4brew.ferment",
       "appleTeamId": "8NQ9GHY8GF",
       "buildNumber": "1",
       "infoPlist": {
-        "UIBackgroundModes": ["audio"],
         "UIFileSharingEnabled": true,
         "LSSupportsOpeningDocumentsInPlace": true,
         "ITSAppUsesNonExemptEncryption": false,

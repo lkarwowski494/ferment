@@ -177,7 +177,7 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Mleko Owcze` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Mleko Bawole` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Podpuszczka` | `app/(tabs)/index.tsx` | ✅ | tests/core/inventory.test.ts, tests/matrix-translations.test.ts |
-| `TEKST` | `Chlorek Wapnia` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Chlorek Wapnia` | `app/(tabs)/index.tsx` | ✅ | tests/domain-coverage.test.ts, tests/matrix-translations.test.ts |
 | `TEKST` | `Sól Kamienna` | `app/(tabs)/index.tsx` | ✅ | tests/core/inventory.test.ts, tests/lib/csv-export.test.ts |
 | `TEKST` | `Cukier` | `app/(tabs)/index.tsx` | ✅ | tests/data/sqlite-store.test.ts, tests/matrix-translations.test.ts |
 | `TEKST` | `Herbata` | `app/(tabs)/index.tsx` | ✅ | tests/data/sqlite-store.test.ts, tests/matrix-translations.test.ts |

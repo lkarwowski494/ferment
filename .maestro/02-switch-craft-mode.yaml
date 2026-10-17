@@ -1,5 +1,6 @@
 appId: com.apps4brew.ferment
 ---
+- launchApp
 - tapOn: "Kiszonki"
 - assertVisible: "Kalkulator Solanki Warzywnej"
 - tapOn: "Kombucha"

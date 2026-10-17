@@ -1,5 +1,6 @@
 appId: com.apps4brew.ferment
 ---
+- launchApp
 - tapOn: "Partie"
 - assertVisible: "Dziennik Partii"
 - tapOn: "Spiżarnia"

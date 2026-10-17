@@ -1,5 +1,6 @@
 appId: com.apps4brew.ferment
 ---
+- launchApp
 - tapOn: "Ustawienia"
 - assertVisible: "Kopia zapasowa"
 - assertVisible: "Eksport CSV"

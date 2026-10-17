@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WANT_MAJOR="${1:-26}"
+WANT_MAJOR="${1:-16}"
 
 CANDIDATE=$(ls -d "/Applications/Xcode_${WANT_MAJOR}"*.app 2>/dev/null | sort -V | tail -n 1 || true)
 if [ -z "$CANDIDATE" ] && [ -d "/Applications/Xcode.app" ]; then

@@ -1,6 +1,6 @@
 {
   "name": "ferment",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "main": "expo-router/entry",
   "private": true,
   "description": "FERMENT (Ser i Flora / Mikrobiologia Domowa) — Apps4Brew: asystent domowego serowarstwa zagrodowego, dojrzewania sera (Cave Log), kiszonek, kombuchy i octów",
@@ -13,7 +13,10 @@
     "check:licenses": "node scripts/check-licenses.mjs",
     "verify:native": "node scripts/verify-native.mjs",
     "matrix:check": "node scripts/test-matrix.mjs --check",
-    "verify": "npm run typecheck && npm run check:i18n && npm run check:corpus && npm run check:licenses && npm run verify:native && npm run matrix:check && npm test"
+    "check:maestro": "node scripts/check-maestro.mjs",
+    "check:cycles": "node scripts/check-cycles.mjs",
+    "test:mutation": "stryker run",
+    "verify": "npm run typecheck && npm run check:i18n && npm run check:corpus && npm run check:licenses && npm run check:cycles && npm run check:maestro && npm run verify:native && npm run matrix:check && npm test"
   },
   "dependencies": {
     "@types/qrcode": "^1.5.6",
@@ -42,6 +45,8 @@
   "devDependencies": {
     "@babel/core": "^7.25.0",
     "@react-native/jest-preset": "^0.86.3",
+    "@stryker-mutator/core": "^10.0.0",
+    "@stryker-mutator/jest-runner": "^10.0.0",
     "@types/jest": "^29.5.14",
     "@types/react": "~19.2.10",
     "@types/react-test-renderer": "^19.3.0",

@@ -37,7 +37,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+        run: npm ci
 
       - name: TypeScript Typecheck (tsc --noEmit)
         run: npm run typecheck
@@ -50,6 +50,12 @@ jobs:
 
       - name: Verify production dependency licenses (check:licenses)
         run: node scripts/check-licenses.mjs
+
+      - name: Check circular module dependencies (check:cycles)
+        run: node scripts/check-cycles.mjs
+
+      - name: Check Maestro E2E scenarios syntax (check:maestro)
+        run: node scripts/check-maestro.mjs
 
       - name: Check AST Test Matrix coverage (100% required)
         run: node scripts/test-matrix.mjs --check

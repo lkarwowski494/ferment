@@ -1,0 +1,28 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "packageManager": "npm",
+  "testRunner": "jest",
+  "jest": {
+    "configFile": "jest.mutation.config.js"
+  },
+  "coverageAnalysis": "off",
+  "disableTypeChecks": false,
+  "mutate": [
+    "src/core/ferment-engine.ts",
+    "src/core/pasteurization-units.ts",
+    "src/core/fermentation-q10.ts",
+    "src/core/vinegar-standardization.ts",
+    "!coverage/**",
+    "!node_modules/**"
+  ],
+  "thresholds": {
+    "high": 95,
+    "low": 90,
+    "break": 90
+  },
+  "reporters": [
+    "clear-text"
+  ],
+  "concurrency": 2,
+  "timeoutMS": 10000
+}
