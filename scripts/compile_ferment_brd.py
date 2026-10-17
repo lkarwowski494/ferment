@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Compiler for FERMENT BRD 0.1 - Complete Master Edition
+Compiler for SEROWAR BRD 0.1 - Complete Master Edition
 Apps4Brew Studio | October 2026
 """
 import glob
@@ -26,13 +26,13 @@ def main():
         "B2_Narzedzia_Obrobka_Skrzepu_Prasowanie.md",
         "B3_Narzedzia_Solenie_i_Solanki.md",
         "B4_Narzedzia_Cave_Log_Dozor_Dojrzewania.md",
-        "B5_Narzedzia_Kiszonki_Kimchi_Zakwasy.md",
-        "B6_Narzedzia_Kombucha_i_Octy.md",
+        "B5_Narzedzia_Twarogi_i_Sery_Swieze.md",
+        "B6_Narzedzia_Napoje_Mleczne_Maslo_Ghee.md",
         "B7_Narzedzia_Spizarnia_Naczynia_Etykiety.md",
         "B8_Narzedzia_Zegarki_LiveActivity_Sensory.md",
         "C1_Nauka_Szkola_Serowarstwa_i_Fermentacji.md",
         "C2_Reguly_Dziedzinowe_Serowarstwo.md",
-        "C3_Reguly_Dziedzinowe_Kiszonki_i_Napoje.md",
+        "C3_Reguly_Dziedzinowe_Przetworstwo_Mleczne.md",
         "C4_Proces_Tresci_i_Decyzje_Badacza.md",
         "D1_Wymagania_Niefunkcjonalne.md",
         "D2_Architektura_Model_SQLite.md",
@@ -50,7 +50,7 @@ def main():
     print(f"Znaleziono {len(source_files)} modularnych rozdziałów BRD.")
     
     combined_content = []
-    combined_content.append("# FERMENT (SER I FLORA / MIKROBIOLOGIA DOMOWA)\n")
+    combined_content.append("# SEROWAR (RZEMIEŚLNICZE PRZETWÓRSTWO MLEKA)\n")
     combined_content.append("## KOMPLETNY BUSINESS REQUIREMENTS DOCUMENT (BRD) — WYDANIE 0.1 MASTER\n")
     combined_content.append("> Apps4Brew Studio Engineering Standard | Data opracowania: Październik 2026\n\n---\n\n")
 
@@ -66,8 +66,13 @@ def main():
 
     full_text = "".join(combined_content)
     
-    target_file = os.path.join(root_dir, "FERMENT_BRD_Kompletne_Wydanie.md")
+    target_file = os.path.join(root_dir, "SEROWAR_BRD_Kompletne_Wydanie.md")
     with open(target_file, 'w', encoding='utf-8') as out:
+        out.write(full_text)
+
+    # Legacy copy for compatibility
+    legacy_file = os.path.join(root_dir, "FERMENT_BRD_Kompletne_Wydanie.md")
+    with open(legacy_file, 'w', encoding='utf-8') as out:
         out.write(full_text)
         
     chars_with_spaces = len(full_text)

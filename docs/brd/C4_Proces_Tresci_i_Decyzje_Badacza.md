@@ -1,21 +1,22 @@
-# **FERMENT BRD 0.1 — Rozdział 8.P: Proces Weryfikacji Treści i Rejestr Decyzji Badacza (D-01…D-25) (C4)**
+# **SEROWAR BRD 0.1 — Rozdział 8.P: Proces Weryfikacji Treści i Rejestr Decyzji Badacza (D-01…D-25) (C4)**
 
-> **Ekosystem:** Apps4Brew Studio | **Projekt:** FERMENT  
+> **Ekosystem:** Apps4Brew Studio | **Projekt:** SEROWAR (Rzemieślnicze Przetwórstwo Mleka)  
 > **Hierarchia źródeł:** Zgodnie z zasadą właściciela z 4 października 2026 r. obowiązującą we wszystkich aplikacjach studia.
 
 ---
 
 ## **1. Pięcioszczeblowa Hierarchia Źródeł Merytorycznych**
 
-1. **Szczebel 1 (Najwyższy — Rachunek i biochemia molekularna):** Stechiometria reakcji enzymatycznych, równania dyfuzji soli Ficka, prawa termodynamiki i psychrometrii, sprawdzone niezależnie w kodzie testów.
-2. **Szczebel 2 (Normy międzynarodowe i instytucje naukowe):** Standardy Międzynarodowej Federacji Mleczarskiej (IDF / FIL), wytyczne FAO/WHO Codex Alimentarius, normy sanitarno-mikrobiologiczne USDA Food Safety and Inspection Service (FSIS) oraz FDA BAM (Bacteriological Analytical Manual).
+1. **Szczebel 1 (Najwyższy — Rachunek i biochemia molekularna):** Stechiometria reakcji koagulacji kazeiny, równania dyfuzji soli Ficka, prawa termodynamiki i psychrometrii, sprawdzone niezależnie w kodzie testów Jest.
+2. **Szczebel 2 (Normy międzynarodowe i instytucje naukowe):** Standardy Międzynarodowej Federacji Mleczarskiej (IDF / FIL), wytyczne FAO/WHO Codex Alimentarius dla mleka i przetworów mlecznych (Codex Stan 283, 279, 221), normy USDA Dairy Division i FDA 21 CFR 133.
 3. **Szczebel 3 (Akademickie podręczniki serowarskie i recenzowane badania):**
    * P.F. Fox, T.P. Guinee, T.M. Cogan, P.L.H. McSweeney: *Fundamentals of Cheese Science* (Springer).
+   * P. Walstra, J.T.M. Wouters, T.J. Geurts: *Dairy Science and Technology* (CRC Press).
    * F. Kosikowski, V. Mistry: *Cheese and Fermented Milk Foods*.
-   * Sandor Ellix Katz: *The Art of Fermentation*.
-   * Publikacje w recenzowanych czasopismach: *Journal of Dairy Science*, *International Dairy Journal*, *Food Microbiology*.
-4. **Szczebel 4 (Publikacje instytutów branżowych i szkół serowarskich):** Instytut Przemysłu Mleczarskiego, University of Guelph Dairy Science Technology, University of Wisconsin Center for Dairy Research (CDR).
-5. **Szczebel 5 (Tradycja i praktyka zagrodowa):** Doświadczenia mistrzów serowarskich i przepisy regionalne traktowane wyłącznie jako wskazówka wstępna, zawsze poddawana weryfikacji ze szczeblami 1–3.
+   * G. Bylund: *Dairy Processing Handbook* (Tetra Pak Processing Systems).
+   * Publikacje w recenzowanych czasopismach: *Journal of Dairy Science*, *International Dairy Journal*, *Food Chemistry*.
+4. **Szczebel 4 (Publikacje instytutów branżowych i szkół serowarskich):** University of Guelph Dairy Science Technology, University of Wisconsin Center for Dairy Research (CDR), Instytut Innowacji Przemysłu Mleczarskiego.
+5. **Szczebel 5 (Tradycja i praktyka zagrodowa):** Doświadczenia mistrzów serowarskich i przepisy regionalne traktowane jako wskazówka wstępna, zawsze poddawana weryfikacji ze szczeblami 1–3.
 
 ---
 
@@ -24,9 +25,9 @@
 * **D-01: Odrzucenie sztywnych czasów koagulacji.** Zastąpienie przestarzałego dogmatu „tnij po 45 min” metodą mnożnika flokulacji (Berridge Flocculation Multiplier). Uzasadnienie: zmienność kwasowości i białka w mleku zagrodowym.
 * **D-02: Wymóg suplementacji CaCl2 dla mlek pasteryzowanych.** Standard dawkowania: 0.2 g/L bezwodnego chlorku wapnia.
 * **D-03: Równowaga potrójna solanki serowarskiej.** Kąpiel solankowa musi posiadać zbuforowane pH (5.2–5.4) oraz dodatek 0.15% CaCl2 w celu ochrony skórki przed śluzowaceniem.
-* **D-04: Zasolenie całkowite w kiszonkach.** Wymuszenie liczenia soli na masę całkowitą (warzywa + woda).
-* **D-05: Bariera biologiczna pH 4.6.** Każdy nastaw warzywny, który nie osiąga pH < 4.6 w ciągu 72h, otrzymuje ostrzeżenie sanitarne.
-* **D-06: Dwutemperaturowy profil dojrzewania kimchi.** Faza ciepła (18–20°C, 24–48h) na start Leuconostoc, faza zimna (2–4°C) na rozwój estrów i umami.
-* **D-07: Zakaz szczelnego zamykania 1F kombuchy.** Bakterie Komagataeibacter wymagają tlenu atmosferycznego do syntezy celulozowego SCOBY i kwasu octowego.
-* **D-08: Górny limit alkoholu dla octów żywych.** Wsad do fermentacji octowej nie może przekraczać 8.0% ABV pod rygorem zatrucia kolonii Acetobacter.
-* **D-09…D-25:** Dalsze rozstrzygnięcia enzymatyczne i mikrobiologiczne (zapisane w specyfikacjach modułowych).
+* **D-04: Okno temperaturowe zmaślania śmietanki (10–14°C).** Wymuszenie kontroli temperatury wsadu; blokada zmaślania powyżej 16°C w celu ochrony przed ucieczką ciekłego tłuszczu do maślanki.
+* **D-05: Rygor termiczny dogrzewania skrzepu twarogowego (38–42°C).** Ostrzeżenie przed przekroczeniem 44°C (twardy, kredowy twaróg) oraz przed zbyt niską temperaturą <35°C (mazista, nieodsączona masa).
+* **D-06: Warunki termiczno-kwasowe koagulacji Ricotty.** Podgrzanie słodkiej serwatki do 85–90°C i korekta pH do poziomu 5.8–6.0 za pomocą kwasu spożywczego.
+* **D-07: Przeciwdziałanie defektowi piaszczystości w Brunost.** Nakaz szybkiego schładzania zagęszczonej serwatki w kąpieli lodowej z ciągłym mechanicznym mieszaniem w celu wymuszenia mikro-krystalizacji laktozy.
+* **D-08: Standard minimalnego czasu dojrzewania serów z mleka surowego.** Zgodnie z FDA 21 CFR 133 sery z mleka niepasteryzowanego muszą dojrzewać minimum 60 dni w temp. $\ge 2^\circ C$.
+* **D-09…D-25:** Dalsze szczegółowe rozstrzygnięcia enzymatyczne i technologiczne.

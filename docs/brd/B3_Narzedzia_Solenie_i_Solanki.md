@@ -1,4 +1,4 @@
-# **FERMENT BRD 0.1 — Rozdział 7: Narzędzia Serowarskie — Solenie i Kąpiele Solankowe (B3)**
+# **SEROWAR BRD 0.1 — Rozdział 7: Narzędzia Serowarskie — Solenie i Kąpiele Solankowe (B3)**
 
 > **Moduł:** `BR-SOL-001` do `BR-SOL-025`  
 > **Kontekst dziedzinowy:** Chemia i gęstość nasyconej solanki serowarskiej, korekty termiczne hydrometru (°Baumé / Salometer), równowaga osmotyczna wapnia i kwasowości, obliczanie czasu kąpieli.
@@ -40,11 +40,11 @@
   $$t [h] = m_{sera} [kg] \times K_{stylu} \times \left( \frac{grubosc [cm]}{wysokosc_{ref} [cm]} \right)$$
   Gdzie współczynnik stylu wynosi średnio:
   * Sery miękkie (Feta, Halloumi): $K = 2.0 - 3.0\text{ h/kg}$.
-  * Gouda, Edam, Tylżycki: $K = 4.0 - 5.0\text{ h/kg}$ (np. krążek 2.0 kg $\rightarrow 8 - 10$ godzin).
+  * Gouda, Edam, Tylżycki: $K = 4.0 - 5.0\text{ h/kg}$.
   * Cheddar, sery twarde: $K = 6.0\text{ h/kg}$.
 * **Kryteria akceptacji:**
-  1. Uruchomienie odliczania z powiadomieniem w połowie czasu: *„Obróć krążek w solance”* (górna powierzchnia wystaje ponad lustro płynu).
-  2. Powiadomienie krytyczne z dźwiękiem alarmowym po upływie czasu: *„Wyjmij ser z solanki i przenieś do ociekania/suszenia skórki.”*
+  1. Uruchomienie odliczania z powiadomieniem w połowie czasu: *„Obróć krążek w solance”*.
+  2. Powiadomienie krytyczne z dźwiękiem alarmowym po upływie czasu: *„Wyjmij ser z solanki i przenieś do suszenia skórki.”*
 * **Persona:** P1, P4, P6.
 * **Priorytet:** MUST | **Etap:** MVP.
 
@@ -57,81 +57,3 @@
   * Rozpisanie na 2 lub 3 równe porcje: aplikacja na górę i boki w dobie 1, obrót i aplikacja na dół w dobie 2.
 * **Persona:** P1, P2.
 * **Priorytet:** MUST | **Etap:** MVP.
-
----
-
-### **BR-SOL-020: Regeneracja i Wzmocnienie Stężenia Solanki (Brine Salinity Boost & Top-Up)**
-* **Opis:** Zaadaptowany z silnika *Słoik* kalkulator matematyczny bilansu masowego roztworów soli (`brine-topup.ts`). W procesie solenia serów kąpiel ulega ciągłemu rozcieńczaniu (ser oddaje wodę i pobiera sól).
-* **Równanie bilansowe:**
-  Ilość soli $m_{soli}$ do dosypania w celu podniesienia stężenia z $S_{1}\%$ do $S_{2}\%$ w objętości $V [L]$ bez wylewania solanki:
-  $$m_{soli} [g] = \frac{V \times 1000 \times (S_{2} - S_{1})}{100 - S_{2}}$$
-* **Kryteria akceptacji:**
-  1. Wylicza gramaturę soli kamiennej do dodania do naczynia solankowego.
-  2. Obsługuje scenariusz dolewki wody do słoików warzywnych, wyliczając dawkę soli kompensującą nową objętość.
-* **Persona:** P1, P6, P7.
-* **Priorytet:** MUST | **Etap:** MVP.
-
----
-
-### **BR-SOL-025: Bufor Kwasowo-Wapniowy Solanki i Ochrona Przed Rozmiękaniem Skórki (Brine Acidification & Calcium Buffer)**
-* **Opis:** Zapobieganie zjawisku rozmiękania i oślizgłości skórki (*slimy rind*) w solance poprzez chemiczną stabilizację równowagi osmotycznej wapnia i kwasowości (`brine-acidification.ts`).
-* **Zasada chemiczna:**
-  Czysta solanka przygotowana na bazie surowej wody kranowej (pH ~7.5) gwałtownie wyciąga jony wapnia ($Ca^{2+}$) z sieci kazeinowej sera do roztworu. Skórka staje się śluzowata, galaretowata i nie tworzy prawidłowej warstwy ochronnej.
-* **Formuła buforowania:**
-  1. **Bufor wapniowy:** Dodatek $2.0\text{ g}$ czystego bezwodnego $CaCl_2$ na każdy litr wody w solance (lub $6.0\text{ ml}$ roztworu 33%).
-  2. **Miareczkowanie kwasowości (kwas mlekowy 80%):**
-     $$V_{kwas}\text{ [ml]} = V_{wody}\text{ [L]} \times \frac{\max(0, pH_{wody} - 5.20)}{2.3} \times 2.2$$
-     Pozwala to na precyzyjne zbicie pH solanki do optymalnego przedziału 5.20–5.40, identycznego z pH krążka sera.
-* **Kryteria akceptacji:**
-  1. Kalkulator w zakładce Solanki wylicza objętość kwasu mlekowego oraz wagę chlorku wapnia.
-  2. Komunikat edukacyjny wyjaśniający mechanizm wymiany jonowej i zapobiegania usterkom mikrobiologicznym.
-* **Persona:** P1, P6, P7.
-* **Priorytet:** MUST | **Etap:** MVP.
-
----
-
-### **BR-SOL-030: Solenie Ziarna w Masie dla Cheddara (Milling & Dry Salting With Whey Runoff Compensation)**
-* **Opis:** Bezpośrednie solenie pociętego ziarna serowarskiego w kotle (metoda anglosaska - Cheddar, Caerphilly, Lancashire) z kompensacją strat soli w odciekającej pod prasą serwatce (`curd-washing-and-salting.ts`).
-* **Formuła kompensacyjna:**
-  $$m_{soli\_calkowita} = \frac{m_{ziarna} \times (S_{docelowa} / 100)}{1 - (Loss_{serwatka} / 100)}$$
-  gdzie domyślny odciek soli w serwatce pod prasą wynosi 33%.
-* **3-etapowy protokół zadawania soli:**
-  1. Krok 1 (1/3 dawki): posypanie ziarna, mieszanie 3 min, 5 min spoczynku na pierwsze wyciągnięcie wilgoci.
-  2. Krok 2 (1/3 dawki): ponowne mieszanie błyszczącego ziarna, 5 min spoczynku.
-  3. Krok 3 (1/3 dawki): końcowe wymieszanie i natychmiastowy załadunek do chusty prasowalniczej.
-* **Persona:** P1, P2, P6, P7.
-* **Priorytet:** MUST | **Etap:** MVP.
-
----
-
-### **BR-SOL-035: Kalkulator Powłok Ochronnych & Woskowania Krążka (Cheese Wax & Polyvinyl Coverage)**
-* **Opis:** Precyzyjne obliczanie pola powierzchni walca sera ($A = 2\pi r^2 + 2\pi r h$) oraz gramatury wosku serowarskiego lub powłoki polioctanowej (z natamycyną) potrzebnej do zabezpieczenia krążka przed wysychaniem i pleśnią.
-* **Wskaźniki zużycia materiału:**
-  - Wosk serowarski (parafina/mikrowosk): $0.075\text{ g/cm}^2$ na warstwę. Zapewnia barierę wilgoci (0% ubytku).
-  - Powłoka polioctanowa: $0.040\text{ g/cm}^2$ na warstwę. Zapewnia paroprzepuszczalność i ochronę przeciwgrzybiczą.
-* **Persona:** P1, P6, P7.
-* **Priorytet:** MUST | **Etap:** MVP.
-
----
-
-### **BR-SOL-025: Dyfuzja Soli & Czas Przenikania Solanki wg Prawa Ficka (Fickian Salt Diffusion & Core Penetration Engine)**
-* **Opis:** Fizykochemiczny model nieustalonej dyfuzji jonów $Na^+$ i $Cl^-$ w porowatym żelu kazeinowym oparty na II Prawie Ficka oraz modelach Geurtsa i Guinee (`brine-diffusion.ts`).
-* **Zasady modelowania i parametry:**
-  1. **Geometria i droga dyfuzji:**
-     * Najkrótsza droga do rdzenia geometrycznego: $x_{core} = \min(r, h/2)$.
-     * Czas dyfuzji skaluje się z kwadratem odległości ($t \propto x^2$), przez co krążki wysokie wymagają nieproporcjonalnie dłuższego leżakowania do wyrównania stężenia niż krążki płaskie.
-  2. **Efektywny współczynnik dyfuzji ($D_{eff}$):**
-     * Bazowy $D_0 \approx 0.28\text{ cm}^2/\text{dzień}$ w $12^\circ\text{C}$ dla wilgotności 42% i tłuszczu 48% FDM.
-     * Wyższa wilgotność przyspiesza dyfuzję; wyższy tłuszcz działa jak geometryczna zawada (tortuosity) i ją spowalnia; temperatura wpływa zgodnie z relacją Arrheniusa (~3.5% na każdy $1^\circ\text{C}$).
-  3. **Wyrównanie stężenia w centrum ($C_{core} \ge 1.0\%$):**
-     * Oszacowanie liczby dni w piwniczce do osiągnięcia stężenia ochronnego w rdzeniu: $t_{eq} = \frac{x_{core}^2}{4 D_{eff}}$.
-     * Alerty ochronne: ostrzeżenie o ryzyku zakażenia niedosolonego rdzenia przy $t_{eq} > 40\text{ dni}$ oraz zalecenie obniżenia temperatury dojrzewalni $<12^\circ\text{C}$.
-  4. **Inwarianty solankowe:**
-     * Wykrywanie zbyt słabej solanki ($<16\% \to$ slimy rind) oraz zbyt mocnej ($>23\% \to$ krystalizacja soli na skórce i blokada dyfuzji).
-* **Kryteria akceptacji:**
-  1. Reaktywny kalkulator w akordeonie Pro Serowarstwa wyliczający optymalny czas w solance (godz. i dni) oraz tempo pochłaniania soli (g/godz.).
-  2. Wyliczanie liczby dni leżakowania w piwniczce do wyrównania stężenia soli w całym przekroju krążka.
-* **Persona:** P1, P6, P7.
-* **Priorytet:** MUST | **Etap:** MVP.
-
-

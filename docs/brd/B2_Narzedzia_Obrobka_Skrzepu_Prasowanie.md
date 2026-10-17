@@ -1,4 +1,4 @@
-# **FERMENT BRD 0.1 — Rozdział 7: Narzędzia Serowarskie — Obróbka Skrzepu i Prasowanie (B2)**
+# **SEROWAR BRD 0.1 — Rozdział 7: Narzędzia Serowarskie — Obróbka Skrzepu i Prasowanie (B2)**
 
 > **Moduł:** `BR-CURD-001` do `BR-CURD-030`  
 > **Kontekst dziedzinowy:** Kinetyka synerezy skrzepu, geometria cięcia harfą, dogrzewanie gęstwy, płukanie serwatki, dynamika nacisku prasy ($kg/cm^2$ i PSI).
@@ -46,12 +46,12 @@
 ### **BR-CURD-015: Zaawansowany Kalkulator Nacisku Prasy Serowarskiej**
 * **Opis:** Przeliczanie masy fizycznego obciążnika (odważnika, hantli, baniaka z wodą) na rzeczywisty nacisk jednostkowy wywierany na powierzchnię sera w formie.
 * **Fizyka nacisku:**
-  Nacisk jednostkowy $P$ zależy od pola powierzchni formy $A = \pi \times r^2$ (dla formy cylindrycznej o promieniu $r$) oraz ramienia dźwigni w prasach holenderskich:
+  Nacisk jednostkowy $P$ zależy od pola powierzchni formy $A = \pi \times r^2$ oraz ramienia dźwigni w prasach holenderskich:
   $$P [kg/cm^2] = \frac{m_{obciaznika} [kg] \times R}{\pi \times (\frac{d}{2})^2 [cm^2]}$$
-  Gdzie $R$ to przełożenie dźwigni (dla nacisku bezpośredniego $R = 1.0$, dla prasy dźwigniowej $R = 3.0 - 5.0$), a $d$ to średnica formy serowarskiej.
+  Gdzie $R$ to przełożenie dźwigni ($R = 1.0$ dla nacisku bezpośredniego, $R = 3.0 - 5.0$ dla prasy dźwigniowej), a $d$ to średnica formy serowarskiej.
 * **Kryteria akceptacji:**
   1. Użytkownik wybiera średnicę formy (np. $\varnothing 14\text{ cm} \rightarrow A \approx 154\text{ cm}^2$, $\varnothing 20\text{ cm} \rightarrow A \approx 314\text{ cm}^2$).
-  2. Użytkownik podaje typ prasy: Prasa bezpośrednia / grawitacyjna ($R=1$), Prasa dźwigniowa holenderska (użytkownik wpisuje długość ramienia A i B), Prasa pneumatyczna (wpisanie ciśnienia na manometrze w barach / PSI).
+  2. Użytkownik podaje typ prasy: Prasa bezpośrednia / grawitacyjna ($R=1$), Prasa dźwigniowa holenderska, Prasa pneumatyczna.
   3. System generuje dokładną wagę obciążnika wymaganą do uzyskania zadanego nacisku technologicznego (np. 0.05, 0.20, 0.50, 1.00 kg/cm²).
 * **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
@@ -67,78 +67,3 @@
   4. Etap 4: 12–16 godzin (przez noc) przy nacisku docelowym ($1.5 - 2.0\text{ kg/cm}^2$). Powiadomienie: *„Zakończ prasowanie. Zmierz pH i wagę przed kąpielą solankową.”*
 * **Persona:** P1, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP.
-
----
-
-### **BR-CURD-025: Harmonogram Odwrócony Produkcji & Anti-Fatigue Sleep Guard**
-* **Opis:** Zaadaptowany z silnika *Piekarz* system planowania wstecznego na osi czasu (`reverse-scheduler.ts`). Użytkownik definiuje docelową godzinę zakończenia wyrobu sera (np. sobota 22:00, przed pójściem spać), a silnik wylicza dokładny moment startu podgrzewania mleka oraz sekwencję kroków.
-* **Algorytm i Bezpieczeństwo Kulinarne (Anti-Fatigue Guard):**
-  1. Wyliczanie wsteczne: $T_{start} = T_{cel} - \sum t_{krokow}$.
-  2. Analiza przedziału nocnego (23:00–06:00): Jeśli jakikolwiek aktywny krok wymagający interwencji (odwracanie w prasie, solenie, dogrzewanie) wypadnie w oknie snu, system generuje ostrzeżenie wysokiego priorytetu oraz rekomenduje wcześniejszą godzinę startu.
-* **Persona:** P1, P2, P6.
-* **Priorytet:** MUST | **Etap:** MVP.
-
----
-
-### **BR-CURD-030: Odzysk Serwatki i Gospodarka Zero-Waste (Ricotta & Izotonik)**
-* **Opis:** Moduł zagospodarowania produktów ubocznych (`whey-utilization.ts`). Z 10 litrów mleka serowarskiego powstaje ok. 9 litrów słodkiej serwatki podpuszczkowej zawierającej cenne albuminy i globuliny.
-* **Zasady technologiczne:**
-  1. **Odzysk tradycyjnej Ricotty (Ziger):** Denaturacja białek w temperaturze 88–92°C z zakwaszeniem kwasem cytrynowym ($1.8\text{ g/L}$) lub octem. Obliczanie dodatku świeżego pełnego mleka (+10% / +20%) dla podwojenia kremowości i uzysku.
-  2. **Rzemieślniczy napój izotoniczny (Alpejska Rivella):** Receptura bilansująca serwatkę, sok z cytryny, miód/cukier, świeżą miętę i wodę mineralną (bogaty w potas i peptydy bioaktywne).
-* **Persona:** P1, P4, P6.
-* **Priorytet:** MUST | **Etap:** MVP.
-
----
-
-### **BR-PRESS-015: Holenderska Prasa Dźwigniowa & Kaskada Prasowania (Dutch Lever & Rind Guard)**
-* **Opis:** Fizyka prasy dźwigniowej z kompensacją tary belki oraz kaskadowy program formowania skórki (`press-cascade.ts`).
-* **Formuła nacisku z tarą ramienia:**
-  $$F_{laczna} = M_{odwaznik} \times \left(\frac{L_{ramie}}{L_{forma}}\right) + M_{ramie} \times \left(\frac{L_{ramie} / 2}{L_{forma}}\right)$$
-* **Ochrona przed Rind Entrapment (Zakleszczenie Serwatki):**
-  1. Faza 1 (45 min): Lekki nacisk (1.5x waga sera), swobodny odpływ serwatki bez zamykania porów.
-  2. Faza 2 (120 min): Pierwszy obrót krążka, wyrównanie powierzchni (3.5x waga sera).
-  3. Faza 3 (12h): Pełny docisk zamykający mikroszczeliny (7.5x waga sera).
-  4. Blokada: Ostrzeżenie przed aplikacją maksymalnego obciążenia w fazie 1.
-* **Persona:** P1, P2, P6, P7.
-* **Priorytet:** MUST | **Etap:** MVP.
-
----
-
-### **BR-PRESS-016: Przemywanie Ziarna & Odlaktozowanie (Curd Washing / Delactosing Thermal Equilibrium)**
-* **Opis:** Bilans masowo-termiczny przemywania ziarna serowarskiego gorącą wodą (Gouda, Edam, Havarti). Usuwa część laktozy z serwatki, zapobiegając nadmiernemu przekwaszeniu i zapewniając elastyczną, maślaną strukturę miąższu.
-* **Formuła równowagi cieplnej:**
-  $$V_{woda} = \frac{(V_{mleko} - V_{odlana}) \cdot (T_{docelowa} - T_{ziarno})}{T_{goraca} - T_{docelowa}}$$
-* **Wskaźnik odlaktozowania:**
-  $$Ratio_{delacto} = \left(\frac{V_{odlana}}{V_{mleko}}\right) \times 100\%$$
-* **Reguły ochronne:**
-  - Alarm $T_{goraca} > 65^\circ\text{C}$: Ostrzeżenie przed zacięciem termicznym powierzchni ziaren (case hardening) i zniszczeniem mikroflory.
-  - Alarm $T_{docelowa} > 39^\circ\text{C}$ dla kultur mezofilnych (*Lactococcus lactis*): Blokada przed zabiciem bakterii.
-* **Persona:** P1, P2, P6, P7.
-* **Priorytet:** MUST | **Etap:** MVP.
-
----
-
-### **BR-PRESS-017: Kinetyka Synerezy Skrzepu & Dogrzewanie Ziarna (Curd Syneresis & Casein Shrinkage Kinetics)**
-* **Opis:** Fizykochemiczny kalkulator dynamiki kurczenia ziaren kazeinowych podczas krojenia, mieszania i dogrzewania skrzepu (`curd-syneresis.ts`), zapobiegający defektowi zasklepienia porów kazeinowych (case hardening / protein skinning).
-* **Zasady biochemiczne i parametry kinetyki:**
-  1. **Rozmiary ziarna wg stylu sera:**
-     * Bardzo drobne (3–5 mm): Parmezan, Grana, Emmental, Sbrinz (szybka synereza, niska wilgotność 30–35%).
-     * Średnie (8–12 mm): Gouda, Edam, Cheddar, Tilsit (umiarkowana synereza, wilgotność 36–46%).
-     * Grube (15–20 mm): Camembert, Brie, Reblochon (łagodna synereza, wilgotność 50–58%).
-     * Płaty / fresh (25–35 mm): Feta, Halloumi, sery twarogowe (wilgotność 55–65%).
-  2. **Tempo dogrzewania (Cooking Ramp Rate Kinetics):**
-     * Złota zasada serowarska: tempo wzrostu temperatury nie może przekraczać 0.5°C/min (1°C na 2–3 minuty), zwłaszcza w krytycznym oknie 31–38°C.
-     * Przekroczenie tempa bezpiecznego wywołuje alarm `CRITICAL_CASE_HARDENING`: gwałtowne odwodnienie zewnętrznej warstwy ziarna i wytworzenie nieprzepuszczalnej powłoki białkowej, która więzi wilgoć i laktozę w rdzeniu, prowadząc do późniejszego przekwaszenia i gorzkiego posmaku.
-  3. **Równowaga micelarna wapnia a pH przy ocieku (Drain pH):**
-     * Zbyt niskie pH (<6.20 w Goudzie): alarm `DECALCIFIED_BRITTLE_ACIDIC` — nadmierne wypłukanie wapnia koloidalnego, kruchy, kredowy miąższ.
-     * Zbyt wysokie pH (>6.48): alarm `EXCESSIVE_CALCIUM_RUBBERY` — nadmiar wapnia micelarnego, struktura gumowata.
-  4. **Wskaźnik intensywności synerezy (Syneresis Index 0–100):**
-     * Zagregowana funkcja powierzchni właściwej ziarna, temperatury dogrzewania, czasu mieszania i zakwaszenia serwatki.
-* **Kryteria akceptacji:**
-  1. Zintegrowana karta w trybie `cheese` Pro Accordion.
-  2. Testy jednostkowe (`tests/core/curd-syneresis.test.ts`) weryfikujące wykrywanie case hardening, bilans wapnia i szacowanie wilgotności końcowej.
-* **Persona:** P1, P2, P6, P7.
-* **Priorytet:** MUST | **Etap:** MVP/1.1.
-
-
-

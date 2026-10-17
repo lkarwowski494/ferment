@@ -1,7 +1,7 @@
-# **FERMENT BRD 0.1 — Rozdział 7: Narzędzia — Zegarki, Live Activity, Sensory i Sensoryka (B8)**
+# **SEROWAR BRD 0.1 — Rozdział 7: Narzędzia — Zegarki, Live Activity, Sensory i Sensoryka (B8)**
 
 > **Moduł:** `BR-SYS-001` do `BR-SYS-030`  
-> **Kontekst dziedzinowy:** Hands-free w kuchni serowarskiej, Apple Watch, Garmin Connect IQ, widżety Live Activity w czasie rzeczywistym, odczyt z czujników BLE, wektorowy radar sensoryczny smaku i tekstury (SVG).
+> **Kontekst dziedzinowy:** Hands-free w kuchni serowarskiej ("ręce w serwatce"), Apple Watch, Garmin Connect IQ, widżety Live Activity w czasie rzeczywistym, odczyt z czujników BLE, wektorowy radar sensoryczny sera (SVG).
 
 ---
 
@@ -10,7 +10,7 @@
 * **Scenariusze Live Activity:**
   1. **Odliczanie do punktu flokulacji:** stoper miseczki z przyciskiem szybkiej akcji „Złapano flokulację”.
   2. **Odliczanie do cięcia skrzepu:** czas mnożnika flokulacji ($t_f \times M$).
-  3. **Rampa dogrzewania skrzepu:** aktualna temperatura docelowa i tempo grzania.
+  3. **Rampa dogrzewania skrzepu / twarogu:** aktualna temperatura docelowa i tempo grzania.
   4. **Fazy prasowania:** czas pozostały do następnego obrotu krążka w prasie.
 * **Kryteria akceptacji:**
   * Widżet nie gaśnie, aktualizuje się co sekundę, wspiera Always-On Display.
@@ -23,7 +23,7 @@
 * **Opis:** Dedykowany interfejs zegarkowy dla serowara z mokrymi dłońmi.
 * **Funkcje na zegarku:**
   * Duży przycisk rejestracji punktu flokulacji (obsługa tapnięciem nadgarstka lub koronką Digital Crown).
-  * Wyświetlanie aktualnego kroku procesu (np. „Mieszaj gęstwę — jeszcze 4 minuty”).
+  * Wyświetlanie aktualnego kroku procesu (np. „Dogrzewaj skrzep — jeszcze 6 minut do 38°C”).
   * Dźwiękowa i haptyczna sygnalizacja alarmów obrotu sera w prasie i solance.
 * **Kryteria akceptacji:**
   * Niezależne działanie timera na Apple Watch nawet przy zerwanym połączeniu Bluetooth z telefonem.
@@ -33,7 +33,7 @@
 ---
 
 ### **BR-SYS-015: Bezprzewodowa Integracja z Czujnikami Środowiskowymi BLE**
-* **Opis:** Automatyczne pobieranie odczytów temperatury i wilgotności względnej z bezprzewodowych tagów Bluetooth Low Energy umieszczonych w dojrzewalni lub pojemnikach fermentacyjnych.
+* **Opis:** Automatyczne pobieranie odczytów temperatury i wilgotności względnej z bezprzewodowych tagów Bluetooth Low Energy umieszczonych w dojrzewalni lub chłodziarce serowarskiej.
 * **Wspierane czujniki (protokoły broadcast Manufacturer Data):**
   * **RuuviTag (Finlandia):** format RAWv2 (temperatura, wilgotność z dokładnością do 0.1%, ciśnienie atmosferyczne).
   * **Xiaomi Mijia BLE (np. LYWSD03MMC z firmware ATC/BTHome):** temperatura i wilgotność.
@@ -45,80 +45,16 @@
 
 ---
 
-### **BR-SYS-020: Wektorowy Radar Sensoryczny Smaku i Tekstury (Spider Radar SVG)**
-* **Opis:** Interaktywny wykres pajęczynowy oceny dojrzałości sera oraz profilu smakowego kiszonek i kombuchy.
+### **BR-SYS-020: Wektorowy Radar Sensoryczny Smaku i Dojrzałości Sera (Spider Radar SVG)**
+* **Opis:** Interaktywny wykres pajęczynowy oceny dojrzałości sera oraz profilu sensorycznego produktów mlecznych.
 * **Osie sensoryczne sera:**
-  1. Kwasowość (Acidity)
+  1. Kwasowość (Acidity / pH)
   2. Słoność (Salinity)
-  3. Wilgotność / Elastyczność (Moisture / Elasticity)
+  3. Elastyczność / Zwartość Miąższu (Elasticity / Curd Firmness)
   4. Maślanowość / Kremowość (Creaminess / Diacetyl)
   5. Ostrość / Pikantność (Pungency / Lipolysis)
-  6. Orzechowość / Słodycz (Nuttiness / Proteolysis)
+  6. Orzechowość / Dojrzałość Proteolityczna (Nuttiness / Proteolysis)
 * **Kryteria akceptacji:**
   * Wektorowy komponent SVG renderowany w 100% lokalnie, z możliwością nałożenia profilu wzorcowego stylu sera na profil uzyskany przez użytkownika.
 * **Persona:** P1, P3, P6, P7.
 * **Priorytet:** SHOULD | **Etap:** MVP.
-
----
-
-### **BR-SENS-010: Silnik Oceny Sensorycznej i Balansu Organoleptycznego (Sensory Evaluation & Artisan Critique Engine)**
-* **Opis:** 6-osiowy model punktacji sensorycznej i diagnostyki wad rzemieślniczych dla wszystkich kategorii wyrobów (`sensory-evaluation.ts`).
-* **Osie sensoryczne (skala 1–10):**
-  1. Kwasowość (*Acidity*).
-  2. Słoność (*Salinity*).
-  3. Zwartość / Chrupkość (*Firmness / Crispness*).
-  4. Kremowość / Tekstura (*Creaminess / Texture*).
-  5. Pikantność / Ostrość (*Pungency / Sharpness*).
-  6. Orzechowość / Czystość (*Nuttiness / Cleanliness*).
-* **Klasyfikacja punktowa (0–100 pkt):**
-  * $90 - 100\text{ pkt}$: `EXEMPLARY` (Wybitna harmonia smakowa, wzorcowa równowaga).
-  * $75 - 89\text{ pkt}$: `GOOD` (Bardzo dobry, zbalansowany wyrób rzemieślniczy).
-  * $55 - 74\text{ pkt}$: `ACCEPTABLE` (Wyrób poprawny z drobnymi odchyleniami).
-  * Poniżej $55\text{ pkt}$: `FLAWED` (Wada technologiczna / błąd fermentacji).
-* **Diagnostyka wad i rekomendacje naprawcze:**
-  * Ser: wykrywanie kredowości/nadkwasowości (rekomendacja: washing the curd), przesolenia, zjełczenia tłuszczów (lipoliza).
-  * Kiszonki: utrata chrupkości i rozkład pektyn (rekomendacja: liście dębu/chrzanu bogate w garbniki, obniżenie temp. fermentacji < 20°C).
-  * Kombucha/Octy: mdły posmak i brak kwasowości (rekomendacja: wydłużenie 1F, lepszy dostęp tlenu).
-* **Kryteria akceptacji:**
-  1. Integracja w widoku partii z możliwością 1-tap zapisu oceny do tabeli `sensory_evaluations`.
-  2. Wyświetlanie wykrytych wad i konkretnych porad rzemieślniczych.
-* **Persona:** P1, P2, P3, P6, P7.
-* **Priorytet:** MUST | **Etap:** MVP.
-
----
-
-### **BR-SENS-015: Doktor Fermentacji — Drzewo Decyzyjne Diagnostyki Wad i Triage Bezpieczeństwa Biologicznego (Fermentation Doctor)**
-* **Opis:** Interaktywny asystent diagnozowania anomalii wizualnych, zapachowych i teksturalnych we wszystkich 4 rzemiosłach (serowarstwo, kiszonki, kombucha, żywe octy) z automatyczną klasyfikacją ryzyka biologicznego (`fermentation-diagnostics.ts`, `FermentationDoctorModal.tsx`).
-* **Kategorie bezpieczeństwa (Safety Verdicts):**
-  1. `SAFE_EDIBLE`: wyrób w pełni bezpieczny biologicznie, obecna jedynie kosmetyczna lub przejściowa wada smakowa (np. goryczka kazeinowa w młodym serze, papkowate ogórki z rozpadem pektyn nadające się na zupę).
-  2. `COSMETIC_FLAW`: wada powierzchniowa nieszkodliwa po usunięciu (np. drożdże kożuchujące Kahm *Pichia* / *Debaryomyces* — usunięcie łyżką i przemycie ścianek octem).
-  3. `REPAIRABLE_RISK`: aktywne zagrożenie technologiczne wymagające natychmiastowej interwencji krok po kroku (np. zapach acetonu w kombuchy, zapach siarkowodoru $H_2S$ w occie usuwany drucikiem miedzianym i napowietrzaniem, zasklepienie skórki *case hardening*).
-  4. `BIOHAZARD_DISCARD`: bezwzględny nakaz natychmiastowej utylizacji wyrobu (zagrożenie mykotoksynami pleśni *Aspergillus*, jadem kiełbasianym *Clostridium botulinum*, wczesnym wzdęciem coliformami *E. coli* czy zgnilizną beztlenową przy $pH > 4.60$).
-* **Kryteria akceptacji:**
-  1. Wyszukiwarka objawów po słowach kluczowych (np. "gąbka", "pleśń", "gorzki", "kahm", "smród").
-  2. Podział na rzemiosła (Sery, Kiszonki, Kombucha, Octy).
-  3. Szczegółowe wyjaśnienie mikrobiologiczne z łacińskimi nazwami gatunków bakterii i grzybów.
-  4. Instrukcja naprawcza krok po kroku oraz zalecenia profilaktyczne na przyszłość.
-* **Persona:** P1, P2, P3, P5, P6, P7.
-* **Priorytet:** MUST | **Etap:** MVP.
-
----
-
-### **BR-SEN-004: Koło Smaków Mikrobiologicznych (Microbial Flavor Wheel Lexicon & Distribution Engine)**
-* **Opis:** Interaktywny leksykon sensoryczny i koło smaków modelujące 40 standaryzowanych deskryptorów smakowo-zapachowych dla serowarstwa, kiszonek, kombuchy i żywych octów (`flavor-wheel-data.ts`, `FlavorWheelModal.tsx`).
-* **5 Fundamentalnych Wektorów Smakowych:**
-  1. **Mleczne & Maślane (`LACTIC`):** Świeże mleko (laktoza), Świeże masło / Diacetyl (2,3-butanodion), Zsiadłe mleko (kwas L-mlekowy), Słodka serwatka, Mleko skondensowane, Jogurt grecki (acetaldehyd), Twaróg klinkowy, Masło klarowane ghee (laktony gamma).
-  2. **Kwasowo-Owocowe (`FRUITY_ACID`):** Zielone jabłko (kwas jabłkowy), Czysty kwas octowy (*Acetobacter*), Ananas/marakuja (maślan etylu), Skórka cytryny (limonen), Kiszona śliwka (benzaldehyd), Czerwona porzeczka, Kwas winowy, Dojrzała gruszka (octan izoamylu).
-  3. **Orzechowo-Karmelowe (`NUTTY_CARAMEL`):** Prażony orzech laskowy (pirazyny), Palone masło/toffee (reakcja Maillarda), Skórka chleba na zakwasie (2-acetylo-1-pirolina), Prażone migdały (kwas propionowy), Ciemny karmel (maltol), Skórka orzecha włoskiego (taniny), Słód jęczmienny, Miód gryczany.
-  4. **Ziemisto-Grzybowe (`EARTHY_FUNGAL`):** Świeża pieczarka (*1-okten-3-ol*, *P. camemberti*), Wilgotna piwnica (geosmina), Leśna ściółka (2-metyloizoborneol), Błękitna trufla (*P. roqueforti*, dwusiarczek dimetylu), Kora świerkowa (elagotaniny), Wapienna ściana (krzemień), Korzeń pietruszki, Ciemny torf humusowy.
-  5. **Zwierzęco-Pikantne (`ANIMAL_PUNGENT`):** Dojrzały kozi profil (kwasy kapronowy/kaprylowy/kaprynowy), Skóra juchtowa (p-krezol, skatol), Fermentowany czosnek/kimchi (dwusiarczek allilu), Czerwona maź (*Brevibacterium linens*, metanotiol), Ostra gorczyca (alliloizotiocyjanian), Ostry amoniak (deaminacja aminokwasów), Zagroda/siano (kwas izowalerianowy), Wędzarnia olchowa (gwajakol, eugenol).
-* **Kluczowe funkcjonalności:**
-  1. Wyszukiwanie pełnotekstowe po nazwie, opisie i cząsteczce chemicznej.
-  2. Zrównoważenie wektorów smakowych: wykres rozkładu procentowego i liczbowego w zaznaczonej partii.
-  3. 1-tap wklejanie sformatowanego znacznika `[Koło Smaków: ...]` bezpośrednio do notatek degustacyjnych partii w bazie SQLite.
-* **Kryteria akceptacji:**
-  1. Pełne testy jednostkowe (`tests/core/flavor-wheel-data.test.ts`) potwierdzające obecność 40 deskryptorów i 8 na kategorię.
-  2. Dostępność modalnego koła smaków zarówno z nagłówka ekranu partii, jak i wewnątrz karty oceny organoleptycznej.
-* **Persona:** P1, P2, P3, P4, P6, P7.
-* **Priorytet:** MUST | **Etap:** MVP.
-

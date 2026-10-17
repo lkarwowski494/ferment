@@ -1,4 +1,4 @@
-# **FERMENT BRD 0.1 — Tabela Zakresu: Część 1 (Serowarstwo i Cave Log)**
+# **SEROWAR BRD 0.1 — Tabela Zakresu: Część 1 (Serowarstwo Podpuszczkowe i Cave Log)**
 
 Tabela definiuje 120 wymagań obszaru serowarskiego z przypisanymi identyfikatorami Z-001…Z-120 oraz etapami wdrożenia (**MVP / 1.1 / 1.2 / 2.x / Badanie / Nigdy**).
 

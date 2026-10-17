@@ -1,7 +1,7 @@
-# **FERMENT BRD 0.1 — Rozdziały 11–12: Architektura Techniczna i Model Relacyjny SQLite (D2)**
+# **SEROWAR BRD 0.1 — Rozdziały 11–12: Architektura Techniczna i Model Relacyjny SQLite (D2)**
 
 > **Architektura:** Expo / React Native, TypeScript Strict Mode, SQLite w trybie WAL  
-> **Bezpieczna ścieżka:** `/Library/Application Support/SQLite/ferment.db`  
+> **Bezpieczna ścieżka:** `/Library/Application Support/SQLite/serowar.db`  
 > **Rotacja kopii:** Automatyczny silnik 10 rotacyjnych kopii JSON (`autoBackup`)
 
 ---
@@ -9,18 +9,18 @@
 ## **1. Schemat Bazy Danych DDL (18 Tabel Relacyjnych w SQLite)**
 
 ```sql
--- 1. Tabela partii serowarskich i fermentacyjnych
+-- 1. Główna tabela partii mleczarskich
 CREATE TABLE IF NOT EXISTS batches (
     id TEXT PRIMARY KEY NOT NULL,
     batch_number TEXT UNIQUE NOT NULL,
-    category TEXT NOT NULL CHECK(category IN ('CHEESE', 'VEG_FERMENT', 'KIMCHI', 'KOMBUCHA', 'VINEGAR')),
+    category TEXT NOT NULL CHECK(category IN ('HARD_CHEESE', 'SOFT_CHEESE', 'FRESH_CURD', 'BUTTER_GHEE', 'FERMENTED_MILK', 'WHEY_PRODUCT')),
     style_name TEXT NOT NULL,
     created_at INTEGER NOT NULL,
     status TEXT NOT NULL CHECK(status IN ('PREPARING', 'COAGULATING', 'PRESSING', 'BRINING', 'AGING', 'COMPLETED', 'DISCARDED')),
     notes TEXT
 );
 
--- 2. Parametry wsadu serowarskiego
+-- 2. Parametry wsadu mlecznego i koagulacji podpuszczkowej
 CREATE TABLE IF NOT EXISTS cheese_batch_details (
     batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
     milk_type TEXT NOT NULL CHECK(milk_type IN ('COW', 'GOAT', 'SHEEP', 'BUFFALO', 'MIXED')),
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS pressing_stages (
     completed_at INTEGER
 );
 
--- 4. Kąpiel solankowa krążka
+-- 4. Kąpiel solankowa krążka sera
 CREATE TABLE IF NOT EXISTS brining_logs (
     batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
     brine_salinity_pct REAL NOT NULL,
@@ -90,40 +90,37 @@ CREATE TABLE IF NOT EXISTS cave_environment_logs (
     sensor_source TEXT NOT NULL CHECK(sensor_source IN ('MANUAL', 'RUUVI_BLE', 'MIJIA_BLE'))
 );
 
--- 7. Nastawy kiszonek warzywnych i kimchi
-CREATE TABLE IF NOT EXISTS veg_ferment_details (
+-- 7. Parametry produkcji twarogów i serów kwasowych
+CREATE TABLE IF NOT EXISTS curd_batch_details (
     batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
-    vegetables_weight_grams REAL NOT NULL,
-    water_weight_grams REAL NOT NULL,
-    total_batch_weight_grams REAL NOT NULL,
-    salt_target_pct REAL NOT NULL,
-    salt_added_grams REAL NOT NULL,
-    salting_method TEXT NOT NULL CHECK(salting_method IN ('TOTAL_MASS_BRINE', 'DRY_SALTING_CABBAGE', 'LIQUID_BRINE')),
-    initial_ph REAL,
-    current_ph REAL,
-    botulinum_safe INTEGER DEFAULT 0
+    acidification_method TEXT NOT NULL CHECK(acidification_method IN ('NATURAL_SOURED', 'MESOPHILIC_DVI', 'CITRIC_ACID', 'ACID_WHEY')),
+    milk_volume_liters REAL NOT NULL,
+    measured_ph REAL,
+    heating_temp_c REAL NOT NULL,
+    drain_duration_minutes INTEGER NOT NULL,
+    pressed_weight_kg REAL,
+    final_curd_weight_grams REAL
 );
 
--- 8. Nastawy kombuchy i octów
-CREATE TABLE IF NOT EXISTS symbiotic_beverage_details (
+-- 8. Parametry zmaślania śmietanki i ghee
+CREATE TABLE IF NOT EXISTS butter_churn_details (
     batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
-    tea_type TEXT,
-    tea_grams REAL,
-    sugar_grams REAL,
-    water_liters REAL,
-    starter_liquid_ml REAL,
-    scoby_tag TEXT,
-    phase TEXT NOT NULL CHECK(phase IN ('1F_AEROBIC', '2F_BOTTLE_PRESSURE', 'ACETIC_OXIDATION')),
-    estimated_abv_pct REAL,
-    estimated_co2_volumes REAL,
-    target_acetic_acid_pct REAL
+    cream_fat_pct REAL NOT NULL,
+    cream_volume_liters REAL NOT NULL,
+    cream_temperature_c REAL NOT NULL,
+    cream_type TEXT NOT NULL CHECK(cream_type IN ('SWEET', 'CULTURED')),
+    churn_duration_minutes INTEGER,
+    wash_cycles_count INTEGER NOT NULL DEFAULT 3,
+    butter_yield_grams REAL,
+    buttermilk_yield_ml REAL,
+    ghee_yield_grams REAL
 );
 
--- 9. Spiżarnia i inwentarz surowców
+-- 9. Spiżarnia i inwentarz surowców mleczarskich
 CREATE TABLE IF NOT EXISTS pantry_inventory (
     id TEXT PRIMARY KEY NOT NULL,
     item_name TEXT NOT NULL,
-    category TEXT NOT NULL CHECK(category IN ('MILK', 'CULTURE', 'RENNET', 'SALT', 'MINERAL', 'TEA', 'SUGAR')),
+    category TEXT NOT NULL CHECK(category IN ('MILK', 'CREAM', 'CULTURE', 'RENNET', 'SALT', 'MINERAL', 'HERB')),
     quantity_available REAL NOT NULL,
     unit TEXT NOT NULL,
     imcu_or_concentration TEXT,
@@ -131,7 +128,7 @@ CREATE TABLE IF NOT EXISTS pantry_inventory (
     cost_per_unit_pln REAL
 );
 
--- 10. Oceny sensoryczne (Radar Smaku)
+-- 10. Oceny sensoryczne (Radar Smaku Sera)
 CREATE TABLE IF NOT EXISTS sensory_evaluations (
     id TEXT PRIMARY KEY NOT NULL,
     batch_id TEXT NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
@@ -149,6 +146,6 @@ CREATE TABLE IF NOT EXISTS sensory_evaluations (
 ---
 
 ## **2. Silnik Kopii Zapasowej (10-Krotna Rotacja JSON)**
-Podobnie jak we wzorcowych aplikacjach `trening` i `piekarz`, moduł `backup.ts` tworzy po każdej zakończonej sesji zrzut stanu relacyjnego do pliku JSON o formacie:
-`ferment_backup_YYYY-MM-DD_HHmmss.json`.
+Moduł `backup.ts` tworzy po każdej zakończonej sesji zrzut stanu relacyjnego do pliku JSON o formacie:
+`serowar_backup_YYYY-MM-DD_HHmmss.json`.
 W katalogu `/Library/Application Support/Backups/` utrzymywanych jest ściśle 10 najświeższych kopii, z automatycznym usuwaniem najstarszej.
