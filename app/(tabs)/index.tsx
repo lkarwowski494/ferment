@@ -19,7 +19,7 @@ import { t } from '../../src/lib/i18n';
 import { useAppAccess } from '../../src/lib/app-access';
 import { Apps4BrewPassModal } from '../../src/components/Apps4BrewPassModal';
 import { getSqliteStore, Batch } from '../../src/data/sqlite-store';
-import { createAutoBackup } from '../../src/lib/backup';
+import { createAutoBackup, getCorruptStateRecovery, clearCorruptState, CorruptRecoveryInfo } from '../../src/lib/backup';
 import { processPantryDepletion, RecipeRequirement } from '../../src/core/inventory';
 import {
   calculateRennetDose,
@@ -193,6 +193,13 @@ export default function CalculatorScreen() {
   const [craftMode, setCraftMode] = useState<'cheese' | 'veg' | 'beverage'>('cheese');
   const [isProExpanded, setIsProExpanded] = useState<boolean>(false);
   const [isKeepAwake, setIsKeepAwake] = useState<boolean>(false);
+  const [corruptRecovery, setCorruptRecovery] = useState<CorruptRecoveryInfo | null>(null);
+
+  useEffect(() => {
+    getCorruptStateRecovery().then((info) => {
+      if (info) setCorruptRecovery(info);
+    });
+  }, []);
 
   // --- CHEESE STATE ---
   const [milkLiters, setMilkLiters] = useState<number>(10);
@@ -1146,6 +1153,49 @@ export default function CalculatorScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        {corruptRecovery && (
+          <View
+            testID="corrupt-recovery-banner"
+            accessibilityRole="alert"
+            style={{
+              backgroundColor: '#7F1D1D',
+              padding: 14,
+              marginBottom: 16,
+              borderRadius: 8,
+              borderWidth: 1,
+              borderColor: '#EF4444',
+            }}
+          >
+            <Text style={{ color: '#FEE2E2', fontWeight: 'bold', fontSize: 15, marginBottom: 4 }}>
+              ⚠️ {t('Wykryto uszkodzony stan danych')}
+            </Text>
+            <Text style={{ color: '#FECACA', fontSize: 13, marginBottom: 10 }}>
+              {corruptRecovery.reason} ({corruptRecovery.timestamp})
+            </Text>
+            <TouchableOpacity
+              testID="dismiss-corrupt-recovery"
+              accessibilityRole="button"
+              accessibilityLabel={t('Zamknij')}
+              onPress={async () => {
+                await clearCorruptState();
+                setCorruptRecovery(null);
+              }}
+              style={{
+                alignSelf: 'flex-start',
+                backgroundColor: '#EF4444',
+                paddingVertical: 8,
+                paddingHorizontal: 16,
+                borderRadius: 6,
+                minHeight: 44,
+                minWidth: 44,
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>{t('Zamknij')}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.appTitle}>FERMENT</Text>

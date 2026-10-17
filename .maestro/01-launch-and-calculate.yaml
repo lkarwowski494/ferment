@@ -1,0 +1,8 @@
+appId: com.apps4brew.ferment
+---
+- launchApp
+- assertVisible: "FERMENT"
+- assertVisible: "Serowarstwo & Flora Domowa"
+- assertVisible: "Ser"
+- assertVisible: "Kiszonki"
+- assertVisible: "Kombucha"

@@ -1,0 +1,1307 @@
+{
+  "generator": "scripts/gen-ferment-corpus.py",
+  "salinityCases": [
+    {
+      "vegGrams": 500,
+      "waterGrams": 0,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 500,
+      "expectedSaltGrams": 7.6,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 0,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 500,
+      "expectedSaltGrams": 10.2,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 0,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 500,
+      "expectedSaltGrams": 12.8,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 0,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 500,
+      "expectedSaltGrams": 15.5,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 0,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 500,
+      "expectedSaltGrams": 26.3,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 500,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 1000,
+      "expectedSaltGrams": 15.2,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 500,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 1000,
+      "expectedSaltGrams": 20.4,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 500,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 1000,
+      "expectedSaltGrams": 25.6,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 500,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 1000,
+      "expectedSaltGrams": 30.9,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 500,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 1000,
+      "expectedSaltGrams": 52.6,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 1000,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 1500,
+      "expectedSaltGrams": 22.8,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 1000,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 1500,
+      "expectedSaltGrams": 30.6,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 1000,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 1500,
+      "expectedSaltGrams": 38.5,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 1000,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 1500,
+      "expectedSaltGrams": 46.4,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 1000,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 1500,
+      "expectedSaltGrams": 78.9,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 2000,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 2500,
+      "expectedSaltGrams": 38.1,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 2000,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 2500,
+      "expectedSaltGrams": 51.0,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 2000,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 2500,
+      "expectedSaltGrams": 64.1,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 2000,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 2500,
+      "expectedSaltGrams": 77.3,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 500,
+      "waterGrams": 2000,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 2500,
+      "expectedSaltGrams": 131.6,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 0,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 1000,
+      "expectedSaltGrams": 15.2,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 0,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 1000,
+      "expectedSaltGrams": 20.4,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 0,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 1000,
+      "expectedSaltGrams": 25.6,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 0,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 1000,
+      "expectedSaltGrams": 30.9,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 0,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 1000,
+      "expectedSaltGrams": 52.6,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 500,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 1500,
+      "expectedSaltGrams": 22.8,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 500,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 1500,
+      "expectedSaltGrams": 30.6,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 500,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 1500,
+      "expectedSaltGrams": 38.5,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 500,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 1500,
+      "expectedSaltGrams": 46.4,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 500,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 1500,
+      "expectedSaltGrams": 78.9,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 1000,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 2000,
+      "expectedSaltGrams": 30.5,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 1000,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 2000,
+      "expectedSaltGrams": 40.8,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 1000,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 2000,
+      "expectedSaltGrams": 51.3,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 1000,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 2000,
+      "expectedSaltGrams": 61.9,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 1000,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 2000,
+      "expectedSaltGrams": 105.3,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 2000,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 3000,
+      "expectedSaltGrams": 45.7,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 2000,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 3000,
+      "expectedSaltGrams": 61.2,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 2000,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 3000,
+      "expectedSaltGrams": 76.9,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 2000,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 3000,
+      "expectedSaltGrams": 92.8,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 1000,
+      "waterGrams": 2000,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 3000,
+      "expectedSaltGrams": 157.9,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 0,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 2500,
+      "expectedSaltGrams": 38.1,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 0,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 2500,
+      "expectedSaltGrams": 51.0,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 0,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 2500,
+      "expectedSaltGrams": 64.1,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 0,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 2500,
+      "expectedSaltGrams": 77.3,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 0,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 2500,
+      "expectedSaltGrams": 131.6,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 500,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 3000,
+      "expectedSaltGrams": 45.7,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 500,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 3000,
+      "expectedSaltGrams": 61.2,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 500,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 3000,
+      "expectedSaltGrams": 76.9,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 500,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 3000,
+      "expectedSaltGrams": 92.8,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 500,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 3000,
+      "expectedSaltGrams": 157.9,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 1000,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 3500,
+      "expectedSaltGrams": 53.3,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 1000,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 3500,
+      "expectedSaltGrams": 71.4,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 1000,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 3500,
+      "expectedSaltGrams": 89.7,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 1000,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 3500,
+      "expectedSaltGrams": 108.2,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 1000,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 3500,
+      "expectedSaltGrams": 184.2,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 2000,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 4500,
+      "expectedSaltGrams": 68.5,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 2000,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 4500,
+      "expectedSaltGrams": 91.8,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 2000,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 4500,
+      "expectedSaltGrams": 115.4,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 2000,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 4500,
+      "expectedSaltGrams": 139.2,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 2500,
+      "waterGrams": 2000,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 4500,
+      "expectedSaltGrams": 236.8,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 0,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 5000,
+      "expectedSaltGrams": 76.1,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 0,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 5000,
+      "expectedSaltGrams": 102.0,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 0,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 5000,
+      "expectedSaltGrams": 128.2,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 0,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 5000,
+      "expectedSaltGrams": 154.6,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 0,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 5000,
+      "expectedSaltGrams": 263.2,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 500,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 5500,
+      "expectedSaltGrams": 83.8,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 500,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 5500,
+      "expectedSaltGrams": 112.2,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 500,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 5500,
+      "expectedSaltGrams": 141.0,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 500,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 5500,
+      "expectedSaltGrams": 170.1,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 500,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 5500,
+      "expectedSaltGrams": 289.5,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 1000,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 6000,
+      "expectedSaltGrams": 91.4,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 1000,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 6000,
+      "expectedSaltGrams": 122.4,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 1000,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 6000,
+      "expectedSaltGrams": 153.8,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 1000,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 6000,
+      "expectedSaltGrams": 185.6,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 1000,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 6000,
+      "expectedSaltGrams": 315.8,
+      "expectedEffectivePct": 5.0
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 2000,
+      "salinityPct": 1.5,
+      "expectedTotalMassGrams": 7000,
+      "expectedSaltGrams": 106.6,
+      "expectedEffectivePct": 1.5
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 2000,
+      "salinityPct": 2.0,
+      "expectedTotalMassGrams": 7000,
+      "expectedSaltGrams": 142.9,
+      "expectedEffectivePct": 2.0
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 2000,
+      "salinityPct": 2.5,
+      "expectedTotalMassGrams": 7000,
+      "expectedSaltGrams": 179.5,
+      "expectedEffectivePct": 2.5
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 2000,
+      "salinityPct": 3.0,
+      "expectedTotalMassGrams": 7000,
+      "expectedSaltGrams": 216.5,
+      "expectedEffectivePct": 3.0
+    },
+    {
+      "vegGrams": 5000,
+      "waterGrams": 2000,
+      "salinityPct": 5.0,
+      "expectedTotalMassGrams": 7000,
+      "expectedSaltGrams": 368.4,
+      "expectedEffectivePct": 5.0
+    }
+  ],
+  "botulinumCases": [
+    {
+      "measuredPh": 3.8,
+      "fermentHours": 12,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 3.8,
+      "fermentHours": 24,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 3.8,
+      "fermentHours": 36,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 3.8,
+      "fermentHours": 48,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 3.8,
+      "fermentHours": 72,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 3.8,
+      "fermentHours": 120,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 4.0,
+      "fermentHours": 12,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 4.0,
+      "fermentHours": 24,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 4.0,
+      "fermentHours": 36,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 4.0,
+      "fermentHours": 48,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 4.0,
+      "fermentHours": 72,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 4.0,
+      "fermentHours": 120,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 4.4,
+      "fermentHours": 12,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 4.4,
+      "fermentHours": 24,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 4.4,
+      "fermentHours": 36,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 4.4,
+      "fermentHours": 48,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 4.4,
+      "fermentHours": 72,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 4.4,
+      "fermentHours": 120,
+      "expectedIsSafe": true,
+      "expectedStatus": "SAFE"
+    },
+    {
+      "measuredPh": 4.5,
+      "fermentHours": 12,
+      "expectedIsSafe": true,
+      "expectedStatus": "BORDERLINE"
+    },
+    {
+      "measuredPh": 4.5,
+      "fermentHours": 24,
+      "expectedIsSafe": true,
+      "expectedStatus": "BORDERLINE"
+    },
+    {
+      "measuredPh": 4.5,
+      "fermentHours": 36,
+      "expectedIsSafe": true,
+      "expectedStatus": "BORDERLINE"
+    },
+    {
+      "measuredPh": 4.5,
+      "fermentHours": 48,
+      "expectedIsSafe": true,
+      "expectedStatus": "BORDERLINE"
+    },
+    {
+      "measuredPh": 4.5,
+      "fermentHours": 72,
+      "expectedIsSafe": true,
+      "expectedStatus": "BORDERLINE"
+    },
+    {
+      "measuredPh": 4.5,
+      "fermentHours": 120,
+      "expectedIsSafe": true,
+      "expectedStatus": "BORDERLINE"
+    },
+    {
+      "measuredPh": 4.6,
+      "fermentHours": 12,
+      "expectedIsSafe": true,
+      "expectedStatus": "BORDERLINE"
+    },
+    {
+      "measuredPh": 4.6,
+      "fermentHours": 24,
+      "expectedIsSafe": true,
+      "expectedStatus": "BORDERLINE"
+    },
+    {
+      "measuredPh": 4.6,
+      "fermentHours": 36,
+      "expectedIsSafe": true,
+      "expectedStatus": "BORDERLINE"
+    },
+    {
+      "measuredPh": 4.6,
+      "fermentHours": 48,
+      "expectedIsSafe": true,
+      "expectedStatus": "BORDERLINE"
+    },
+    {
+      "measuredPh": 4.6,
+      "fermentHours": 72,
+      "expectedIsSafe": true,
+      "expectedStatus": "BORDERLINE"
+    },
+    {
+      "measuredPh": 4.6,
+      "fermentHours": 120,
+      "expectedIsSafe": true,
+      "expectedStatus": "BORDERLINE"
+    },
+    {
+      "measuredPh": 4.65,
+      "fermentHours": 12,
+      "expectedIsSafe": true,
+      "expectedStatus": "ACIDIFYING"
+    },
+    {
+      "measuredPh": 4.65,
+      "fermentHours": 24,
+      "expectedIsSafe": true,
+      "expectedStatus": "ACIDIFYING"
+    },
+    {
+      "measuredPh": 4.65,
+      "fermentHours": 36,
+      "expectedIsSafe": true,
+      "expectedStatus": "ACIDIFYING"
+    },
+    {
+      "measuredPh": 4.65,
+      "fermentHours": 48,
+      "expectedIsSafe": true,
+      "expectedStatus": "ACIDIFYING"
+    },
+    {
+      "measuredPh": 4.65,
+      "fermentHours": 72,
+      "expectedIsSafe": false,
+      "expectedStatus": "CRITICAL_DANGER"
+    },
+    {
+      "measuredPh": 4.65,
+      "fermentHours": 120,
+      "expectedIsSafe": false,
+      "expectedStatus": "CRITICAL_DANGER"
+    },
+    {
+      "measuredPh": 5.0,
+      "fermentHours": 12,
+      "expectedIsSafe": true,
+      "expectedStatus": "ACIDIFYING"
+    },
+    {
+      "measuredPh": 5.0,
+      "fermentHours": 24,
+      "expectedIsSafe": true,
+      "expectedStatus": "ACIDIFYING"
+    },
+    {
+      "measuredPh": 5.0,
+      "fermentHours": 36,
+      "expectedIsSafe": true,
+      "expectedStatus": "ACIDIFYING"
+    },
+    {
+      "measuredPh": 5.0,
+      "fermentHours": 48,
+      "expectedIsSafe": true,
+      "expectedStatus": "ACIDIFYING"
+    },
+    {
+      "measuredPh": 5.0,
+      "fermentHours": 72,
+      "expectedIsSafe": false,
+      "expectedStatus": "CRITICAL_DANGER"
+    },
+    {
+      "measuredPh": 5.0,
+      "fermentHours": 120,
+      "expectedIsSafe": false,
+      "expectedStatus": "CRITICAL_DANGER"
+    },
+    {
+      "measuredPh": 5.5,
+      "fermentHours": 12,
+      "expectedIsSafe": true,
+      "expectedStatus": "ACIDIFYING"
+    },
+    {
+      "measuredPh": 5.5,
+      "fermentHours": 24,
+      "expectedIsSafe": true,
+      "expectedStatus": "ACIDIFYING"
+    },
+    {
+      "measuredPh": 5.5,
+      "fermentHours": 36,
+      "expectedIsSafe": true,
+      "expectedStatus": "ACIDIFYING"
+    },
+    {
+      "measuredPh": 5.5,
+      "fermentHours": 48,
+      "expectedIsSafe": true,
+      "expectedStatus": "ACIDIFYING"
+    },
+    {
+      "measuredPh": 5.5,
+      "fermentHours": 72,
+      "expectedIsSafe": false,
+      "expectedStatus": "CRITICAL_DANGER"
+    },
+    {
+      "measuredPh": 5.5,
+      "fermentHours": 120,
+      "expectedIsSafe": false,
+      "expectedStatus": "CRITICAL_DANGER"
+    }
+  ],
+  "puRateCases": [
+    {
+      "currentTempC": 50.0,
+      "referenceTempC": 60.0,
+      "zValueC": 7.0,
+      "expectedPuRate": 0.0373
+    },
+    {
+      "currentTempC": 50.0,
+      "referenceTempC": 60.0,
+      "zValueC": 6.0,
+      "expectedPuRate": 0.0215
+    },
+    {
+      "currentTempC": 50.0,
+      "referenceTempC": 65.0,
+      "zValueC": 8.0,
+      "expectedPuRate": 0.0
+    },
+    {
+      "currentTempC": 50.0,
+      "referenceTempC": 65.0,
+      "zValueC": 10.0,
+      "expectedPuRate": 0.0
+    },
+    {
+      "currentTempC": 55.0,
+      "referenceTempC": 60.0,
+      "zValueC": 7.0,
+      "expectedPuRate": 0.1931
+    },
+    {
+      "currentTempC": 55.0,
+      "referenceTempC": 60.0,
+      "zValueC": 6.0,
+      "expectedPuRate": 0.1468
+    },
+    {
+      "currentTempC": 55.0,
+      "referenceTempC": 65.0,
+      "zValueC": 8.0,
+      "expectedPuRate": 0.0562
+    },
+    {
+      "currentTempC": 55.0,
+      "referenceTempC": 65.0,
+      "zValueC": 10.0,
+      "expectedPuRate": 0.1
+    },
+    {
+      "currentTempC": 60.0,
+      "referenceTempC": 60.0,
+      "zValueC": 7.0,
+      "expectedPuRate": 1.0
+    },
+    {
+      "currentTempC": 60.0,
+      "referenceTempC": 60.0,
+      "zValueC": 6.0,
+      "expectedPuRate": 1.0
+    },
+    {
+      "currentTempC": 60.0,
+      "referenceTempC": 65.0,
+      "zValueC": 8.0,
+      "expectedPuRate": 0.2371
+    },
+    {
+      "currentTempC": 60.0,
+      "referenceTempC": 65.0,
+      "zValueC": 10.0,
+      "expectedPuRate": 0.3162
+    },
+    {
+      "currentTempC": 65.0,
+      "referenceTempC": 60.0,
+      "zValueC": 7.0,
+      "expectedPuRate": 5.1795
+    },
+    {
+      "currentTempC": 65.0,
+      "referenceTempC": 60.0,
+      "zValueC": 6.0,
+      "expectedPuRate": 6.8129
+    },
+    {
+      "currentTempC": 65.0,
+      "referenceTempC": 65.0,
+      "zValueC": 8.0,
+      "expectedPuRate": 1.0
+    },
+    {
+      "currentTempC": 65.0,
+      "referenceTempC": 65.0,
+      "zValueC": 10.0,
+      "expectedPuRate": 1.0
+    },
+    {
+      "currentTempC": 70.0,
+      "referenceTempC": 60.0,
+      "zValueC": 7.0,
+      "expectedPuRate": 26.827
+    },
+    {
+      "currentTempC": 70.0,
+      "referenceTempC": 60.0,
+      "zValueC": 6.0,
+      "expectedPuRate": 46.4159
+    },
+    {
+      "currentTempC": 70.0,
+      "referenceTempC": 65.0,
+      "zValueC": 8.0,
+      "expectedPuRate": 4.217
+    },
+    {
+      "currentTempC": 70.0,
+      "referenceTempC": 65.0,
+      "zValueC": 10.0,
+      "expectedPuRate": 3.1623
+    },
+    {
+      "currentTempC": 75.0,
+      "referenceTempC": 60.0,
+      "zValueC": 7.0,
+      "expectedPuRate": 138.9495
+    },
+    {
+      "currentTempC": 75.0,
+      "referenceTempC": 60.0,
+      "zValueC": 6.0,
+      "expectedPuRate": 316.2278
+    },
+    {
+      "currentTempC": 75.0,
+      "referenceTempC": 65.0,
+      "zValueC": 8.0,
+      "expectedPuRate": 17.7828
+    },
+    {
+      "currentTempC": 75.0,
+      "referenceTempC": 65.0,
+      "zValueC": 10.0,
+      "expectedPuRate": 10.0
+    }
+  ],
+  "q10Cases": [
+    {
+      "cultureType": "VEG_LAB",
+      "ambientTempC": 12.0,
+      "q10": 2.2,
+      "expectedVelocityMultiplier": 0.53,
+      "expectedSafeVelocity": 0.53
+    },
+    {
+      "cultureType": "KOMBUCHA_SCOBY",
+      "ambientTempC": 12.0,
+      "q10": 2.0,
+      "expectedVelocityMultiplier": 0.57,
+      "expectedSafeVelocity": 0.57
+    },
+    {
+      "cultureType": "VINEGAR_ACETIC",
+      "ambientTempC": 12.0,
+      "q10": 1.9,
+      "expectedVelocityMultiplier": 0.6,
+      "expectedSafeVelocity": 0.6
+    },
+    {
+      "cultureType": "CHEESE_MESOPHILIC",
+      "ambientTempC": 12.0,
+      "q10": 2.1,
+      "expectedVelocityMultiplier": 0.55,
+      "expectedSafeVelocity": 0.55
+    },
+    {
+      "cultureType": "VEG_LAB",
+      "ambientTempC": 16.0,
+      "q10": 2.2,
+      "expectedVelocityMultiplier": 0.73,
+      "expectedSafeVelocity": 0.73
+    },
+    {
+      "cultureType": "KOMBUCHA_SCOBY",
+      "ambientTempC": 16.0,
+      "q10": 2.0,
+      "expectedVelocityMultiplier": 0.76,
+      "expectedSafeVelocity": 0.76
+    },
+    {
+      "cultureType": "VINEGAR_ACETIC",
+      "ambientTempC": 16.0,
+      "q10": 1.9,
+      "expectedVelocityMultiplier": 0.77,
+      "expectedSafeVelocity": 0.77
+    },
+    {
+      "cultureType": "CHEESE_MESOPHILIC",
+      "ambientTempC": 16.0,
+      "q10": 2.1,
+      "expectedVelocityMultiplier": 0.74,
+      "expectedSafeVelocity": 0.74
+    },
+    {
+      "cultureType": "VEG_LAB",
+      "ambientTempC": 18.0,
+      "q10": 2.2,
+      "expectedVelocityMultiplier": 0.85,
+      "expectedSafeVelocity": 0.85
+    },
+    {
+      "cultureType": "KOMBUCHA_SCOBY",
+      "ambientTempC": 18.0,
+      "q10": 2.0,
+      "expectedVelocityMultiplier": 0.87,
+      "expectedSafeVelocity": 0.87
+    },
+    {
+      "cultureType": "VINEGAR_ACETIC",
+      "ambientTempC": 18.0,
+      "q10": 1.9,
+      "expectedVelocityMultiplier": 0.88,
+      "expectedSafeVelocity": 0.88
+    },
+    {
+      "cultureType": "CHEESE_MESOPHILIC",
+      "ambientTempC": 18.0,
+      "q10": 2.1,
+      "expectedVelocityMultiplier": 0.86,
+      "expectedSafeVelocity": 0.86
+    },
+    {
+      "cultureType": "VEG_LAB",
+      "ambientTempC": 20.0,
+      "q10": 2.2,
+      "expectedVelocityMultiplier": 1.0,
+      "expectedSafeVelocity": 1.0
+    },
+    {
+      "cultureType": "KOMBUCHA_SCOBY",
+      "ambientTempC": 20.0,
+      "q10": 2.0,
+      "expectedVelocityMultiplier": 1.0,
+      "expectedSafeVelocity": 1.0
+    },
+    {
+      "cultureType": "VINEGAR_ACETIC",
+      "ambientTempC": 20.0,
+      "q10": 1.9,
+      "expectedVelocityMultiplier": 1.0,
+      "expectedSafeVelocity": 1.0
+    },
+    {
+      "cultureType": "CHEESE_MESOPHILIC",
+      "ambientTempC": 20.0,
+      "q10": 2.1,
+      "expectedVelocityMultiplier": 1.0,
+      "expectedSafeVelocity": 1.0
+    },
+    {
+      "cultureType": "VEG_LAB",
+      "ambientTempC": 22.0,
+      "q10": 2.2,
+      "expectedVelocityMultiplier": 1.17,
+      "expectedSafeVelocity": 1.17
+    },
+    {
+      "cultureType": "KOMBUCHA_SCOBY",
+      "ambientTempC": 22.0,
+      "q10": 2.0,
+      "expectedVelocityMultiplier": 1.15,
+      "expectedSafeVelocity": 1.15
+    },
+    {
+      "cultureType": "VINEGAR_ACETIC",
+      "ambientTempC": 22.0,
+      "q10": 1.9,
+      "expectedVelocityMultiplier": 1.14,
+      "expectedSafeVelocity": 1.14
+    },
+    {
+      "cultureType": "CHEESE_MESOPHILIC",
+      "ambientTempC": 22.0,
+      "q10": 2.1,
+      "expectedVelocityMultiplier": 1.16,
+      "expectedSafeVelocity": 1.16
+    },
+    {
+      "cultureType": "VEG_LAB",
+      "ambientTempC": 25.0,
+      "q10": 2.2,
+      "expectedVelocityMultiplier": 1.48,
+      "expectedSafeVelocity": 1.48
+    },
+    {
+      "cultureType": "KOMBUCHA_SCOBY",
+      "ambientTempC": 25.0,
+      "q10": 2.0,
+      "expectedVelocityMultiplier": 1.41,
+      "expectedSafeVelocity": 1.41
+    },
+    {
+      "cultureType": "VINEGAR_ACETIC",
+      "ambientTempC": 25.0,
+      "q10": 1.9,
+      "expectedVelocityMultiplier": 1.38,
+      "expectedSafeVelocity": 1.38
+    },
+    {
+      "cultureType": "CHEESE_MESOPHILIC",
+      "ambientTempC": 25.0,
+      "q10": 2.1,
+      "expectedVelocityMultiplier": 1.45,
+      "expectedSafeVelocity": 1.45
+    },
+    {
+      "cultureType": "VEG_LAB",
+      "ambientTempC": 28.0,
+      "q10": 2.2,
+      "expectedVelocityMultiplier": 1.88,
+      "expectedSafeVelocity": 1.88
+    },
+    {
+      "cultureType": "KOMBUCHA_SCOBY",
+      "ambientTempC": 28.0,
+      "q10": 2.0,
+      "expectedVelocityMultiplier": 1.74,
+      "expectedSafeVelocity": 1.74
+    },
+    {
+      "cultureType": "VINEGAR_ACETIC",
+      "ambientTempC": 28.0,
+      "q10": 1.9,
+      "expectedVelocityMultiplier": 1.67,
+      "expectedSafeVelocity": 1.67
+    },
+    {
+      "cultureType": "CHEESE_MESOPHILIC",
+      "ambientTempC": 28.0,
+      "q10": 2.1,
+      "expectedVelocityMultiplier": 1.81,
+      "expectedSafeVelocity": 1.81
+    },
+    {
+      "cultureType": "VEG_LAB",
+      "ambientTempC": 32.0,
+      "q10": 2.2,
+      "expectedVelocityMultiplier": 2.58,
+      "expectedSafeVelocity": 2.58
+    },
+    {
+      "cultureType": "KOMBUCHA_SCOBY",
+      "ambientTempC": 32.0,
+      "q10": 2.0,
+      "expectedVelocityMultiplier": 2.3,
+      "expectedSafeVelocity": 2.3
+    },
+    {
+      "cultureType": "VINEGAR_ACETIC",
+      "ambientTempC": 32.0,
+      "q10": 1.9,
+      "expectedVelocityMultiplier": 2.16,
+      "expectedSafeVelocity": 2.16
+    },
+    {
+      "cultureType": "CHEESE_MESOPHILIC",
+      "ambientTempC": 32.0,
+      "q10": 2.1,
+      "expectedVelocityMultiplier": 2.44,
+      "expectedSafeVelocity": 2.44
+    }
+  ]
+}

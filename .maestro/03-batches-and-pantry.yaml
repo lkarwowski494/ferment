@@ -1,0 +1,6 @@
+appId: com.apps4brew.ferment
+---
+- tapOn: "Partie"
+- assertVisible: "Dziennik Partii"
+- tapOn: "Spiżarnia"
+- assertVisible: "Magazyn Składników"

@@ -1,0 +1,69 @@
+{
+  "generator": "scripts/gen-theme-contrast-corpus.py",
+  "pairs": [
+    {
+      "name": "btn_primary_white_on_emerald",
+      "foreground": "#ffffff",
+      "background": "#059669",
+      "calculatedRatio": 3.77,
+      "minRequired": 3.0,
+      "passes": true
+    },
+    {
+      "name": "btn_danger_white_on_red",
+      "foreground": "#ffffff",
+      "background": "#dc2626",
+      "calculatedRatio": 4.83,
+      "minRequired": 3.0,
+      "passes": true
+    },
+    {
+      "name": "chip_active_emerald_on_dark_emerald",
+      "foreground": "#34d399",
+      "background": "#065f46",
+      "calculatedRatio": 4.0,
+      "minRequired": 3.0,
+      "passes": true
+    },
+    {
+      "name": "segmented_active_white_on_emerald",
+      "foreground": "#ffffff",
+      "background": "#059669",
+      "calculatedRatio": 3.77,
+      "minRequired": 3.0,
+      "passes": true
+    },
+    {
+      "name": "body_text_on_dark_bg",
+      "foreground": "#f8fafc",
+      "background": "#0b1120",
+      "calculatedRatio": 18.0,
+      "minRequired": 7.0,
+      "passes": true
+    },
+    {
+      "name": "secondary_text_on_dark_bg",
+      "foreground": "#94a3b8",
+      "background": "#0b1120",
+      "calculatedRatio": 7.34,
+      "minRequired": 4.5,
+      "passes": true
+    },
+    {
+      "name": "alert_title_white_on_dark_red",
+      "foreground": "#ffffff",
+      "background": "#7f1d1d",
+      "calculatedRatio": 10.02,
+      "minRequired": 7.0,
+      "passes": true
+    },
+    {
+      "name": "alert_body_light_red_on_dark_red",
+      "foreground": "#fca5a5",
+      "background": "#7f1d1d",
+      "calculatedRatio": 5.28,
+      "minRequired": 4.5,
+      "passes": true
+    }
+  ]
+}

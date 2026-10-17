@@ -159,3 +159,37 @@ export function formatPressure(kgCm2: number, system: UnitSystem = 'metric'): st
   }
   return `${kgCm2.toFixed(3)} kg/cm²`;
 }
+
+/**
+ * Konwersja bez dryfu zaokrągleń (RD-ENG-01, BR-TEST-005)
+ * Zabezpiecza bazową wartość przed dryfem, gdy użytkownik wpisuje tę samą wyświetlaną wartość.
+ */
+export function wInKeep(txt: string, unit: 'kg' | 'lb' | 'g' | 'oz', prevBase?: number): number {
+  const normalized = txt.trim().replace(',', '.');
+  const num = parseFloat(normalized);
+  if (isNaN(num)) return prevBase ?? 0;
+
+  let factor = 1;
+  if (unit === 'lb') {
+    factor = 1 / LB_TO_KG;
+  } else if (unit === 'oz') {
+    factor = 1 / OZ_TO_GRAM;
+  }
+
+  const round01 = (v: number) => Math.round(v * 10) / 10;
+  const round001 = (v: number) => Math.round(v * 100) / 100;
+
+  if (unit === 'kg' || unit === 'g') {
+    return round001(num);
+  }
+
+  if (prevBase !== undefined && prevBase > 0) {
+    const displayedPrev = round01(prevBase * factor);
+    const inputVal = round01(num);
+    if (displayedPrev === inputVal) {
+      return prevBase;
+    }
+  }
+
+  return round001(num / factor);
+}

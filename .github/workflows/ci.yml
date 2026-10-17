@@ -1,0 +1,61 @@
+name: CI (Fast Quality Gates)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_OPTIONS: --max-old-space-size=3072
+  FORCE_COLOR: '1'
+
+jobs:
+  quality-gates:
+    name: Typecheck, Matrix, i18n, Licenses & Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      - name: TypeScript Typecheck (tsc --noEmit)
+        run: npm run typecheck
+
+      - name: Check i18n dictionary completeness
+        run: node scripts/check-i18n.mjs
+
+      - name: Verify Python truth oracles (check:corpus)
+        run: node scripts/check-corpus.mjs
+
+      - name: Verify production dependency licenses (check:licenses)
+        run: node scripts/check-licenses.mjs
+
+      - name: Check AST Test Matrix coverage (100% required)
+        run: node scripts/test-matrix.mjs --check
+
+      - name: Verify iOS native invariants on Linux
+        run: node scripts/verify-native.mjs
+
+      - name: Run Jest test suite
+        run: npx jest --runInBand

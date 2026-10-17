@@ -16,6 +16,7 @@ import {
   formatMilkVolume,
   formatCheeseWeight,
   formatTemperature,
+  wInKeep,
 } from '../../src/lib/unit-converter';
 
 describe('FERMENT Unit Converter & Physical Quantity Systems', () => {
@@ -67,5 +68,19 @@ describe('FERMENT Unit Converter & Physical Quantity Systems', () => {
 
     expect(formatTemperature(12.5, 'metric')).toBe('12.5°C');
     expect(formatTemperature(12.5, 'imperial')).toBe('55°F');
+  });
+
+  it('converts without drift using wInKeep (RD-ENG-01, BR-TEST-005)', () => {
+    // Vector 1: 135 lb with prev 61.23 kg -> keeps 61.23 (no drift to 61.25)
+    expect(wInKeep('135', 'lb', 61.23)).toBe(61.23);
+
+    // Vector 2: 135,0 lb with comma -> keeps 61.23
+    expect(wInKeep('135,0', 'lb', 61.23)).toBe(61.23);
+
+    // Vector 3: 140 lb with prev 61.23 kg -> recalculates to 63.5
+    expect(wInKeep('140', 'lb', 61.23)).toBe(63.5);
+
+    // Vector 4: 80,5 kg with prev 80 kg -> 80.5
+    expect(wInKeep('80,5', 'kg', 80)).toBe(80.5);
   });
 });

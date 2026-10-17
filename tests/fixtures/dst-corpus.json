@@ -1,0 +1,155 @@
+{
+  "generator": "scripts/gen-dst-corpus.py",
+  "cases": [
+    {
+      "timezone": "Europe/Warsaw",
+      "date": "2026-03-29",
+      "startTimestampUtc": 1774738800,
+      "endTimestampUtc": 1774821600,
+      "durationHours": 23.0,
+      "isShortDay23h": true,
+      "isLongDay25h": false,
+      "isStandardDay24h": false
+    },
+    {
+      "timezone": "Europe/Warsaw",
+      "date": "2026-10-25",
+      "startTimestampUtc": 1792879200,
+      "endTimestampUtc": 1792969200,
+      "durationHours": 25.0,
+      "isShortDay23h": false,
+      "isLongDay25h": true,
+      "isStandardDay24h": false
+    },
+    {
+      "timezone": "Europe/Warsaw",
+      "date": "2026-06-15",
+      "startTimestampUtc": 1781474400,
+      "endTimestampUtc": 1781560800,
+      "durationHours": 24.0,
+      "isShortDay23h": false,
+      "isLongDay25h": false,
+      "isStandardDay24h": true
+    },
+    {
+      "timezone": "Europe/Warsaw",
+      "date": "2026-01-15",
+      "startTimestampUtc": 1768431600,
+      "endTimestampUtc": 1768518000,
+      "durationHours": 24.0,
+      "isShortDay23h": false,
+      "isLongDay25h": false,
+      "isStandardDay24h": true
+    },
+    {
+      "timezone": "America/New_York",
+      "date": "2026-03-08",
+      "startTimestampUtc": 1772946000,
+      "endTimestampUtc": 1773028800,
+      "durationHours": 23.0,
+      "isShortDay23h": true,
+      "isLongDay25h": false,
+      "isStandardDay24h": false
+    },
+    {
+      "timezone": "America/New_York",
+      "date": "2026-11-01",
+      "startTimestampUtc": 1793505600,
+      "endTimestampUtc": 1793595600,
+      "durationHours": 25.0,
+      "isShortDay23h": false,
+      "isLongDay25h": true,
+      "isStandardDay24h": false
+    },
+    {
+      "timezone": "America/New_York",
+      "date": "2026-07-04",
+      "startTimestampUtc": 1783137600,
+      "endTimestampUtc": 1783224000,
+      "durationHours": 24.0,
+      "isShortDay23h": false,
+      "isLongDay25h": false,
+      "isStandardDay24h": true
+    },
+    {
+      "timezone": "UTC",
+      "date": "2026-03-29",
+      "startTimestampUtc": 1774742400,
+      "endTimestampUtc": 1774828800,
+      "durationHours": 24.0,
+      "isShortDay23h": false,
+      "isLongDay25h": false,
+      "isStandardDay24h": true
+    },
+    {
+      "timezone": "UTC",
+      "date": "2026-10-25",
+      "startTimestampUtc": 1792886400,
+      "endTimestampUtc": 1792972800,
+      "durationHours": 24.0,
+      "isShortDay23h": false,
+      "isLongDay25h": false,
+      "isStandardDay24h": true
+    },
+    {
+      "timezone": "Asia/Kathmandu",
+      "date": "2026-03-29",
+      "startTimestampUtc": 1774721700,
+      "endTimestampUtc": 1774808100,
+      "durationHours": 24.0,
+      "isShortDay23h": false,
+      "isLongDay25h": false,
+      "isStandardDay24h": true
+    },
+    {
+      "timezone": "Asia/Kathmandu",
+      "date": "2026-10-25",
+      "startTimestampUtc": 1792865700,
+      "endTimestampUtc": 1792952100,
+      "durationHours": 24.0,
+      "isShortDay23h": false,
+      "isLongDay25h": false,
+      "isStandardDay24h": true
+    },
+    {
+      "timezone": "Pacific/Auckland",
+      "date": "2026-04-05",
+      "startTimestampUtc": 1775300400,
+      "endTimestampUtc": 1775390400,
+      "durationHours": 25.0,
+      "isShortDay23h": false,
+      "isLongDay25h": true,
+      "isStandardDay24h": false
+    },
+    {
+      "timezone": "Pacific/Auckland",
+      "date": "2026-09-27",
+      "startTimestampUtc": 1790424000,
+      "endTimestampUtc": 1790506800,
+      "durationHours": 23.0,
+      "isShortDay23h": true,
+      "isLongDay25h": false,
+      "isStandardDay24h": false
+    },
+    {
+      "timezone": "Pacific/Kiritimati",
+      "date": "2026-01-01",
+      "startTimestampUtc": 1767175200,
+      "endTimestampUtc": 1767261600,
+      "durationHours": 24.0,
+      "isShortDay23h": false,
+      "isLongDay25h": false,
+      "isStandardDay24h": true
+    },
+    {
+      "timezone": "Pacific/Kiritimati",
+      "date": "2026-06-21",
+      "startTimestampUtc": 1781949600,
+      "endTimestampUtc": 1782036000,
+      "durationHours": 24.0,
+      "isShortDay23h": false,
+      "isLongDay25h": false,
+      "isStandardDay24h": true
+    }
+  ]
+}

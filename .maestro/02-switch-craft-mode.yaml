@@ -1,0 +1,8 @@
+appId: com.apps4brew.ferment
+---
+- tapOn: "Kiszonki"
+- assertVisible: "Kalkulator Solanki Warzywnej"
+- tapOn: "Kombucha"
+- assertVisible: "Nastaw Kombuchy"
+- tapOn: "Ser"
+- assertVisible: "Kalkulator Podpuszczki i Mleka"

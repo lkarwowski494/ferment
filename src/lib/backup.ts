@@ -1,10 +1,12 @@
 // ============================================================================
 // Apps4Brew Studio — FERMENT 10-Rotation Backup & Disaster Recovery Engine
-// Automatic JSON snapshotting after mutations & safetyBackup before restore
+// Dual 10-backup pools (RD-ENG-12, BR-TEST-022) & Corrupt State Guard (BR-TEST-023)
 // ============================================================================
 
 import * as FileSystem from 'expo-file-system/legacy';
 import { getSqliteStore, Batch, CaveWheel, PantryItem, WeighLog, AppSettings } from '../data/sqlite-store';
+
+export const CURRENT_SCHEMA_VERSION = 1;
 
 export interface FermentBackupData {
   schema_version: number;
@@ -22,9 +24,17 @@ export interface BackupFileInfo {
   filePath: string;
   createdAt: string;
   sizeBytes: number;
+  pool: 'auto' | 'safety' | 'other';
 }
 
-const MAX_ROTATION_BACKUPS = 10;
+export interface CorruptRecoveryInfo {
+  fileName: string;
+  timestamp: string;
+  reason: string;
+  recovery: string;
+}
+
+export const MAX_ROTATION_BACKUPS = 10;
 const BACKUP_DIR_NAME = 'backups';
 
 const fsAny = FileSystem as any;
@@ -39,6 +49,12 @@ function getDocDir(): string | null {
 
 // In-memory fallback for Jest unit tests if docDir is undefined
 const inMemoryBackups: Map<string, string> = new Map();
+let inMemoryCorruptRecovery: CorruptRecoveryInfo | null = null;
+
+export function _resetInMemoryBackups(): void {
+  inMemoryBackups.clear();
+  inMemoryCorruptRecovery = null;
+}
 
 function getBackupDirectory(): string {
   const docDir = getDocDir();
@@ -48,9 +64,6 @@ function getBackupDirectory(): string {
   return '/tmp/ferment_backups/';
 }
 
-/**
- * Ensures backup directory exists
- */
 async function ensureDirectoryExists(dir: string): Promise<void> {
   if (getDocDir()) {
     const dirInfo = await FileSystem.getInfoAsync(dir);
@@ -58,6 +71,51 @@ async function ensureDirectoryExists(dir: string): Promise<void> {
       await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
     }
   }
+}
+
+export function isAutoBackup(fileName: string): boolean {
+  return fileName.startsWith('ferment-kopia-') || fileName.startsWith('ferment_backup_');
+}
+
+export function isSafetyBackup(fileName: string): boolean {
+  return (
+    fileName.startsWith('ferment-przed-importem-') ||
+    fileName.startsWith('ferment-przed-czyszczeniem-') ||
+    fileName.startsWith('safety_backup_')
+  );
+}
+
+function formatTimestamp(date: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const y = date.getFullYear();
+  const m = pad(date.getMonth() + 1);
+  const d = pad(date.getDate());
+  const hh = pad(date.getHours());
+  const mm = pad(date.getMinutes());
+  const ss = pad(date.getSeconds());
+  return `${y}-${m}-${d}-${hh}-${mm}-${ss}`;
+}
+
+async function getUniqueFileName(prefix: string, ext = '.json'): Promise<string> {
+  const baseTimestamp = formatTimestamp();
+  let candidate = `${prefix}${baseTimestamp}${ext}`;
+  let collisionIndex = 2;
+
+  const exists = async (name: string): Promise<boolean> => {
+    if (getDocDir()) {
+      const dir = getBackupDirectory();
+      const info = await FileSystem.getInfoAsync(`${dir}${name}`);
+      return info.exists;
+    }
+    return inMemoryBackups.has(name);
+  };
+
+  while (await exists(candidate)) {
+    candidate = `${prefix}${baseTimestamp}-${collisionIndex}${ext}`;
+    collisionIndex++;
+  }
+
+  return candidate;
 }
 
 /**
@@ -72,7 +130,7 @@ export async function createSnapshotData(): Promise<FermentBackupData> {
   const app_settings = await store.getAppSettings();
 
   return {
-    schema_version: 1,
+    schema_version: CURRENT_SCHEMA_VERSION,
     app: 'FERMENT',
     exported_at: new Date().toISOString(),
     batches,
@@ -84,68 +142,108 @@ export async function createSnapshotData(): Promise<FermentBackupData> {
 }
 
 /**
- * 10-Rotation automatic backup triggered after each data mutation
+ * 10-Rotation automatic backup triggered after each data mutation (Pool: auto)
  */
 export async function createAutoBackup(): Promise<string> {
   const data = await createSnapshotData();
   const json = JSON.stringify(data, null, 2);
-  const now = new Date();
-  const timestamp = now.toISOString().replace(/[-:T]/g, '').slice(0, 15);
-  const fileName = `ferment_backup_${timestamp}.json`;
+  const fileName = await getUniqueFileName('ferment-kopia-');
 
   if (getDocDir()) {
     const dir = getBackupDirectory();
     await ensureDirectoryExists(dir);
     const filePath = `${dir}${fileName}`;
     await FileSystem.writeAsStringAsync(filePath, json, { encoding: FileSystem.EncodingType.UTF8 });
-
-    // Rotate and purge older than 10 backups
-    await rotateBackups(dir);
+    await rotateBackups(dir, 'auto');
     return filePath;
   } else {
-    // In-memory fallback for unit testing
     inMemoryBackups.set(fileName, json);
-    if (inMemoryBackups.size > MAX_ROTATION_BACKUPS) {
-      const oldestKey = Array.from(inMemoryBackups.keys()).sort()[0];
-      inMemoryBackups.delete(oldestKey);
-    }
+    rotateInMemoryBackups('auto');
     return fileName;
   }
 }
 
 /**
- * Purges older backups to keep strictly at most MAX_ROTATION_BACKUPS (10)
+ * Creates safety snapshot before importing or clearing data (Pool: safety)
+ * Aborts immediately if creation fails (BR-TEST-022, RD-ENG-12)
  */
-async function rotateBackups(dir: string): Promise<void> {
+export async function createSafetyBackup(reason: 'przed-importem' | 'przed-czyszczeniem' | string = 'przed-importem'): Promise<string> {
+  try {
+    const data = await createSnapshotData();
+    const json = JSON.stringify(data, null, 2);
+    const prefix = reason.includes('czyszczen')
+      ? 'ferment-przed-czyszczeniem-'
+      : 'ferment-przed-importem-';
+
+    const fileName = await getUniqueFileName(prefix);
+
+    if (getDocDir()) {
+      const dir = getBackupDirectory();
+      await ensureDirectoryExists(dir);
+      const filePath = `${dir}${fileName}`;
+      await FileSystem.writeAsStringAsync(filePath, json, { encoding: FileSystem.EncodingType.UTF8 });
+      await rotateBackups(dir, 'safety');
+      return filePath;
+    } else {
+      inMemoryBackups.set(fileName, json);
+      rotateInMemoryBackups('safety');
+      return fileName;
+    }
+  } catch (err: any) {
+    throw new Error(`[BR-TEST-022] Błąd tworzenia kopii bezpieczeństwa przed operacją (${reason}): ${err?.message || err}`);
+  }
+}
+
+/**
+ * Rotates backups maintaining up to MAX_ROTATION_BACKUPS (10) per distinct pool (RD-ENG-12)
+ */
+async function rotateBackups(dir: string, pool: 'auto' | 'safety'): Promise<void> {
   if (!getDocDir()) return;
 
   const files = await FileSystem.readDirectoryAsync(dir);
-  const backupFiles = files
-    .filter(f => f.startsWith('ferment_backup_') && f.endsWith('.json'))
-    .sort(); // Lexicographical sort by timestamp
+  const poolFiles = files
+    .filter(f => (pool === 'auto' ? isAutoBackup(f) : isSafetyBackup(f)) && f.endsWith('.json'))
+    .sort(); // Lexicographical sort by timestamp & collision counter
 
-  if (backupFiles.length > MAX_ROTATION_BACKUPS) {
-    const toDeleteCount = backupFiles.length - MAX_ROTATION_BACKUPS;
+  if (poolFiles.length > MAX_ROTATION_BACKUPS) {
+    const toDeleteCount = poolFiles.length - MAX_ROTATION_BACKUPS;
     for (let i = 0; i < toDeleteCount; i++) {
-      const fileToDelete = `${dir}${backupFiles[i]}`;
+      const fileToDelete = `${dir}${poolFiles[i]}`;
       try {
         await FileSystem.deleteAsync(fileToDelete, { idempotent: true });
       } catch {
-        // Ignore deletion error
+        // Ignore deletion errors
       }
     }
   }
 }
 
+function rotateInMemoryBackups(pool: 'auto' | 'safety'): void {
+  const poolKeys = Array.from(inMemoryBackups.keys())
+    .filter(f => (pool === 'auto' ? isAutoBackup(f) : isSafetyBackup(f)))
+    .sort();
+
+  if (poolKeys.length > MAX_ROTATION_BACKUPS) {
+    const toDeleteCount = poolKeys.length - MAX_ROTATION_BACKUPS;
+    for (let i = 0; i < toDeleteCount; i++) {
+      inMemoryBackups.delete(poolKeys[i]);
+    }
+  }
+}
+
 /**
- * Creates safety snapshot before importing or restoring
+ * Saves corrupt payload into state_corrupt_<timestamp>.json with recovery field (BR-TEST-023)
  */
-export async function createSafetyBackup(reason: string = 'restore'): Promise<string> {
-  const data = await createSnapshotData();
-  const json = JSON.stringify(data, null, 2);
-  const now = new Date();
-  const timestamp = now.toISOString().replace(/[-:T]/g, '').slice(0, 15);
-  const fileName = `safety_backup_${reason}_${timestamp}.json`;
+export async function saveCorruptState(rawContent: string, reason = 'Błąd odczytu stanu'): Promise<string> {
+  const timestamp = formatTimestamp();
+  const fileName = `state_corrupt_${timestamp}.json`;
+  const corruptPayload = {
+    app: 'FERMENT',
+    timestamp,
+    reason,
+    recovery: rawContent,
+  };
+  const json = JSON.stringify(corruptPayload, null, 2);
 
   if (getDocDir()) {
     const dir = getBackupDirectory();
@@ -155,7 +253,58 @@ export async function createSafetyBackup(reason: string = 'restore'): Promise<st
     return filePath;
   } else {
     inMemoryBackups.set(fileName, json);
+    inMemoryCorruptRecovery = { fileName, timestamp, reason, recovery: rawContent };
     return fileName;
+  }
+}
+
+/**
+ * Checks if a corrupt state recovery is pending
+ */
+export async function getCorruptStateRecovery(): Promise<CorruptRecoveryInfo | null> {
+  if (getDocDir()) {
+    const dir = getBackupDirectory();
+    await ensureDirectoryExists(dir);
+    const files = await FileSystem.readDirectoryAsync(dir);
+    const corruptFiles = files.filter(f => f.startsWith('state_corrupt_') && f.endsWith('.json')).sort().reverse();
+    if (corruptFiles.length === 0) return null;
+
+    const latest = corruptFiles[0];
+    const path = `${dir}${latest}`;
+    try {
+      const content = await FileSystem.readAsStringAsync(path, { encoding: FileSystem.EncodingType.UTF8 });
+      const parsed = JSON.parse(content);
+      return {
+        fileName: latest,
+        timestamp: parsed.timestamp || '',
+        reason: parsed.reason || 'Uszkodzony stan',
+        recovery: parsed.recovery || '',
+      };
+    } catch {
+      return null;
+    }
+  } else {
+    return inMemoryCorruptRecovery;
+  }
+}
+
+/**
+ * Clears corrupt state after user resolves or ignores it
+ */
+export async function clearCorruptState(): Promise<void> {
+  if (getDocDir()) {
+    const dir = getBackupDirectory();
+    const files = await FileSystem.readDirectoryAsync(dir);
+    const corruptFiles = files.filter(f => f.startsWith('state_corrupt_') && f.endsWith('.json'));
+    for (const f of corruptFiles) {
+      try {
+        await FileSystem.deleteAsync(`${dir}${f}`, { idempotent: true });
+      } catch {
+        // ignore
+      }
+    }
+  } else {
+    inMemoryCorruptRecovery = null;
   }
 }
 
@@ -164,45 +313,53 @@ export async function createSafetyBackup(reason: string = 'restore'): Promise<st
  */
 export async function restoreFromBackupJson(jsonString: string): Promise<{ success: boolean; message: string }> {
   try {
-    const parsed = JSON.parse(jsonString) as FermentBackupData;
+    let parsed: FermentBackupData;
+    try {
+      parsed = JSON.parse(jsonString) as FermentBackupData;
+    } catch (parseErr: any) {
+      await saveCorruptState(jsonString, 'Niepoprawny format JSON');
+      throw new Error(`Niepoprawny format JSON kopii: ${parseErr?.message}`);
+    }
+
     if (parsed.app !== 'FERMENT' || !parsed.schema_version) {
+      await saveCorruptState(jsonString, 'Brak nagłówka aplikacji FERMENT');
       throw new Error('Nieprawidłowy plik kopii zapasowej. Brak nagłówka FERMENT.');
     }
 
-    // P0: Always take safety backup of current state before overriding
-    await createSafetyBackup('pre_restore');
+    // Schema version protection against downgrade data corruption (RYZ-05, BR-TEST-023)
+    if (parsed.schema_version > CURRENT_SCHEMA_VERSION) {
+      throw new Error(`Plik kopii pochodzi z nowszej wersji aplikacji (schemat v${parsed.schema_version} > bieżący v${CURRENT_SCHEMA_VERSION}). Zaktualizuj aplikację.`);
+    }
+
+    // P0: Always take safety backup of current state before overriding (pool: safety)
+    await createSafetyBackup('przed-importem');
 
     const store = getSqliteStore();
 
-    // Restore batches
     if (Array.isArray(parsed.batches)) {
       for (const b of parsed.batches) {
         await store.saveBatch(b);
       }
     }
 
-    // Restore cave wheels
     if (Array.isArray(parsed.cave_wheels)) {
       for (const w of parsed.cave_wheels) {
         await store.saveCaveWheel(w);
       }
     }
 
-    // Restore pantry
     if (Array.isArray(parsed.pantry_items)) {
       for (const p of parsed.pantry_items) {
         await store.savePantryItem(p);
       }
     }
 
-    // Restore weigh logs
     if (Array.isArray(parsed.weigh_logs)) {
       for (const wl of parsed.weigh_logs) {
         await store.logWeight(wl);
       }
     }
 
-    // Restore app settings if present
     if (parsed.app_settings) {
       await store.saveAppSettings(parsed.app_settings);
     }
@@ -223,7 +380,7 @@ export async function restoreFromBackupJson(jsonString: string): Promise<{ succe
 }
 
 /**
- * Lists available backups in storage
+ * Lists available backups in storage classified by pool
  */
 export async function listBackups(): Promise<BackupFileInfo[]> {
   if (getDocDir()) {
@@ -235,11 +392,18 @@ export async function listBackups(): Promise<BackupFileInfo[]> {
     for (const f of files.filter(f => f.endsWith('.json')).sort().reverse()) {
       const path = `${dir}${f}`;
       const info = await FileSystem.getInfoAsync(path);
+      const pool: BackupFileInfo['pool'] = isAutoBackup(f)
+        ? 'auto'
+        : isSafetyBackup(f)
+        ? 'safety'
+        : 'other';
+
       list.push({
         fileName: f,
         filePath: path,
         createdAt: info.exists && 'modificationTime' in info ? new Date((info as any).modificationTime * 1000).toISOString() : new Date().toISOString(),
         sizeBytes: info.exists && 'size' in info ? (info as any).size || 0 : 0,
+        pool,
       });
     }
     return list;
@@ -249,6 +413,7 @@ export async function listBackups(): Promise<BackupFileInfo[]> {
       filePath: name,
       createdAt: new Date().toISOString(),
       sizeBytes: inMemoryBackups.get(name)?.length || 0,
+      pool: isAutoBackup(name) ? 'auto' : isSafetyBackup(name) ? 'safety' : 'other',
     }));
   }
 }

@@ -8,16 +8,25 @@ import * as Sharing from 'expo-sharing';
 import { Batch, CaveCheeseWheel, SensoryEvaluation, PantryItem } from '../data/db';
 
 /**
- * Escapes CSV field according to RFC 4180
+ * Escapes CSV cell according to RFC 4180 and protects against CSV Formula Injection (NFR-SEC-015, RD-ENG-10)
  */
-export function escapeCsvField(val: unknown): string {
+export function escapeCsvCell(val: unknown): string {
   if (val === null || val === undefined) return '';
-  const str = String(val);
-  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+  let str = String(val);
+
+  // RD-ENG-10: jeśli nie jest czystą liczbą ujemną i zaczyna się od [=+\-@\t\r], dodaj ' na początku
+  const isPureNegativeNumber = /^-\d+(\.\d+)?$/.test(str);
+  if (!isPureNegativeNumber && /^[=+\-@\t\r]/.test(str)) {
+    str = `'${str}`;
+  }
+
+  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r') || str.includes("'")) {
     return `"${str.replace(/"/g, '""')}"`;
   }
   return str;
 }
+
+export const escapeCsvField = escapeCsvCell;
 
 /**
  * Generates CSV string for batches

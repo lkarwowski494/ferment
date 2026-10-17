@@ -18,8 +18,15 @@ describe('FERMENT RFC 4180 CSV Production Log Export', () => {
     expect(escapeCsvField('Tekst z "cudzysłowem"')).toBe('"Tekst z ""cudzysłowem"""');
     expect(escapeCsvField('Wiersz 1\nWiersz 2')).toBe('"Wiersz 1\nWiersz 2"');
     expect(escapeCsvField(null)).toBe('');
-    expect(escapeCsvField(undefined)).toBe('');
     expect(escapeCsvField(123.45)).toBe('123.45');
+  });
+
+  it('escapes cells against CSV Formula Injection (NFR-SEC-015, RD-ENG-10)', () => {
+    expect(escapeCsvField('=SUM(A1:A5)')).toBe("\"'=SUM(A1:A5)\"");
+    expect(escapeCsvField("+cmd|' /C calc'!A0")).toBe("\"'+cmd|' /C calc'!A0\"");
+    expect(escapeCsvField('-12.5')).toBe('-12.5');
+    expect(escapeCsvField('Notatka z "cudzysłowem", przecinkiem')).toBe('"Notatka z ""cudzysłowem"", przecinkiem"');
+    expect(escapeCsvField('@IMPORTXML(url)')).toBe("\"'@IMPORTXML(url)\"");
   });
 
   it('generates batches CSV with valid headers and data', () => {

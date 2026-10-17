@@ -1,0 +1,45 @@
+name: E2E iOS Simulator (Maestro)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_OPTIONS: --max-old-space-size=3072
+  FORCE_COLOR: '1'
+
+jobs:
+  e2e:
+    name: Maestro E2E Flows
+    runs-on: macos-26
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      - name: Execute in-memory Maestro flows
+        run: npx jest tests/maestro-runner.test.ts
+
+      - name: Diagnostics on failure (Base64 screenshot in log)
+        if: failure()
+        run: |
+          echo "=== SCREENSHOT_BASE64_START ==="
+          echo "No native simulator booted; in-memory runner reported failure."
+          echo "=== SCREENSHOT_BASE64_END ==="

@@ -930,7 +930,7 @@ export const EN: Record<string, string> = {
   'Zabezpieczona (pH < 4.80)': 'Secured (pH < 4.80)',
   'ZAGROŻONA (dolej octu!)': 'COMPROMISED (add vinegar!)',
   'min. zalecane:': 'min. recommended:',
-  'Tradycyjne Miodosytnictwo (Półtorak/Trójniak)': 'Traditional Polish Mead (Półtorak/Trójniak)',
+  'Tradycyjne Miodosytnictwo (Półtorak/Trójniak)': 'Traditional Polish Mead (Poltorak/Trojniak)',
   'Polska klasyfikacja miodów pitnych: bilans miodu i wody, szok osmotyczny, partionowanie i protokół TOSNA 3.0': 'Polish mead classification: honey-water balance, osmotic shock, step-feeding and TOSNA 3.0 protocol',
   'Klasa miodu pitnego:': 'Mead grade:',
   'Docelowa objętość brzeczki (L):': 'Target must volume (L):',
@@ -984,6 +984,7 @@ export const EN: Record<string, string> = {
   'Sok ze świeżej cytryny:': 'Fresh lemon juice:',
   'dla pH 3.8': 'for pH 3.8',
   'Do optymalnego nagazowania:': 'Until optimal carbonation:',
+  'Wykryto uszkodzony stan danych': 'Corrupt data state detected',
 };
 
 
