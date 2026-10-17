@@ -24,13 +24,13 @@ env:
   APP_SCHEME: 'Ferment'
   APP_DIR: 'Ferment'
   BUNDLE_ID: 'com.apps4brew.ferment'
-  BUILD_BASE: '10'
+  BUILD_BASE: '1000'
 
 jobs:
   build:
     name: Archive & Upload (.ipa -> TestFlight)
-    runs-on: macos-14
-    timeout-minutes: 60
+    runs-on: macos-26
+    timeout-minutes: 90
     outputs:
       version: ${{ steps.ver.outputs.version }}
       build_number: ${{ steps.ver.outputs.build_number }}
@@ -56,14 +56,11 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Select Xcode 16
-        run: bash .github/scripts/select-xcode.sh 16
+      - name: Select Xcode 26 (iOS 26 SDK)
+        run: bash .github/scripts/select-xcode.sh 26
 
       - name: Install JS dependencies
         run: npm ci
-
-      - name: Patch ExpoModulesJSI for Xcode 16 Swift toolchain
-        run: node scripts/patch-expo-modules-jsi.mjs
 
       - name: Guard against test/mock flags in release build
         run: |
@@ -75,17 +72,8 @@ jobs:
             fi
           done
 
-      - name: Run quality gates
-        run: |
-          npm run typecheck
-          npm run check:i18n
-          npm run check:corpus
-          npm run check:licenses
-          npm run check:cycles
-          npm run check:maestro
-          npm run verify:native
-          npm run matrix:check
-          npm test
+      - name: Run quality gates (Verify)
+        run: npm run verify
 
       - name: Prebuild native iOS project
         run: npx expo prebuild --platform ios --no-install --clean
@@ -122,9 +110,9 @@ jobs:
           path: |
             ios/Pods
             ~/Library/Caches/CocoaPods
-          key: pods-${{ runner.os }}-xcode16-${{ hashFiles('ios/Podfile.lock', 'package-lock.json') }}
+          key: pods-v3-${{ runner.os }}-xcode26-${{ hashFiles('ios/Podfile.lock', 'package-lock.json') }}
           restore-keys: |
-            pods-${{ runner.os }}-xcode16-
+            pods-v3-${{ runner.os }}-xcode26-
 
       - name: Install CocoaPods
         working-directory: ios
@@ -134,6 +122,9 @@ jobs:
           else
             pod install
           fi
+
+      - name: Ensure iOS Platform SDK matches selected Xcode
+        run: bash scripts/ci/ensure-ios-platform.sh
 
       - name: Verify PrivacyInfo.xcprivacy after pod install
         run: |
@@ -177,17 +168,11 @@ jobs:
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
-          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 || secrets.ASC_KEY_P8 }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID || '8NQ9GHY8GF' }}
         run: |
           set +x
-          P8_RAW="${ASC_KEY_P8:-$ASC_KEY_P8_BASE64}"
-          if [ -z "$P8_RAW" ]; then
-            echo "::error::Brak wymaganego sekretu GitHub: ASC_KEY_P8 lub ASC_KEY_P8_BASE64 (zobacz docs/15-app-store.md)"
-            exit 1
-          fi
-          for req in APPLE_TEAM_ID ASC_KEY_ID ASC_ISSUER_ID; do
+          for req in APPLE_TEAM_ID ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8_BASE64; do
             if [ -z "${!req:-}" ]; then
               echo "::error::Brak wymaganego sekretu GitHub: $req (zobacz docs/15-app-store.md)"
               exit 1
@@ -201,14 +186,14 @@ jobs:
           KEY_DIR="$RUNNER_TEMP/asc_private_keys"
           mkdir -p "$KEY_DIR"
           KEY_PATH="$KEY_DIR/AuthKey_${ASC_KEY_ID}.p8"
-          if printf '%s' "$P8_RAW" | grep -q "BEGIN PRIVATE KEY"; then
-            printf '%s\n' "$P8_RAW" > "$KEY_PATH"
+          if [[ "$ASC_KEY_P8_BASE64" =~ "BEGIN PRIVATE KEY" ]]; then
+            printf '%s\n' "$ASC_KEY_P8_BASE64" > "$KEY_PATH"
           else
-            printf '%s' "$P8_RAW" | base64 --decode > "$KEY_PATH"
+            printf '%s' "$ASC_KEY_P8_BASE64" | base64 --decode > "$KEY_PATH"
           fi
           chmod 600 "$KEY_PATH"
           if ! grep -q "BEGIN PRIVATE KEY" "$KEY_PATH"; then
-            echo "::error::Klucz .p8 nie zawiera nagłówka BEGIN PRIVATE KEY"
+            echo "::error::Zdekodowany klucz .p8 nie zawiera nagłówka BEGIN PRIVATE KEY"
             rm -f "$KEY_PATH"
             exit 1
           fi
@@ -234,7 +219,7 @@ jobs:
             <key>destination</key>
             <string>upload</string>
             <key>manageAppVersionAndBuildNumber</key>
-            <string>NO</string>
+            <false/>
             <key>uploadSymbols</key>
             <true/>
             <key>testFlightInternalTestingOnly</key>

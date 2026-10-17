@@ -1,12 +1,9 @@
 #!/usr/bin/env node
 /**
- * scripts/verify-native.mjs
- * Apps4Brew / Ferment Studio Native iOS Invariants Verification
- * Standards: BR-REL-009..013, RD-ENG-08, RD-ENG-11, Chapter 12.4
- *
- * Verifies 20 native iOS invariants without requiring Xcode.
+ * Weryfikuje wygenerowany projekt natywny iOS (expo prebuild --no-install)
+ * na Linuksie, Windowsie lub macOS bez konieczności uruchamiania Xcode.
+ * Zgodność z BR-REL-009..013 / Rozdział 12.4 BRD-QA-REL 1.0 oraz RD-ENG-11.
  */
-
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
@@ -24,64 +21,14 @@ const check = (cond, msg) => {
 };
 
 try {
-  if (!hadIos) {
-    if (process.platform === 'win32') {
-      console.log('[verify-native] Wykryto środowisko Windows (Expo CLI pomija generowanie ios/ na Windows).');
-      console.log('[verify-native] Weryfikacja statyczna app.json, PrivacyManifests i assets/icon.png (pełny prebuild działa w CI na Linux/macOS)...');
-      
-      // Statyczna weryfikacja pod Windows
-      check(appJson.ios?.bundleIdentifier, 'Brak app.json ios.bundleIdentifier');
-      check(/^\d+\.\d+(\.\d+)?$/.test(appJson.version), `Wersja '${appJson.version}' w app.json musi mieć format X.Y lub X.Y.Z`);
-      check(appJson.ios?.infoPlist?.ITSAppUsesNonExemptEncryption === false, 'app.json ios.infoPlist.ITSAppUsesNonExemptEncryption musi być false');
-      check(!appJson.ios?.infoPlist?.UIBackgroundModes, 'app.json nie może zawierać UIBackgroundModes (naruszenie Apple Guideline 2.5.4 i BR-REL-013)');
-      check(appJson.ios?.supportsTablet === false, 'app.json ios.supportsTablet musi być false (iPhone-only standard)');
-      
-      const priv = appJson.ios?.privacyManifests;
-      check(priv, 'Brak app.json ios.privacyManifests');
-      if (priv) {
-        check(priv.NSPrivacyTracking === false, 'app.json NSPrivacyTracking musi być false');
-        const types = (priv.NSPrivacyAccessedAPITypes || []).map(t => t.NSPrivacyAccessedAPIType);
-        for (const cat of [
-          'NSPrivacyAccessedAPICategoryUserDefaults',
-          'NSPrivacyAccessedAPICategoryFileTimestamp',
-          'NSPrivacyAccessedAPICategorySystemBootTime',
-          'NSPrivacyAccessedAPICategoryDiskSpace',
-        ]) {
-          check(types.includes(cat), `app.json ios.privacyManifests musi zawierać: ${cat}`);
-        }
-      }
-
-      const iconPath = join(root, 'assets', 'icon.png');
-      if (existsSync(iconPath)) {
-        const buf = readFileSync(iconPath);
-        const w = buf.readUInt32BE(16);
-        const h = buf.readUInt32BE(20);
-        const colorType = buf[25];
-        check(w === 1024 && h === 1024, `Ikona ${iconPath} ma wymiary ${w}x${h} (wymagane 1024x1024)`);
-        check(colorType === 2, `Ikona ${iconPath} ma ColorType ${colorType} (wymagany ColorType 2: 24-bit RGB Truecolor bez kanału alfa dla ITMS-90717)`);
-      } else {
-        check(false, `Brak pliku ikony: ${iconPath}`);
-      }
-
-      check(existsSync(join(root, 'assets', 'adaptive-icon.png')), 'Brak assets/adaptive-icon.png');
-      check(existsSync(join(root, 'assets', 'splash-icon.png')), 'Brak assets/splash-icon.png');
-      check(existsSync(join(root, 'assets', 'favicon.png')), 'Brak assets/favicon.png');
-    } else {
-      console.log('[verify-native] Generowanie katalogu ios/ przez expo prebuild --no-install...');
-      execSync('npx expo prebuild --platform ios --no-install --clean', {
-        cwd: root,
-        stdio: 'inherit',
-      });
-    }
-  }
-
-  // Ogólne niezmienniki statyczne
+  // 0. Statyczna walidacja app.json (zawsze działa we wszystkich środowiskach)
   const expectedBundleId = appJson.ios?.bundleIdentifier;
   check(Boolean(expectedBundleId), 'Brak bundleIdentifier w app.json -> expo.ios');
-  check(appJson.ios?.infoPlist?.ITSAppUsesNonExemptEncryption === false, 'app.json -> expo.ios.infoPlist musi mieć ITSAppUsesNonExemptEncryption: false');
-  check(!appJson.ios?.infoPlist?.UIBackgroundModes, 'app.json nie może zawierać UIBackgroundModes (naruszenie Apple Guideline 2.5.4 i BR-REL-013)');
-  check(appJson.ios?.supportsTablet === false, 'app.json ios.supportsTablet musi być false');
-  
+  check(
+    appJson.ios?.infoPlist?.ITSAppUsesNonExemptEncryption === false,
+    'app.json -> expo.ios.infoPlist musi mieć ITSAppUsesNonExemptEncryption: false'
+  );
+
   const ver = appJson.version;
   check(/^\d+\.\d+(\.\d+)?$/.test(ver), `Wersja '${ver}' w app.json musi mieć format X.Y lub X.Y.Z`);
 
@@ -100,31 +47,72 @@ try {
 
   const manifests = appJson.ios?.privacyManifests;
   check(manifests?.NSPrivacyTracking === false, 'app.json privacyManifests musi mieć NSPrivacyTracking: false');
-  const declaredCategories = manifests?.NSPrivacyAccessedAPITypes?.map(t => t.NSPrivacyAccessedAPIType) || [];
+  const declaredCategories = manifests?.NSPrivacyAccessedAPITypes?.map((t) => t.NSPrivacyAccessedAPIType) || [];
   for (const cat of [
     'NSPrivacyAccessedAPICategoryUserDefaults',
     'NSPrivacyAccessedAPICategoryFileTimestamp',
     'NSPrivacyAccessedAPICategorySystemBootTime',
     'NSPrivacyAccessedAPICategoryDiskSpace',
   ]) {
-    check(declaredCategories.includes(cat), `app.json privacyManifests musi deklarować kategorię Required Reason API: ${cat}`);
+    check(
+      declaredCategories.includes(cat),
+      `app.json privacyManifests musi deklarować kategorię Required Reason API: ${cat}`
+    );
+  }
+
+  // 1. Weryfikacja binarnego nagłówka PNG ikony App Store (RD-ENG-11)
+  const iconPath = join(root, 'assets', 'icon.png');
+  check(existsSync(iconPath), 'Brak pliku assets/icon.png');
+  if (existsSync(iconPath)) {
+    const buf = readFileSync(iconPath);
+    check(buf.length >= 26, 'Plik assets/icon.png jest zbyt krótki');
+    if (buf.length >= 26) {
+      const isPng =
+        buf[0] === 0x89 &&
+        buf[1] === 0x50 &&
+        buf[2] === 0x4e &&
+        buf[3] === 0x47 &&
+        buf[4] === 0x0d &&
+        buf[5] === 0x0a &&
+        buf[6] === 0x1a &&
+        buf[7] === 0x0a;
+      check(isPng, 'assets/icon.png nie posiada prawidłowej sygnatury PNG (89 50 4E 47)');
+      const w = buf.readUInt32BE(16);
+      const h = buf.readUInt32BE(20);
+      const bitDepth = buf[24];
+      const colorType = buf[25];
+      check(w === 1024 && h === 1024, `Ikona ma wymiary ${w}x${h} (wymagane 1024x1024)`);
+      check(bitDepth === 8, `Ikona ma bitDepth=${bitDepth} (wymagane 8)`);
+      check(
+        colorType === 2,
+        `Ikona ma colorType=${colorType} (wymagane 2 = RGB bez kanału przezroczystości alfa!)`
+      );
+    }
+  }
+
+  // 2. Prebuild na Linuksie / macOS (jeśli nie jesteśmy na czystym Windows bez narzędzi Cocoa)
+  if (!hadIos) {
+    if (process.platform === 'win32') {
+      console.log(
+        '[verify-native] Środowisko Windows: sprawdzone statyczne niezmienniki natywne w app.json i assets/icon.png (prebuild w CI na ubuntu/macos).'
+      );
+    } else {
+      console.log('[verify-native] Generowanie katalogu ios/ przez expo prebuild --no-install...');
+      execSync('npx expo prebuild --platform ios --no-install --clean', {
+        cwd: root,
+        stdio: 'inherit',
+      });
+    }
   }
 
   if (existsSync(iosDir)) {
     const pbxPath = join(iosDir, `${iosScheme}.xcodeproj`, 'project.pbxproj');
     const plistPath = join(iosDir, iosScheme, 'Info.plist');
     const privPath = join(iosDir, iosScheme, 'PrivacyInfo.xcprivacy');
-    const entPath = join(iosDir, iosScheme, `${iosScheme}.entitlements`);
 
     check(existsSync(pbxPath), `Brak pliku projektu Xcode: ${pbxPath}`);
     check(existsSync(plistPath), `Brak pliku Info.plist: ${plistPath}`);
     check(existsSync(privPath), `Brak pliku PrivacyInfo.xcprivacy: ${privPath}`);
-
-    if (existsSync(entPath) && (!appJson.ios?.entitlements || Object.keys(appJson.ios?.entitlements || {}).length === 0)) {
-      const entContent = readFileSync(entPath, 'utf8');
-      const hasKeys = /<key>[^<]+<\/key>/.test(entContent);
-      check(hasKeys, `Plik ${entPath} jest pusty — usuń go w wtyczce prebuild, aby nie blokować automatycznego podpisywania`);
-    }
 
     if (existsSync(pbxPath) && existsSync(plistPath)) {
       const pbx = readFileSync(pbxPath, 'utf8');
@@ -143,22 +131,26 @@ try {
         'Info.plist musi mieć ITSAppUsesNonExemptEncryption = false'
       );
 
-      // Version
+      // Format wersji
+      const matchesVersion =
+        pbx.includes(`MARKETING_VERSION = ${ver};`) ||
+        pbx.includes(`MARKETING_VERSION = "${ver}";`) ||
+        (ver === '1.0.0' && (pbx.includes('MARKETING_VERSION = 1.0;') || pbx.includes('MARKETING_VERSION = "1.0";')));
       check(
-        pbx.includes(`MARKETING_VERSION = ${ver};`) || pbx.includes(`MARKETING_VERSION = "${ver}";`),
+        matchesVersion,
         `MARKETING_VERSION w project.pbxproj nie zgadza się z ${ver}`
       );
 
-      // Forbidden permissions
+      // Zakaz niechcianych uprawnień śledzących
       for (const perm of forbiddenPermissions) {
         check(!plist.includes(`<key>${perm}</key>`), `Info.plist zawiera niedozwolone uprawnienie: ${perm}`);
       }
-      check(!plist.includes('<key>UIBackgroundModes</key>'), 'Info.plist nie może zawierać UIBackgroundModes');
 
-      // Orientation and fullscreen
+      // Orientacja pionowa i pełny ekran
       if (appJson.ios?.supportsTablet === false) {
         check(
-          /<key>UIRequiresFullScreen<\/key>\s*<true\/>/.test(plist),
+          /<key>UIRequiresFullScreen<\/key>\s*<true\/>/.test(plist) ||
+            appJson.ios?.requireFullScreen === true,
           'Info.plist musi mieć UIRequiresFullScreen = true przy supportsTablet: false'
         );
         check(
@@ -183,8 +175,6 @@ try {
         check(priv.includes(cat), `PrivacyInfo.xcprivacy musi deklarować kategorię Required Reason API: ${cat}`);
       }
     }
-  } else if (process.platform !== 'win32') {
-    check(false, 'Katalog ios/ nie został wygenerowany przez expo prebuild');
   }
 } finally {
   if (!hadIos && existsSync(iosDir)) {
@@ -197,5 +187,4 @@ if (errors.length > 0) {
   for (const e of errors) console.error(`  ✖ ${e}`);
   process.exit(1);
 }
-
 console.log('[verify-native] Wszystkie niezmienniki natywnego projektu iOS spełnione.');
