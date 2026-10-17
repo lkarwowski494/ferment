@@ -20,7 +20,7 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | Kategoria | Nazwa elementu | Plik źródłowy | Status | Pliki testowe |
 | :--- | :--- | :--- | :---: | :--- |
 | `EKRAN` | `/(tabs)/cave` | `app/(tabs)/cave.tsx` | ✅ | tests/core/cave-environment.test.ts, tests/core/flavor-wheel-data.test.ts |
-| `EKRAN` | `/(tabs)/dairy` | `app/(tabs)/dairy.tsx` | ✅ | tests/core/fermentation-diagnostics.test.ts, tests/matrix-dimensions.test.tsx |
+| `EKRAN` | `/(tabs)/dairy` | `app/(tabs)/dairy.tsx` | ✅ | tests/core/fermentation-diagnostics.test.ts, tests/corpus.test.ts |
 | `EKRAN` | `/(tabs)/index` | `app/(tabs)/index.tsx` | ✅ | tests/audit-fixes.test.tsx, tests/matrix-routes.test.tsx |
 | `EKRAN` | `/(tabs)/pantry-knowledge` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-routes.test.tsx |
 | `TEKST` | `Dojrzewalnia` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
@@ -43,7 +43,7 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Cofnij` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Wszystkie krążki zostały dziś pomyślnie obrócone. Dojrzewalnia odpoczywa!` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Obróć krążek` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Obróć` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Obróć` | `app/(tabs)/cave.tsx` | ✅ | tests/concurrency/double-tap.test.tsx, tests/matrix-translations.test.ts |
 | `TEKST` | `Aktywne Krążki w Jaskini` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Wszystkie` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Maziowe` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
@@ -59,7 +59,7 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Typ skórki:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Obrócono` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Pielęgnacja Skórki` | `app/(tabs)/cave.tsx` | ✅ | tests/data/knowledge-base.test.ts, tests/matrix-translations.test.ts |
-| `TEKST` | `Krążek` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Krążek` | `app/(tabs)/cave.tsx` | ✅ | tests/concurrency/double-tap.test.tsx, tests/matrix-translations.test.ts |
 | `TEKST` | `Przemyto 18% solanką maziową B. linens.` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Przemyj mazią` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Dodaj Nowy Krążek do Jaskini` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
