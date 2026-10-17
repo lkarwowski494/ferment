@@ -182,6 +182,14 @@ import { KimchiCard } from '../../src/components/calculator/KimchiCard';
 import { Q10AndHeadspaceCard } from '../../src/components/calculator/Q10AndHeadspaceCard';
 import { CrispnessBotanicalCard } from '../../src/components/calculator/CrispnessBotanicalCard';
 import { KojiAmazakeCard } from '../../src/components/calculator/KojiAmazakeCard';
+import { Kombucha2FBlendingCard } from '../../src/components/calculator/Kombucha2FBlendingCard';
+import { VinegarTitrationCard } from '../../src/components/calculator/VinegarTitrationCard';
+import { KombuchaQ10RefractometerCard } from '../../src/components/calculator/KombuchaQ10RefractometerCard';
+import { ScobyHotelCard } from '../../src/components/calculator/ScobyHotelCard';
+import { ContinuousBrewCard } from '../../src/components/calculator/ContinuousBrewCard';
+import { PasteurizationUnitsCard } from '../../src/components/calculator/PasteurizationUnitsCard';
+import { VinegarStandardizationCard } from '../../src/components/calculator/VinegarStandardizationCard';
+import { KefirGrainsCard } from '../../src/components/calculator/KefirGrainsCard';
 
 
 
@@ -2786,778 +2794,114 @@ export default function CalculatorScreen() {
             {isProExpanded && (
               <View style={styles.proAccordionBody}>
                 {/* 2F Pressure & Fruit Blending Guard */}
-                <View style={[styles.proCard, kombuchaBlendingCalc.isExplosionHazard && styles.cardDanger]}>
-                  <Text style={styles.proCardTitle}>🍾 {t('Mieszanie Owocowe 2F & Dynamika Wysycenia')}</Text>
+                <Kombucha2FBlendingCard
+                  selectedJuiceId={selectedJuiceId}
+                  setSelectedJuiceId={setSelectedJuiceId}
+                  juiceVolumeMl={juiceVolumeMl}
+                  setJuiceVolumeMl={setJuiceVolumeMl}
+                  kombuchaBottleType={kombuchaBottleType}
+                  setKombuchaBottleType={setKombuchaBottleType}
+                  daysIn2F={daysIn2F}
+                  setDaysIn2F={setDaysIn2F}
+                  kombuchaBlendingCalc={kombuchaBlendingCalc}
+                />
 
-                  <Text style={styles.inputLabelMini}>{t('Profil soku / owocu:')}</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                    {[
-                      { id: 'apple', label: t('Sok jabłkowy (11.5°Bx)') },
-                      { id: 'raspberry', label: t('Sok malinowy (7.5°Bx)') },
-                      { id: 'ginger_lemon', label: t('Imbir-cytryna z miodem (14°Bx)') },
-                      { id: 'pomegranate', label: t('Sok z granatu (13°Bx)') },
-                      { id: 'pure_cane_sugar', label: t('Syrop cukrowy (65°Bx)') },
-                    ].map((j) => (
-                      <TouchableOpacity
-                        key={j.id}
-                        style={[styles.presetPill, selectedJuiceId === j.id && styles.presetPillActive]}
-                        onPress={() => {
-                          triggerHapticFeedback();
-                          setSelectedJuiceId(j.id);
-                        }}
-                      >
-                        <Text style={[styles.presetPillText, selectedJuiceId === j.id && styles.presetPillTextActive]}>
-                          {j.label}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
+                {/* Living Vinegar & Acidity Titration */}
+                <VinegarTitrationCard
+                  vinegarBrix={vinegarBrix}
+                  setVinegarBrix={setVinegarBrix}
+                  vinegarCalc={vinegarCalc}
+                  vinegarSampleMl={vinegarSampleMl}
+                  setVinegarSampleMl={setVinegarSampleMl}
+                  naohTiterMl={naohTiterMl}
+                  setNaohTiterMl={setNaohTiterMl}
+                  vinegarTitrationCalc={vinegarTitrationCalc}
+                />
 
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Ilość soku owocowego (ml):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(juiceVolumeMl)}
-                      onChangeText={(v) => setJuiceVolumeMl(parseFloat(v) || 0)}
-                    />
-                  </View>
-
-                  <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Typ butelki:')}</Text>
-                  <View style={{ gap: 4, marginVertical: 4 }}>
-                    {[
-                      { id: 'HEAVY_SWING_TOP_AMBER' as const, label: t('Butelka z pałąkiem (Swing-Top) [max 4.5 vol]') },
-                      { id: 'CROWN_CAP_BEER_BOTTLE' as const, label: t('Kapslowana butelka do piwa [max 3.5 vol]') },
-                      { id: 'CHAMPAGNE_HEAVY' as const, label: t('Ciężka butelka do szampana [max 6.0 vol]') },
-                      { id: 'SQUARE_DECORATIVE' as const, label: t('Kwadratowa ozdobna [ZAGROŻENIE EKSPLOZJĄ! max 1.8 vol]') },
-                    ].map((bType) => (
-                      <TouchableOpacity
-                        key={bType.id}
-                        style={[
-                          styles.presetPill,
-                          kombuchaBottleType === bType.id && styles.presetPillActive,
-                          bType.id === 'SQUARE_DECORATIVE' && { borderColor: '#EF4444' }
-                        ]}
-                        onPress={() => {
-                          triggerHapticFeedback();
-                          setKombuchaBottleType(bType.id);
-                        }}
-                      >
-                        <Text style={[
-                          styles.presetPillText,
-                          kombuchaBottleType === bType.id && styles.presetPillTextActive,
-                          bType.id === 'SQUARE_DECORATIVE' && { color: '#DC2626', fontWeight: '700' }
-                        ]}>
-                          {bType.label}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Dni w temp. pokojowej:')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(daysIn2F)}
-                      onChangeText={(v) => setDaysIn2F(parseFloat(v) || 0)}
-                    />
-                  </View>
-
-                  <View style={styles.pressureBox}>
-                    <Text style={styles.pressureVolText}>
-                      {t('Szacowane CO2:')} <Text style={styles.boldText}>{kombuchaBlendingCalc.estimatedCo2Volumes} vol</Text> | {t('Szacowane ciśnienie (20°C):')} <Text style={styles.boldText}>{kombuchaBlendingCalc.estimatedPressureBarAt20C} bar</Text>
-                    </Text>
-                    <Text style={styles.recipeDetailText}>
-                      • {t('Cukier dodany z owoców:')} <Text style={styles.boldText}>{kombuchaBlendingCalc.sugarAddedGrams} g</Text> ({kombuchaBlendingCalc.effectiveSugarGramsPerLiter} g/L)
-                    </Text>
-                    <Text style={[
-                      styles.riskAlertText,
-                      kombuchaBlendingCalc.isExplosionHazard && styles.riskAlertDanger
-                    ]}>
-                      {kombuchaBlendingCalc.warningMessage}
-                    </Text>
-                    <Text style={[styles.recipeDetailText, { marginTop: 4, color: '#15803D' }]}>
-                      💡 {kombuchaBlendingCalc.refrigerationAdvice}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Living Vinegar */}
-                <View style={[styles.proCard, vinegarCalc.isAbvTooHigh && styles.cardDanger]}>
-                  <Text style={styles.proCardTitle}>🍎 {t('Żywe Octy Owocowe & ABV Inhibition Guard')}</Text>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Początkowe °Brix owoców:')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(vinegarBrix)}
-                      onChangeText={(v) => setVinegarBrix(parseFloat(v) || 0)}
-                    />
-                  </View>
-                  <View style={styles.vinegarBox}>
-                    <Text style={styles.vinegarText}>
-                      • {t('Przewidywany alkohol:')} <Text style={styles.boldText}>{vinegarCalc.estimatedAbvPct}% ABV</Text>
-                    </Text>
-                    <Text style={styles.vinegarText}>
-                      • {t('Przewidywany kwas octowy:')}{' '}
-                      <Text style={styles.boldText}>{vinegarCalc.expectedAceticAcidPct}%</Text>
-                    </Text>
-                    <Text style={[styles.vinegarAlert, vinegarCalc.isAbvTooHigh && styles.vinegarAlertDanger]}>
-                      {vinegarCalc.message}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Titratable Acidity (TA) with 0.1M NaOH */}
-                <View style={styles.proCard}>
-                  <Text style={styles.proCardTitle}>🧪 {t('Miareczkowanie Kwasowości Octu (TA z NaOH 0.1M)')}</Text>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Objętość próbki octu (ml):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(vinegarSampleMl)}
-                      onChangeText={(v) => setVinegarSampleMl(parseFloat(v) || 1)}
-                    />
-                  </View>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Zużyty 0.1M NaOH (ml do różu):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(naohTiterMl)}
-                      onChangeText={(v) => setNaohTiterMl(parseFloat(v) || 0)}
-                    />
-                  </View>
-                  <View style={styles.vinegarBox}>
-                    <Text style={styles.vinegarText}>
-                      • {t('Kwasowość całkowita:')}{' '}
-                      <Text style={styles.boldText}>{vinegarTitrationCalc.aceticAcidPercentage}% {t('kwasu octowego')}</Text>
-                    </Text>
-                    <Text style={styles.vinegarText}>
-                      • {t('Klasyfikacja:')} <Text style={styles.boldText}>{vinegarTitrationCalc.classification}</Text>
-                    </Text>
-                    <Text style={[styles.vinegarAlert, !vinegarTitrationCalc.isFoodGradeSafe && styles.vinegarAlertDanger]}>
-                      {vinegarTitrationCalc.notes}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Q10 Kombucha Kinetics */}
-                {q10KombuchaCalc && (
-                  <View style={[styles.proCard, (q10KombuchaCalc.zone === 'HEAT_STRESS_SPOILAGE' || q10KombuchaCalc.zone === 'DORMANT_SLUGGISH') && styles.cardDanger]}>
-                    <Text style={styles.proCardTitle}>🌡️ {t('Kompensacja Temperatury Q10 dla Kombuchy (Czas 1F)')}</Text>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Temperatura otoczenia (°C):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(ambientTempC)}
-                        onChangeText={(v) => setAmbientTempC(parseFloat(v) || 20)}
-                      />
-                    </View>
-                    <View style={styles.safetyBox}>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Mnożnik kinetyki:')} <Text style={styles.boldText}>{q10KombuchaCalc.velocityMultiplier}x</Text> {t('(względem 20°C)')}
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Skorygowany czas 1F:')} <Text style={styles.boldText}>{q10KombuchaCalc.adjustedDays} {t('dni')}</Text> ({q10KombuchaCalc.adjustedHours} {t('godz.')})
-                      </Text>
-                      <Text style={[styles.safetyStatus, (q10KombuchaCalc.zone === 'HEAT_STRESS_SPOILAGE' || q10KombuchaCalc.zone === 'DORMANT_SLUGGISH') && styles.safetyDanger, { marginTop: 4 }]}>
-                        {t('Strefa termiczna:')} {q10KombuchaCalc.zoneLabel}
-                      </Text>
-                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                        💡 {q10KombuchaCalc.flavorProfileImpact}
-                      </Text>
-                    </View>
-                  </View>
-                )}
-
-                {/* Optical Refractometer & Alcohol Engine */}
-                {refractometerAlcoholCalc && (
-                  <View style={[styles.proCard, !refractometerAlcoholCalc.isVinegarSafe && styles.cardDanger]}>
-                    <Text style={styles.proCardTitle}>🔍 {t('Korektor Refraktometru Optycznego (°Bx → SG → ABV)')}</Text>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Początkowy odczyt (°Bx):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(originalBrixInput)}
-                        onChangeText={(v) => setOriginalBrixInput(parseFloat(v) || 0)}
-                      />
-                    </View>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Aktualny odczyt (°Bx):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(currentBrixInput)}
-                        onChangeText={(v) => setCurrentBrixInput(parseFloat(v) || 0)}
-                      />
-                    </View>
-                    <View style={styles.safetyBox}>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Skorygowana gęstość rzeczywista:')} <Text style={styles.boldText}>{refractometerAlcoholCalc.correctedFinalSg} SG</Text> ({refractometerAlcoholCalc.realExtractPlato}°P)
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Zawartość alkoholu:')} <Text style={styles.boldText}>{refractometerAlcoholCalc.abvPct}% ABV</Text>
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Klasyfikacja:')} <Text style={styles.boldText}>{refractometerAlcoholCalc.classification}</Text>
-                      </Text>
-                      <Text style={[
-                        styles.safetyStatus,
-                        !refractometerAlcoholCalc.isVinegarSafe ? styles.safetyDanger : !refractometerAlcoholCalc.isNonAlcoholicKombucha ? { color: '#B45309' } : { color: '#15803D' },
-                        { marginTop: 4 }
-                      ]}>
-                        {refractometerAlcoholCalc.recommendation}
-                      </Text>
-                    </View>
-                  </View>
-                )}
+                {/* Q10 Kombucha Kinetics & Optical Refractometer */}
+                <KombuchaQ10RefractometerCard
+                  ambientTempC={ambientTempC}
+                  setAmbientTempC={setAmbientTempC}
+                  q10KombuchaCalc={q10KombuchaCalc}
+                  originalBrixInput={originalBrixInput}
+                  setOriginalBrixInput={setOriginalBrixInput}
+                  currentBrixInput={currentBrixInput}
+                  setCurrentBrixInput={setCurrentBrixInput}
+                  refractometerAlcoholCalc={refractometerAlcoholCalc}
+                />
 
                 {/* Live Culture Hotel & Mother Colony Preservation */}
-                {cultureHotelCalc && (
-                  <View style={[styles.proCard, (cultureHotelCalc.healthStatus === 'STARVATION_RISK' || cultureHotelCalc.isMoldHazard) && styles.cardDanger]}>
-                    <Text style={styles.proCardTitle}>🏨 {t('Hotel SCOBY & Matecznik Kultur Żywych')}</Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Zarządzanie rezerwą starterową, dokarmianiem i zabezpieczeniem przed pleśnią')}
-                    </Text>
+                <ScobyHotelCard
+                  hotelCultureType={hotelCultureType}
+                  setHotelCultureType={setHotelCultureType}
+                  hotelDaysSinceFed={hotelDaysSinceFed}
+                  setHotelDaysSinceFed={setHotelDaysSinceFed}
+                  hotelVolumeMl={hotelVolumeMl}
+                  setHotelVolumeMl={setHotelVolumeMl}
+                  hotelSludgeDepthCm={hotelSludgeDepthCm}
+                  setHotelSludgeDepthCm={setHotelSludgeDepthCm}
+                  cultureHotelCalc={cultureHotelCalc}
+                />
 
-                    {/* Culture Type Pills */}
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {[
-                        { id: 'KOMBUCHA_SCOBY_HOTEL' as const, label: t('Hotel SCOBY') },
-                        { id: 'VINEGAR_MOTHER' as const, label: t('Matka Octowa') },
-                        { id: 'MILK_KEFIR_GRAINS' as const, label: t('Kefir Mleczny') },
-                        { id: 'WATER_KEFIR_TIBICOS' as const, label: t('Kefir Wodny (Tibicos)') },
-                        { id: 'WHEY_STARTER_LEVAIN' as const, label: t('Serwatka Mateczna') },
-                      ].map((cult) => (
-                        <TouchableOpacity
-                          key={cult.id}
-                          style={[styles.presetPill, hotelCultureType === cult.id && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setHotelCultureType(cult.id);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, hotelCultureType === cult.id && styles.presetPillTextActive]}>
-                            {cult.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
+                {/* Kombucha Continuous Brew Siphon & Maintenance */}
+                <ContinuousBrewCard
+                  cbVesselLiters={cbVesselLiters}
+                  setCbVesselLiters={setCbVesselLiters}
+                  cbDrawLiters={cbDrawLiters}
+                  setCbDrawLiters={setCbDrawLiters}
+                  cbTempCelsius={cbTempCelsius}
+                  setCbTempCelsius={setCbTempCelsius}
+                  cbCyclesSincePurge={cbCyclesSincePurge}
+                  setCbCyclesSincePurge={setCbCyclesSincePurge}
+                  cbPreDrawPh={cbPreDrawPh}
+                  setCbPreDrawPh={setCbPreDrawPh}
+                  cbTeaBase={cbTeaBase}
+                  setCbTeaBase={setCbTeaBase}
+                  continuousBrewPlan={continuousBrewPlan}
+                />
 
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Dni od ostatniego zasilenia:')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(hotelDaysSinceFed)}
-                        onChangeText={(v) => setHotelDaysSinceFed(parseFloat(v) || 0)}
-                      />
-                    </View>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Objętość płynu w słoiku (ml):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(hotelVolumeMl)}
-                        onChangeText={(v) => setHotelVolumeMl(parseFloat(v) || 100)}
-                      />
-                    </View>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Osad drożdżowy na dnie (cm):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(hotelSludgeDepthCm)}
-                        onChangeText={(v) => setHotelSludgeDepthCm(parseFloat(v) || 0)}
-                      />
-                    </View>
+                {/* Pasteurization Units & Thermal Stabilization */}
+                <PasteurizationUnitsCard
+                  puCategory={puCategory}
+                  setPuCategory={setPuCategory}
+                  puWaterBathTempC={puWaterBathTempC}
+                  setPuWaterBathTempC={setPuWaterBathTempC}
+                  puHoldMinutes={puHoldMinutes}
+                  setPuHoldMinutes={setPuHoldMinutes}
+                  puBottleVolumeMl={puBottleVolumeMl}
+                  setPuBottleVolumeMl={setPuBottleVolumeMl}
+                  puPlanCalc={puPlanCalc}
+                />
 
-                    <View style={styles.safetyBox}>
-                      <Text style={[
-                        styles.safetyStatus,
-                        cultureHotelCalc.healthStatus === 'STARVATION_RISK' || cultureHotelCalc.isMoldHazard
-                          ? styles.safetyDanger
-                          : cultureHotelCalc.healthStatus === 'DUE_FOR_FEEDING'
-                          ? { color: '#B45309' }
-                          : { color: '#15803D' }
-                      ]}>
-                        • {t('Stan kolonii:')} {cultureHotelCalc.statusLabelPl}
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Planowane zasilenie:')} {cultureHotelCalc.feedingSchedule.feedLiquidVolumeMl} ml {t('płynu')} ({cultureHotelCalc.feedingSchedule.feedSugarGrams}g {t('cukru')})
-                      </Text>
-                      <Text style={styles.recipeDetailText}>
-                        💡 {cultureHotelCalc.feedingSchedule.recommendedFeedingRatioPl}
-                      </Text>
-                      {cultureHotelCalc.actionAlerts.map((alert, idx) => (
-                        <Text key={idx} style={[styles.safetyStatus, styles.safetyDanger, { marginTop: 4 }]}>
-                          ⚠️ {alert}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
+                {/* Vinegar Standardization & Surface Aeration */}
+                <VinegarStandardizationCard
+                  vinRawAcidity={vinRawAcidity}
+                  setVinRawAcidity={setVinRawAcidity}
+                  vinRawVolumeL={vinRawVolumeL}
+                  setVinRawVolumeL={setVinRawVolumeL}
+                  vinTargetAcidity={vinTargetAcidity}
+                  setVinTargetAcidity={setVinTargetAcidity}
+                  vinVesselDiameterCm={vinVesselDiameterCm}
+                  setVinVesselDiameterCm={setVinVesselDiameterCm}
+                  vinInitialAbv={vinInitialAbv}
+                  setVinInitialAbv={setVinInitialAbv}
+                  vinegarStdCalc={vinegarStdCalc}
+                  vinegarStoichCalc={vinegarStoichCalc}
+                  vinegarAerationCalc={vinegarAerationCalc}
+                />
 
-                {/* Kombucha Continuous Brew Siphon & Maintenance Engine */}
-                {continuousBrewPlan && (
-                  <View style={[styles.proCard, !continuousBrewPlan.isDrawSafe && styles.cardDanger]}>
-                    <Text style={styles.proCardTitle}>🚰 {t('Kombucha Ciągła (Continuous Brew Siphon & Serwis)')}</Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Model tygodniowego rozlewu z kranika (20-30%), uzupełnianie słodkiej herbaty i osad')}
-                    </Text>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Pojemność słoja (L):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(cbVesselLiters)}
-                        onChangeText={(v) => setCbVesselLiters(parseFloat(v) || 1)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Pobór do rozlewu (L):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(cbDrawLiters)}
-                        onChangeText={(v) => setCbDrawLiters(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Temperatura otoczenia (°C):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(cbTempCelsius)}
-                        onChangeText={(v) => setCbTempCelsius(parseFloat(v) || 20)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Cykle od czyszczenia dna:')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(cbCyclesSincePurge)}
-                        onChangeText={(v) => setCbCyclesSincePurge(parseInt(v, 10) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Aktualne pH przed zlaniem:')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(cbPreDrawPh)}
-                        onChangeText={(v) => setCbPreDrawPh(parseFloat(v) || 3.0)}
-                      />
-                    </View>
-
-                    {/* Tea Base Type */}
-                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Baza herbaty:')}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {[
-                        { id: 'BLACK' as const, label: t('Czarna klasyczna') },
-                        { id: 'GREEN' as const, label: t('Zielona Sencha') },
-                        { id: 'OOLONG' as const, label: t('Oolong / Turkusowa') },
-                        { id: 'WHITE' as const, label: t('Biała Pai Mu Tan') },
-                        { id: 'HERBAL_BLEND' as const, label: t('Mieszanka ziołowa') },
-                      ].map((tea) => (
-                        <TouchableOpacity
-                          key={tea.id}
-                          style={[styles.presetPill, cbTeaBase === tea.id && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setCbTeaBase(tea.id);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, cbTeaBase === tea.id && styles.presetPillTextActive]}>
-                            {tea.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-
-                    {/* Calculations / Output */}
-                    <View style={styles.safetyBox}>
-                      <Text style={[
-                        styles.safetyStatus,
-                        !continuousBrewPlan.isDrawSafe ? styles.safetyDanger : { color: '#15803D' }
-                      ]}>
-                        • {t('Wskaźnik poboru:')} {continuousBrewPlan.drawRatioPct}% ({continuousBrewPlan.drawVolumeLiters}L {t('z')} {cbVesselLiters}L) — {continuousBrewPlan.isDrawSafe ? t('BEZPIECZNY') : t('NIEBEZPIECZNY')}
-                      </Text>
-                      {continuousBrewPlan.safetyWarning && (
-                        <Text style={[styles.safetyStatus, styles.safetyDanger, { marginTop: 4 }]}>
-                          ⚠️ {continuousBrewPlan.safetyWarning}
-                        </Text>
-                      )}
-
-                      <Text style={[styles.proCardDesc, { marginTop: 6 }]}>
-                        • {t('Do uzupełnienia:')} <Text style={styles.boldText}>{continuousBrewPlan.sweetTeaVolumeLiters} L</Text> {t('słodkiej herbaty')} ({t('zostaje')} {continuousBrewPlan.reserveVolumeLiters}L {t('bazy starterowej')})
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Składniki słodkiej herbaty:')} <Text style={styles.boldText}>{continuousBrewPlan.sugarTotalGrams} g</Text> {t('cukru')} (70 g/L) + <Text style={styles.boldText}>{continuousBrewPlan.teaLeavesTotalGrams} g</Text> {t('herbaty')} (5 g/L)
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Czas parzenia:')} <Text style={styles.boldText}>{continuousBrewPlan.recommendedSteepTimeMinutes} min</Text> | {t('Chłodzenie do:')} &le; {continuousBrewPlan.recommendedCoolingTempCelsius}°C
-                      </Text>
-                      {continuousBrewPlan.estimatedPostRefillPh !== undefined && (
-                        <Text style={styles.proCardDesc}>
-                          • {t('Szacowane pH po dolaniu:')} <Text style={styles.boldText}>pH {continuousBrewPlan.estimatedPostRefillPh}</Text> ({t('ochrona przed pleśnią')} &le; 4.0)
-                        </Text>
-                      )}
-                      <Text style={styles.proCardDesc}>
-                        • {t('Kolejny rozlew za:')} <Text style={styles.boldText}>{continuousBrewPlan.estimatedCycleDays} {t('dni')}</Text> ({t('w temp.')} {cbTempCelsius}°C)
-                      </Text>
-
-                      {/* Trub Alert */}
-                      {continuousBrewPlan.trubPurgeAlert && continuousBrewPlan.trubPurgeAlert.urgency !== 'NONE' && (
-                        <View style={{ marginTop: 8, padding: 8, borderRadius: 8, backgroundColor: continuousBrewPlan.trubPurgeAlert.urgency === 'OVERDUE' ? '#FEF2F2' : '#FFFBEB' }}>
-                          <Text style={{ fontSize: 12, fontWeight: '700', color: continuousBrewPlan.trubPurgeAlert.urgency === 'OVERDUE' ? '#991B1B' : '#92400E' }}>
-                            {continuousBrewPlan.trubPurgeAlert.urgency === 'OVERDUE' ? '🚨' : '⏳'} {continuousBrewPlan.trubPurgeAlert.reason}
-                          </Text>
-                          {continuousBrewPlan.trubPurgeAlert.actionSteps.map((step, idx) => (
-                            <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 3 }}>
-                              {idx + 1}. {step}
-                            </Text>
-                          ))}
-                        </View>
-                      )}
-
-                      {continuousBrewPlan.recommendations.map((rec, idx) => (
-                        <Text key={idx} style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                          💡 {rec}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
-
-                {/* Pasteurization Units (PU) & Thermal Stabilization Engine */}
-                {puPlanCalc && (
-                  <View style={[styles.proCard, puPlanCalc.thermalSafetyStatus === 'SENSORY_HEAT_DAMAGE_RISK' && styles.cardDanger]}>
-                    <Text style={styles.proCardTitle}>🔥 {t('Jednostki Pasteryzacji (PU) & Termiczna Stabilizacja')}</Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Model Bigelowa, dezaktywacja drożdży w kombusze 2F, ochrona matki octowej i chrupkości')}
-                    </Text>
-
-                    {/* Category Selector Pills */}
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {[
-                        { id: 'KOMBUCHA_STABILIZATION' as const, label: t('Kombucha 2F (15-25 PU)') },
-                        { id: 'LIVING_VINEGAR_PRESERVATION' as const, label: t('Żywy ocet (20-30 PU)') },
-                        { id: 'FERMENTED_HOT_SAUCE' as const, label: t('Sos chili (50-100 PU)') },
-                        { id: 'CRISP_PICKLE_JAR' as const, label: t('Kiszonki słoik (100-180 PU)') },
-                      ].map((cat) => (
-                        <TouchableOpacity
-                          key={cat.id}
-                          style={[styles.presetPill, puCategory === cat.id && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setPuCategory(cat.id);
-                            const meta = PASTEURIZATION_TARGETS[cat.id];
-                            setPuWaterBathTempC(meta.referenceTempC + 4);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, puCategory === cat.id && styles.presetPillTextActive]}>
-                            {cat.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Temperatura łaźni wodnej (°C):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(puWaterBathTempC)}
-                        onChangeText={(v) => setPuWaterBathTempC(parseFloat(v) || 50)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Czas w kąpieli wodnej (min):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(puHoldMinutes)}
-                        onChangeText={(v) => setPuHoldMinutes(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Pojemność butelki / słoika (ml):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(puBottleVolumeMl)}
-                        onChangeText={(v) => setPuBottleVolumeMl(parseFloat(v) || 500)}
-                      />
-                    </View>
-
-                    <View style={styles.safetyBox}>
-                      <Text style={[
-                        styles.safetyStatus,
-                        puPlanCalc.thermalSafetyStatus === 'SENSORY_HEAT_DAMAGE_RISK'
-                          ? styles.safetyDanger
-                          : puPlanCalc.isTargetAchieved
-                          ? { color: '#15803D' }
-                          : { color: '#B45309' }
-                      ]}>
-                        • {t('Akumulacja PU:')} {puPlanCalc.actualAccumulatedPu ?? 0} PU / {t('cel')} {puPlanCalc.targetPu} PU ({puPlanCalc.isTargetAchieved ? t('OSIĄGNIĘTY') : t('W TRAKCIE / ZA MAŁO')})
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Wymagany czas przetrzymania:')} <Text style={styles.boldText}>{puPlanCalc.requiredHoldTimeMinutes} min</Text> ({t('tempo:')} {puPlanCalc.puAccumulationRatePerMinute} PU/min)
-                      </Text>
-
-                      <Text style={styles.brineText}>
-                        • {puPlanCalc.statusMessagePl}
-                      </Text>
-
-                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                        💡 {puPlanCalc.sensoryPreservationAdvice}
-                      </Text>
-
-                      {puPlanCalc.recommendedWaterBathProtocol.map((step, idx) => (
-                        <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 3 }}>
-                          {idx + 1}. {step}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
-
-                {/* Vinegar Standardization & Surface Aeration Engine */}
-                {vinegarStdCalc && vinegarStoichCalc && vinegarAerationCalc && (
-                  <View style={[styles.proCard, (vinegarStoichCalc.isAlcoholTooHighWarning || vinegarAerationCalc.aerationRating === 'STAGNANT_SUFFOCATION') && styles.cardDanger]}>
-                    <Text style={styles.proCardTitle}>🧪 {t('Standaryzacja Octu & Aeracja Lustra (Grain Strength)')}</Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Moc w stopniach Grain (10 grain = 1%), rozcieńczanie kwadratem Pearsona i aeracja naczynia')}
-                    </Text>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Kwasowość surowa (% / Grain):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(vinRawAcidity)}
-                        onChangeText={(v) => setVinRawAcidity(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Objętość surowego octu (L):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(vinRawVolumeL)}
-                        onChangeText={(v) => setVinRawVolumeL(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Docelowa kwasowość (% / Grain):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(vinTargetAcidity)}
-                        onChangeText={(v) => setVinTargetAcidity(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Średnica lustra cieczy (cm):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(vinVesselDiameterCm)}
-                        onChangeText={(v) => setVinVesselDiameterCm(parseFloat(v) || 1)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Początkowy alkohol cydru/wina (% ABV):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(vinInitialAbv)}
-                        onChangeText={(v) => setVinInitialAbv(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.safetyBox}>
-                      <Text style={[
-                        styles.safetyStatus,
-                        vinegarStdCalc.legalFoodGradeClassification === 'SUB_STANDARD_LOW' ? styles.safetyDanger : { color: '#15803D' }
-                      ]}>
-                        • {t('Moc:')} {vinegarStdCalc.rawGrainStrength} Grain ({vinRawAcidity}%) &rarr; {vinegarStdCalc.targetGrainStrength} Grain ({vinTargetAcidity}%) — {vinegarStdCalc.classificationLabelPl}
-                      </Text>
-
-                      {vinegarStdCalc.isDilutionNeeded ? (
-                        <Text style={styles.proCardDesc}>
-                          • {t('Dolewka wody niechlorowanej:')} <Text style={styles.boldText}>{vinegarStdCalc.dilutionLiquidVolumeLiters} L</Text> ({t('objętość końcowa:')} {vinegarStdCalc.totalFinishedVolumeLiters} L)
-                        </Text>
-                      ) : (
-                        <Text style={styles.proCardDesc}>
-                          • {t('Rozcieńczenie zbędne (kwasowość &le; docelowej)')}
-                        </Text>
-                      )}
-
-                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                        💡 {vinegarStdCalc.motherPreservationAdvice}
-                      </Text>
-
-                      {/* Stoichiometry */}
-                      <Text style={[styles.proCardDesc, { marginTop: 6 }]}>
-                        • {t('Potencjał kwasowy z')} {vinInitialAbv}% ABV: <Text style={styles.boldText}>{vinegarStoichCalc.expectedActualAcidityPct}%</Text> ({vinegarStoichCalc.expectedGrainStrength} Grain, {t('max teor.')} {vinegarStoichCalc.theoreticalMaxAcidityPct}%)
-                      </Text>
-
-                      {vinegarStoichCalc.potentialSpoilageRisk && (
-                        <Text style={[styles.safetyStatus, styles.safetyDanger, { marginTop: 4 }]}>
-                          ⚠️ {vinegarStoichCalc.potentialSpoilageRisk}
-                        </Text>
-                      )}
-
-                      {/* Aeration */}
-                      <Text style={[
-                        styles.safetyStatus,
-                        vinegarAerationCalc.aerationRating === 'STAGNANT_SUFFOCATION' ? styles.safetyDanger : { color: '#15803D' },
-                        { marginTop: 6 }
-                      ]}>
-                        • {t('Wskaźnik natlenienia A/V:')} {vinegarAerationCalc.surfaceToVolumeRatioCm2PerLiter} cm²/L — {vinegarAerationCalc.ratingLabelPl} ({vinegarAerationCalc.estimatedFermentationWeeks.min}–{vinegarAerationCalc.estimatedFermentationWeeks.max} {t('tyg.')})
-                      </Text>
-                      <Text style={styles.recipeDetailText}>
-                        🧫 {vinegarAerationCalc.motherPellicleHealthAdvice}
-                      </Text>
-
-                      {vinegarAerationCalc.actionableRecommendations.map((rec, idx) => (
-                        <Text key={idx} style={[styles.recipeDetailText, { marginTop: 2 }]}>
-                          💡 {rec}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
-
-                {/* Ziarna Kefirowe & Tibicos 1F/2F */}
-                {kefir1FCalc && (
-                  <View style={styles.proCard}>
-                    <Text style={styles.proCardTitle}>
-                      🥛 {t('Ziarna Kefirowe & Tibicos (1F/2F)')}
-                    </Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Symbiotyczna matryca kefiranu, inokulacja (2.5-5%), kinetyka trawienia laktozy i nasycenie CO2')}
-                    </Text>
-
-                    {/* Medium selector */}
-                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Typ kefiru:')}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {[
-                        { id: 'MILK_KEFIR' as const, label: t('Kefir Mleczny (Ziarna tybetańskie)') },
-                        { id: 'WATER_KEFIR_TIBICOS' as const, label: t('Kefir Wodny (Kryształki Tibicos)') },
-                      ].map((km) => (
-                        <TouchableOpacity
-                          key={km.id}
-                          style={[styles.presetPill, kefirMedium === km.id && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setKefirMedium(km.id);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, kefirMedium === km.id && styles.presetPillTextActive]}>
-                            {km.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Objętość płynu (ml):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(kefirLiquidVolumeMl)}
-                        onChangeText={(v) => setKefirLiquidVolumeMl(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Masa ziaren kefirowych (g):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(kefirGrainWeightGrams)}
-                        onChangeText={(v) => setKefirGrainWeightGrams(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.brineResultBox}>
-                      <Text style={[
-                        styles.safetyStatus,
-                        kefir1FCalc.status !== 'OPTIMAL' ? styles.safetyDanger : { color: '#15803D' }
-                      ]}>
-                        • {t('Status inokulacji 1F:')} {kefir1FCalc.status} ({kefir1FCalc.inoculationRatioPct}%)
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Zalecana masa ziaren:')} <Text style={styles.boldText}>{kefir1FCalc.recommendedGrainWeightMinG}–{kefir1FCalc.recommendedGrainWeightMaxG} g</Text> ({t('na')} {kefirLiquidVolumeMl} ml)
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Szacowany czas 1F:')} <Text style={styles.boldText}>~{kefir1FCalc.estimatedFermentationHours} {t('godzin')}</Text> ({t('w temp.')} {ambientTempC}°C)
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Redukcja laktozy w 1F:')} <Text style={styles.boldText}>~{kefir1FCalc.expectedLactoseReductionPct}%</Text> | {t('Przyrost biomasy ziaren:')} <Text style={styles.boldText}>+{kefir1FCalc.biomassGrowthPotentialGrams} g/dobę</Text>
-                      </Text>
-
-                      {kefir1FCalc.alertsPl.map((alert, idx) => (
-                        <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
-                          ⚠️ {alert}
-                        </Text>
-                      ))}
-
-                      {kefir1FCalc.recommendationsPl.map((rec, idx) => (
-                        <Text key={idx} style={[styles.recipeDetailText, { marginTop: 3 }]}>
-                          💡 {rec}
-                        </Text>
-                      ))}
-
-                      {/* 2F Secondary Fermentation Section */}
-                      {kefir2FCalc && (
-                        <View style={{ marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#E2E8F0' }}>
-                          <Text style={[styles.proCardTitle, { fontSize: 13 }]}>
-                            🍾 {t('Refermentacja Wtórna 2F (Bez ziaren):')}
-                          </Text>
-                          <Text style={styles.proCardDesc}>
-                            • {t('Nasycenie CO2:')} <Text style={styles.boldText}>{kefir2FCalc.carbonationLevelVol} vol</Text> | {t('Ostateczna redukcja laktozy:')} <Text style={styles.boldText}>{kefir2FCalc.finalLactoseReductionPct}%</Text> ({t('praktycznie bezlaktozowy')})
-                          </Text>
-                          <Text style={styles.proCardDesc}>
-                            • {t('Wzrost kwasu foliowego (B9):')} <Text style={styles.boldText}>+{kefir2FCalc.folateIncreasePct}%</Text>
-                          </Text>
-                          <Text style={[styles.recipeDetailText, { marginTop: 2 }]}>
-                            💡 {kefir2FCalc.servingNotesPl}
-                          </Text>
-                          {kefir2FCalc.alertsPl.map((alert, idx) => (
-                            <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 3 }}>
-                              ⚠️ {alert}
-                            </Text>
-                          ))}
-                        </View>
-                      )}
-                    </View>
-                  </View>
-                )}
+                {/* Kefir Grains & Tibicos */}
+                <KefirGrainsCard
+                  kefirMedium={kefirMedium}
+                  setKefirMedium={setKefirMedium}
+                  kefirLiquidVolumeMl={kefirLiquidVolumeMl}
+                  setKefirLiquidVolumeMl={setKefirLiquidVolumeMl}
+                  kefirGrainWeightGrams={kefirGrainWeightGrams}
+                  setKefirGrainWeightGrams={setKefirGrainWeightGrams}
+                  ambientTempC={ambientTempC}
+                  kefir1FCalc={kefir1FCalc}
+                  kefir2FCalc={kefir2FCalc}
+                />
 
                 {/* Tradycyjne Miodosytnictwo & Ekstrakt Brzeczki */}
                 <MeadCard
