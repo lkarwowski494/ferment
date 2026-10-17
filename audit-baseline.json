@@ -1,0 +1,28 @@
+{
+  "generatedAt": "2026-10-18T00:28:00+02:00",
+  "commitSha": "f35bd8779cb2c382b34680ab734db24d160f1f01",
+  "branch": "main",
+  "metrics": {
+    "testSuitesCount": 82,
+    "testsCount": 482,
+    "failingTestsCount": 0,
+    "skippedTestsCount": 0,
+    "testDurationSeconds": 7.88,
+    "matrixElementsTotal": 1026,
+    "matrixElementsCovered": 1026,
+    "matrixCoveragePercent": 100.0,
+    "i18nCodeKeys": 752,
+    "i18nEnKeys": 1053,
+    "i18nCoveragePercent": 100.0,
+    "productionDependenciesCount": 22,
+    "circularDependenciesCount": 0,
+    "timezonesTestedCount": 7,
+    "strykerBreakThreshold": 75
+  },
+  "openDefects": {
+    "critical": 0,
+    "high": 2,
+    "medium": 2,
+    "low": 0
+  }
+}
