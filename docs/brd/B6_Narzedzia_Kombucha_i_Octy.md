@@ -281,6 +281,34 @@
 * **Persona:** P3, P5, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
+---
+
+### **BR-KOM-031: Dziki Starter Imbirowy & Piwo Imbirowe (Ginger Bug & Wild Carbonation Engine)**
+* **Opis:** Narzędzie prowadzenia dzikiego startera imbirowego (Ginger Bug), doboru dawek pożywki (świeży nieobierany imbir + cukier), kalkulacji proporcji nastawu piwa imbirowego (Ginger Beer) / rzemieślniczych dzikich sod oraz dynamicznej kontroli ciśnienia refermentacji butelkowej z blokadą przeciwwybuchową (Bottle Burst Guard) (`src/core/ginger-bug.ts`).
+* **Kluczowe reguły biochemiczne i mikrobiologiczne:**
+  1. **Ekologia dzikiego startera imbirowego:**
+     * Symbiotyczna kultura dzikich drożdży (*Saccharomyces spp.*, *Torulaspora delbrueckii*, *Hanseniaspora uvarum*) oraz mezofilnych bakterii kwasu mlekowego (*Leuconostoc mesenteroides*, *Lactobacillus*) bytujących naturalnie na skórce surowego korzenia imbiru.
+     * **Protokół karmienia:** codzienna dawka 15g drobno startego imbiru (ze skórką, niebielony) + 15g cukru nierafinowanego + 25 ml wody niechlorowanej.
+     * **Oznaki dojrzałości startera:** intensywne bąbelkowanie przy dnie, musująca piana przy zamieszaniu, świeży drożdżowo-korzenny aromat (dzień 4–6, witalność $\ge 85\%$).
+  2. **Proporcje nastawu piwa imbirowego (Ginger Beer):**
+     * Inokulacja: 8% – 12% (standardowo 10% objętości nastawu, tj. 100 ml na 1 litr naparu).
+     * Wywar korzenny: 50 g świeżego imbiru na 1 L gotowany przez 15 minut ze 100% ekstrakcją gingeroli.
+     * Cukier fermentacyjny: 60–75 g na 1 L (ekwiwalent 6–7.5 °Bx) zapewniający optymalną słodycz resztkową i substrat pod nagazowanie.
+     * Bufor kwasowy: sok ze świeżej cytryny (35 ml na 1 L) stabilizujący środowisko w przedziale pH 3.8–4.0 (ochrona przed bakteriami gnilnymi).
+  3. **Kinetyka nasycenia $CO_2$ & Bottle Burst Guard:**
+     * W temperaturze pokojowej (21–24°C) tempo syntezy gazu w szczelnej butelce wynosi ok. $0.06 - 0.09\text{ vol } CO_2\text{/h}$.
+     * Optymalne nasycenie "Champagne Fizz": $2.3 - 2.8\text{ vol } CO_2$ (osiągane w 24–36 godzin).
+     * **Alarm eksplozji szkła:** przy ciśnieniu $\ge 3.4\text{ vol } CO_2$ aktywowany jest alert `CRITICAL_BURST_RISK` z bezwzględnym nakazem natychmiastowego schłodzenia butelek w lodówce (4°C) lub ostrożnego odpowietrzenia (*burp*) przez tkaninę.
+  4. **Protokoły uśpienia (Hibernacja):**
+     * Starter uśpiony w lodówce (4°C): karmienie raz na 7–10 dni (15g imbiru + 15g cukru).
+     * Wybudzanie: wyjęcie na 24–48h przed planowanym warzeniem w temperaturze pokojowej z dwoma cyklami dokarmienia.
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w akordeonie Pro napojów w [`app/(tabs)/index.tsx`](file:///c:/Users/lukas/Documents/antigravity/calm-planck/app/(tabs)/index.tsx).
+  2. 100% testów jednostkowych (`tests/core/ginger-bug.test.ts`).
+* **Persona:** P3, P5, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+
 
 
 

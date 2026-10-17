@@ -235,6 +235,30 @@
 * **Persona:** P2, P5, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
+---
+
+### **BR-KISZ-025: Wolna Reakcja Maillarda & Czarny Czosnek (Black Garlic & Slow Maillard Aging Engine)**
+* **Opis:** Silnik monitorowania termicznego dojrzewania czarnego czosnku w komorze grzewczej lub ryżowarze w oparciu o nieenzymatyczną reakcję Maillarda, degradację allicyny do przyswajalnej S-allilocysteiny (SAC), kontrolę wilgotności zapobiegającą skamienieniu oraz zapobieganie pirolizie (`src/core/black-garlic.ts`).
+* **Kluczowe reguły biochemiczne i parametry procesu:**
+  1. **Czterofazowy cykl starzenia Maillarda (45–50 dni):**
+     * **Faza 1 — Inicjacja i Enzymatyczna Inaktywacja (Dni 1–10, 72–78°C, RH 80–90%):** Denaturacja allinazy, powolny rozpad allicyny, początek hydrolizy fruktanów do cukrów prostych (glukozy i fruktozy).
+     * **Faza 2 — Intensywna Reakcja Maillarda & Synteza SAC (Dni 11–28, 68–74°C, RH 75–85%):** Kondensacja aminokwasów z cukrami redukującymi, synteza melanoidyn (smolista czerń) oraz 5- do 7-krotny przyrost S-allilocysteiny (SAC — silny antyoksydant rozpuszczalny w wodzie, łagodny dla żołądka).
+     * **Faza 3 — Dojrzewanie Balsamiczne & Aromatyzacja (Dni 29–42, 62–68°C, RH 65–75%):** Koncentracja nut suszonych śliwek, melasy, tamaryndowca i octu balsamicznego; redukcja lotnych kwasów organicznych.
+     * **Faza 4 — Wietrzenie i Krystalizacja Truflowa (Dni 43–50, 18–24°C, RH 45–60%):** Leżakowanie na przewiewnej siatce w temperaturze pokojowej w celu odparowania lepkiej wilgoci powierzchniowej i uzyskania struktury sprężystej trufli/żelki.
+  2. **Bariery termiczne i ochrona przed wadami:**
+     * $< 55^\circ\text{C}$: `TEMPERATURE_CRITICAL_LOW` — ryzyko rozwoju przetrwalników bakterii fermentacji masłowej i gnicia.
+     * $> 82^\circ\text{C}$: `TEMPERATURE_CRITICAL_HIGH` — niekontrolowana piroliza, gorzki posmak spalenizny i synteza akrylamidu.
+  3. **Równowaga wilgotności komory (RH):**
+     * $< 60\%$ RH: `RH_CRITICAL_LOW` — wada skamienienia (ząbki wysychają w twarde, niespożywalne kamyki). Nakaz szczelnego owinięcia folią aluminiową (2–3 warstwy) lub torebkami sous-vide.
+     * $> 92\%$ RH: `RH_CRITICAL_HIGH` — wada rozmoczenia ząbków w kwaśnej mazi. Nakaz osuszenia pokrywy i mikrowentylacji zaworu.
+  4. **Bilans masy:** ubytek wilgoci wynosi typowo 40–48% masy wyjściowej główki czosnku.
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w trybie Kiszonki & Warzywa Pro Accordion w [`app/(tabs)/index.tsx`](file:///c:/Users/lukas/Documents/antigravity/calm-planck/app/(tabs)/index.tsx).
+  2. 100% testów jednostkowych (`tests/core/black-garlic.test.ts`).
+* **Persona:** P2, P5, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+
 
 
 

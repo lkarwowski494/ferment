@@ -164,6 +164,14 @@ import {
   MeadPreparationType,
   MEAD_GRADE_CONFIGS,
 } from '../../src/core/mead-kinetics';
+import {
+  calculateBlackGarlic,
+} from '../../src/core/black-garlic';
+import {
+  evaluateGingerBugStarter,
+  calculateGingerBeerBatch,
+  BottleType as GingerBottleType,
+} from '../../src/core/ginger-bug';
 
 
 
@@ -371,6 +379,20 @@ export default function CalculatorScreen() {
   const [meadGrade, setMeadGrade] = useState<PolishMeadGrade>('TROJNIAK');
   const [meadTargetVolumeL, setMeadTargetVolumeL] = useState<number>(15.0);
   const [meadPrepType, setMeadPrepType] = useState<MeadPreparationType>('NIESYCONY');
+
+  // --- BLACK GARLIC & MAILLARD AGING ---
+  const [bgRawGrams, setBgRawGrams] = useState<number>(500);
+  const [bgCurrentDay, setBgCurrentDay] = useState<number>(18);
+  const [bgChamberTempC, setBgChamberTempC] = useState<number>(68.0);
+  const [bgChamberRhPct, setBgChamberRhPct] = useState<number>(75);
+
+  // --- GINGER BUG & WILD SODA CARBONATION ---
+  const [gbStarterDays, setGbStarterDays] = useState<number>(5);
+  const [gbDaysSinceFeed, setGbDaysSinceFeed] = useState<number>(1);
+  const [gbHasBubbles, setGbHasBubbles] = useState<boolean>(true);
+  const [gbBatchVolumeL, setGbBatchVolumeL] = useState<number>(2.0);
+  const [gbHoursInBottle, setGbHoursInBottle] = useState<number>(24);
+  const [gbBottleType, setGbBottleType] = useState<GingerBottleType>('SWING_TOP_HEAVY_GLASS');
 
   // Active Flocculation Timer
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
@@ -926,6 +948,48 @@ export default function CalculatorScreen() {
         targetTotalVolumeLiters: meadTargetVolumeL,
         preparation: meadPrepType,
         ambientTempC,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const blackGarlicCalc = (() => {
+    try {
+      return calculateBlackGarlic({
+        rawWeightGrams: bgRawGrams,
+        currentDay: bgCurrentDay,
+        chamberTempC: bgChamberTempC,
+        chamberRhPct: bgChamberRhPct,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const gingerBugStarterCalc = (() => {
+    try {
+      return evaluateGingerBugStarter({
+        starterAgeDays: gbStarterDays,
+        daysSinceLastFeed: gbDaysSinceFeed,
+        temperatureC: ambientTempC,
+        hasBubbles: gbHasBubbles,
+        hasFizzOnStir: gbHasBubbles,
+        isRefrigerated: false,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const gingerBeerBatchCalc = (() => {
+    try {
+      return calculateGingerBeerBatch({
+        batchVolumeLiters: gbBatchVolumeL,
+        targetSugarGramsPerLiter: 70,
+        bottlingTempC: ambientTempC,
+        hoursInBottle: gbHoursInBottle,
+        bottleType: gbBottleType,
       });
     } catch {
       return null;
@@ -3300,6 +3364,99 @@ export default function CalculatorScreen() {
                     </View>
                   </View>
                 )}
+
+                {/* Czarny Czosnek (Black Garlic & Reakcja Maillarda) */}
+                {blackGarlicCalc && (
+                  <View style={styles.proCard}>
+                    <Text style={styles.proCardTitle}>
+                      🧄 {t('Czarny Czosnek (Black Garlic & Wolna Reakcja Maillarda)')}
+                    </Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Termiczna transformacja allicyny w przeciwutleniającą S-allilocysteinę (SAC) i karmelizację melanoidynową bez pirolizy')}
+                    </Text>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Masa surowego czosnku (g):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(bgRawGrams)}
+                        onChangeText={(v) => setBgRawGrams(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Aktualny dzień cyklu (1-50):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(bgCurrentDay)}
+                        onChangeText={(v) => setBgCurrentDay(parseFloat(v) || 1)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Temperatura komory (°C):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(bgChamberTempC)}
+                        onChangeText={(v) => setBgChamberTempC(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Wilgotność względna (% RH):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(bgChamberRhPct)}
+                        onChangeText={(v) => setBgChamberRhPct(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.brineResultBox}>
+                      <Text style={[
+                        styles.safetyStatus,
+                        blackGarlicCalc.alerts.some((a) => a.severity === 'CRITICAL')
+                          ? styles.safetyDanger
+                          : blackGarlicCalc.alerts.some((a) => a.severity === 'WARNING')
+                          ? { color: '#B45309' }
+                          : { color: '#15803D' }
+                      ]}>
+                        • {blackGarlicCalc.currentPhase.namePl} ({blackGarlicCalc.progressPct}%)
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Szacowana waga:')} <Text style={styles.boldText}>{blackGarlicCalc.estimatedCurrentWeightGrams} g</Text> ({t('ubytek wody:')} {blackGarlicCalc.estimatedWeightLossPct}%) | {t('Pozostało:')} <Text style={styles.boldText}>{blackGarlicCalc.remainingDays} {t('dni')}</Text>
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Przyrost antyoksydantu SAC:')} <Text style={styles.boldText}>{blackGarlicCalc.sacMultiplier}x</Text> | {t('Cukry fruktozowe:')} <Text style={styles.boldText}>~{blackGarlicCalc.expectedSugarBrix}°Bx</Text>
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Tekstura ząbków:')} <Text style={styles.boldText}>{blackGarlicCalc.textureEstimatePl}</Text>
+                      </Text>
+
+                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                        🍯 {t('Profil bukietu:')} {blackGarlicCalc.flavorProfilePl}
+                      </Text>
+
+                      {blackGarlicCalc.alerts.map((al, idx) => (
+                        <Text key={idx} style={{ fontSize: 11, color: al.severity === 'CRITICAL' ? '#B91C1C' : '#B45309', marginTop: 4 }}>
+                          ⚠️ {al.messagePl}
+                        </Text>
+                      ))}
+
+                      {blackGarlicCalc.recommendedActionsPl.map((act, idx) => (
+                        <Text key={idx} style={[styles.recipeDetailText, { marginTop: 3 }]}>
+                          💡 {act}
+                        </Text>
+                      ))}
+                    </View>
+                  </View>
+                )}
               </View>
             )}
           </View>
@@ -4254,6 +4411,134 @@ export default function CalculatorScreen() {
                       {meadCalc.alertsPl.map((alert, idx) => (
                         <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
                           ⚠️ {alert}
+                        </Text>
+                      ))}
+                    </View>
+                  </View>
+                )}
+
+                {/* Dziki Starter Imbirowy & Piwo Imbirowe */}
+                {gingerBugStarterCalc && gingerBeerBatchCalc && (
+                  <View style={styles.proCard}>
+                    <Text style={styles.proCardTitle}>
+                      🫚 {t('Dziki Starter Imbirowy (Ginger Bug & Piwo Imbirowe)')}
+                    </Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Dzikie drożdże i bakterie kwasu mlekowego z korzenia imbiru, proporcje nastawu oraz kontrola ciśnienia CO2 (Bottle Burst Guard)')}
+                    </Text>
+
+                    {/* Starter status section */}
+                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>🌱 {t('Kondycja startera (Słoik-Matka):')}</Text>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Wiek startera (dni):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(gbStarterDays)}
+                        onChangeText={(v) => setGbStarterDays(parseFloat(v) || 1)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Dni od ostatniego karmienia:')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(gbDaysSinceFeed)}
+                        onChangeText={(v) => setGbDaysSinceFeed(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Widoczne bąbelki i musowanie:')}</Text>
+                      <TouchableOpacity
+                        style={[styles.presetPill, gbHasBubbles ? styles.presetPillActive : null]}
+                        onPress={() => {
+                          triggerHapticFeedback();
+                          setGbHasBubbles(!gbHasBubbles);
+                        }}
+                      >
+                        <Text style={[styles.presetPillText, gbHasBubbles ? styles.presetPillTextActive : null]}>
+                          {gbHasBubbles ? t('TAK (Aktywny)') : t('NIE (Brak piany)')}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    <View style={[styles.safetyBox, { marginTop: 6 }]}>
+                      <Text style={[
+                        styles.safetyStatus,
+                        gingerBugStarterCalc.isReadyForBrewing ? { color: '#15803D' } : { color: '#B45309' }
+                      ]}>
+                        • {gingerBugStarterCalc.statusLabelPl} ({t('Witalność:')} {gingerBugStarterCalc.starterHealthScore}/100)
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Następne karmienie:')} <Text style={styles.boldText}>{gingerBugStarterCalc.nextFeedGingerGrams} g {t('startego imbiru ze skórką')}</Text> + <Text style={styles.boldText}>{gingerBugStarterCalc.nextFeedSugarGrams} g {t('cukru')}</Text> + <Text style={styles.boldText}>{gingerBugStarterCalc.nextFeedWaterMl} ml {t('wody')}</Text>
+                      </Text>
+                      {gingerBugStarterCalc.recommendationsPl.map((rec, idx) => (
+                        <Text key={idx} style={[styles.recipeDetailText, { marginTop: 3 }]}>
+                          💡 {rec}
+                        </Text>
+                      ))}
+                    </View>
+
+                    {/* Batch brewing section */}
+                    <Text style={[styles.inputLabelMini, { marginTop: 10 }]}>🍾 {t('Nastaw Partii Piwa Imbirowego:')}</Text>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Objętość partii (L):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(gbBatchVolumeL)}
+                        onChangeText={(v) => setGbBatchVolumeL(parseFloat(v) || 1)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Godziny refermentacji w butelce:')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(gbHoursInBottle)}
+                        onChangeText={(v) => setGbHoursInBottle(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.brineResultBox}>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Aktywny odcedzony starter:')} <Text style={styles.boldText}>{gingerBeerBatchCalc.requiredStarterVolumeMl} ml</Text> (10% {t('nastawu')})
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Cukier do nastawu:')} <Text style={styles.boldText}>{gingerBeerBatchCalc.totalSugarGrams} g</Text> | {t('Świeży imbir na wywar:')} <Text style={styles.boldText}>{gingerBeerBatchCalc.freshGingerDecoctionGrams} g</Text>
+                      </Text>
+                      <Text style={styles.proCardDesc}>
+                        • {t('Sok ze świeżej cytryny:')} <Text style={styles.boldText}>{gingerBeerBatchCalc.lemonJuiceMl} ml</Text> ({t('dla pH 3.8')})
+                      </Text>
+
+                      <View style={{ marginTop: 6, paddingTop: 6, borderTopWidth: 1, borderTopColor: '#E2E8F0' }}>
+                        <Text style={[
+                          styles.safetyStatus,
+                          gingerBeerBatchCalc.burstRiskSeverity === 'CRITICAL'
+                            ? styles.safetyDanger
+                            : gingerBeerBatchCalc.burstRiskSeverity === 'WARNING'
+                            ? { color: '#B45309' }
+                            : { color: '#15803D' }
+                        ]}>
+                          • {t('Nasycenie CO2:')} {gingerBeerBatchCalc.estimatedCo2Volumes} vol ({gingerBeerBatchCalc.carbonationStage})
+                        </Text>
+                        <Text style={styles.proCardDesc}>
+                          • {t('Do optymalnego nagazowania:')} <Text style={styles.boldText}>~{gingerBeerBatchCalc.estimatedHoursToOptimalCo2} {t('godzin')}</Text> ({t('w')} {ambientTempC}°C)
+                        </Text>
+                      </View>
+
+                      {gingerBeerBatchCalc.alertsPl.map((al, idx) => (
+                        <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
+                          ⚠️ {al}
+                        </Text>
+                      ))}
+
+                      {gingerBeerBatchCalc.stepsPl.map((step, idx) => (
+                        <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 3 }}>
+                          {idx + 1}. {step}
                         </Text>
                       ))}
                     </View>

@@ -3,7 +3,7 @@
 > **Ekosystem:** Apps4Brew Studio  
 > **Repozytorium:** `lkarwowski494/ferment`  
 > **Technologia:** Expo 57, React Native 0.86, TypeScript Strict, SQLite (tryb WAL)  
-> **Piramida Jakości:** 52 zestawy testów (100% PASS, 274 testy), pełna zgodność i18n (PL/EN, 834 klucze w kodzie / 888 w EN), `npm run verify` zielony  
+> **Piramida Jakości:** 54 zestawy testów (100% PASS, 287 testów), pełna zgodność i18n (PL/EN, 869 kluczy w kodzie / 923 w EN), `npm run verify` zielony  
 
 
 ---
@@ -201,6 +201,15 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
     - Obowiązkowy protokół Step-Feeding dla brzeczek wysokocukrowych (Półtorak, Dwójniak) chroniący drożdże szlachetne (*Saccharomyces bayanus*) przed szokiem osmotycznym (>180 atm).
     - Organiczne nawożenie azotowe TOSNA 3.0 (Fermaid O) podzielone na 4 dawki (24h, 48h, 72h oraz 1/3 Sugar Break) eliminujące stres drożdży, zapach siarkowodoru ($H_2S$) i fuzle.
     - Porównanie technologii termicznej: Miód Sycony (gotowany ze szumowaniem wosków i białek) vs Miód Niesycony (mieszany na zimno <38°C z pełnią enzymów i aromatów).
+50. **Wolna Reakcja Maillarda & Czarny Czosnek (`src/core/black-garlic.ts`):**
+    - Model 4-fazowego starzenia czarnego czosnku (45–50 dni): Inicjacja (72–78°C), Aktywny Maillard (68–74°C, synteza melanoidyn i SAC), Dojrzewanie balsamiczne (62–68°C), Krystalizacja truflowa (18–24°C).
+    - Śledzenie ubytku wody (40–48%) oraz 5–7x wzrost stężenia silnego antyoksydantu S-allilocysteiny (SAC).
+    - Kontrola wilgotności z alarmami przed skamienieniem (<60% RH) i rozmoczeniem w mazi (>92% RH) oraz blokada pirolizy (>82°C).
+51. **Dziki Starter Imbirowy & Piwo Imbirowe (`src/core/ginger-bug.ts`):**
+    - Prowadzenie symbiotycznego startera dzikich drożdży i bakterii kwasu mlekowego z nieobieranego imbiru.
+    - Dynamiczna ocena witalności startera, wskaźniki gotowości i protokół codziennego karmienia (15g imbiru + 15g cukru).
+    - Precyzyjny dobór składników partii Ginger Beer (10% startera, 50g/L wywaru, bufor cytrynowy pH 3.8).
+    - Kinetyka karbonizacji butelkowej z blokadą przeciwwybuchową (Bottle Burst Guard przy $\ge 3.4\text{ vol } CO_2$).
 
 ---
 
@@ -213,7 +222,7 @@ npm run typecheck
 # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
 npm run check:i18n
 
-# 3. Wykonanie 52 pakietów testowych Jest (274 testy)
+# 3. Wykonanie 54 pakietów testowych Jest (287 testów)
 npm test
 
 # 4. Uruchomienie całościowej bramki
@@ -221,10 +230,10 @@ npm run verify
 ```
 
 Stan testów na dzień 17.10.2026:
-- **50 test suites PASS** (100%)
-- **263 unit & integration tests PASS** (100%)
-- **794 teksty UI w kodzie przetłumaczone na PL i EN (848 w słowniku EN, 100% parytet)**
-- **BRD: 112.6 stron znormalizowanych (202,748 znaków ze spacjami, 26,248 słów, 25 modularnych rozdziałów)**
+- **54 test suites PASS** (100%)
+- **287 unit & integration tests PASS** (100%)
+- **869 tekstów UI w kodzie przetłumaczone na PL i EN (923 w słowniku EN, 100% parytet)**
+- **BRD: 119.1 stron znormalizowanych (214,295 znaków ze spacjami, 27,621 słów, 25 modularnych rozdziałów)**
 
 ---
 
