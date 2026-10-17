@@ -1555,6 +1555,30 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-KISZ-023: Japońskie Łoże Otrębowe Nukadoko (Nukazuke Rice Bran Fermentation Bed Engine)**
+* **Opis:** Fizykochemiczny i mikrobiologiczny model tradycyjnego japońskiego łoża z prażonych otrębów ryżowych (*Nukadoko*), symbiozy bakterii mlekowych (*Lactobacillus plantarum*), drożdży aromatycznych (*Pichia*) i tłumienia anaerobów gnilnych (*Clostridium butyricum*) poprzez ręczne napowietrzanie *Te-ire* (`src/core/nukazuke-engine.ts`).
+* **Kluczowe reguły biochemiczne:**
+  1. **Zakładanie łoża i faza Sutezuke:**
+     * Proporcje wsadu: 1000g prażonych otrębów ryżowych + 900g wody + sól do poziomu 13.0% wagi całkowitej.
+     * Dodatki funkcjonalne: Glon Konbu (dostawca kwasu glutaminowego/umami i regulator wilgoci), chili takano-tsume (kapsaicyna przeciwpleśniowa) oraz plasterki świeżego imbiru.
+     * Faza Sutezuke (10–14 dni): codzienne zakopywanie twardych obierek warzywnych w celu zaszczepienia dzikich kultur LAB i wstępnego zbuforowania soli (warzywa sutezuke są niejadalne).
+  2. **Regulacja wilgoci i bilans soli:**
+     * Zakopywane świeże warzywa oddają wodę komórkową, powodując rozwodnienie łoża (spadek zasolenia poniżej 10% grozi rozwojem bakterii kwasu masłowego o zapachu zepsucia).
+     * W razie stanu błotnistego (`VERY_SLUSHY`): rekomendacja odsączenia kałuży i dodanie 15% prażonych suchych otrębów z solą (13%).
+  3. **Częstotliwość aeracji ręką (Te-ire):**
+     * Lato / wysoka temp. ($\ge 25^\circ\text{C}$): 2 razy dziennie (rano i wieczorem).
+     * Temperatura pokojowa (18–24°C): 1 raz dziennie.
+     * Chłód / zima (<16°C): raz na 2–3 dni (lodówka: raz na tydzień).
+  4. **Czasy penetracji solno-kwasowej warzyw:**
+     * Ogórek: 6–12h (w temp. 22°C+), Bakłażan: 12–24h (tarty solą pod kolor), Daikon: 12–24h (słupki 2cm), Marchew: 18–36h, Jajko na twardo / Awokado: 4–8h.
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w trybie Kiszonki & Warzywa Pro Accordion z podziałem na Krok: Zakładanie (Sutezuke), Pielęgnacja & Aeracja (Te-ire) oraz Czas kiszenia warzyw.
+  2. 100% testów jednostkowych (`tests/core/nukazuke-engine.test.ts`).
+* **Persona:** P2, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B6_Narzedzia_Kombucha_i_Octy.md -->
@@ -1780,6 +1804,34 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 * **Kryteria akceptacji:**
   1. Karta zintegrowana w akordeonie Pro napojów w [`app/(tabs)/index.tsx`](file:///c:/Users/lukas/Documents/antigravity/calm-planck/app/(tabs)/index.tsx).
   2. Pełne testy jednostkowe (`tests/core/vinegar-standardization.test.ts`).
+* **Persona:** P3, P5, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
+### **BR-KOM-029: Ziarna Kefirowe & Tibicos (Kefir Grains Biomass & Fermentation Kinetics Engine)**
+* **Opis:** Model biologiczny matrycy polisacharydowej kefiranu dla kefiru mlecznego oraz wodnego (kryształki Tibicos), optymalizacji współczynnika inokulacji, kinetyki trawienia laktozy w 1F/2F, nasycenia gazem $CO_2$ oraz protokołów uśpienia/hibernacji (`src/core/kefir-grains.ts`).
+* **Kluczowe reguły biochemiczne:**
+  1. **Inokulacja 1F i kinetyka biomasy:**
+     * Kefir mleczny: zalecany stosunek 2.5% – 5.0% wagi ziaren do mleka (25–50g na 1L).
+     * Kefir wodny: zalecany stosunek 5.0% – 10.0% wagi kryształków na 1L 6% wody cukrowej.
+     * Alert przeinokulowania (>7% dla mleka): `OVER_INOCULATED` — natychmiastowe rozwarstwienie skrzepu i serwatki (*whey pocketing*) w mniej niż 12h, ziarnista kredowa struktura i ostry kwas.
+     * Alert niedoinokulowania (<1.5% dla mleka): `UNDER_INOCULATED` — wydłużenie fermentacji ponad 36h, ryzyko infekcji.
+     * Przyrost biomasy ziaren: ~7% masy na dobę w optymalnych warunkach.
+  2. **Kinetyka trawienia laktozy i syntazy folianów:**
+     * Fermentacja pierwotna 1F (24h): redukcja laktozy o 70–75%.
+     * Fermentacja wtórna 2F (12–24h w butelkach bez ziaren): redukcja laktozy do 92–95% (produkt bezpieczny dla osób z nietolerancją laktozy).
+     * Dodatek owoców cytrusowych / jagód w 2F stymuluje przyrost kwasu foliowego (witaminy B9) nawet o +95%.
+  3. **Refermentacja wtórna (2F) i Bottle Burst Guard:**
+     * W szczelnej butelce swing-top przyrost $CO_2$ wynosi ok. 0.07 vol/h w 20°C.
+     * Przy poziomie $\ge 3.6\text{ vol}$ aktywowany jest alarm eksplozji szkła z nakazem natychmiastowego odgazowania lub schłodzenia do 4°C.
+  4. **Protokoły uśpienia (Hibernacja):**
+     * Lodówkowy (płynny, w mleku 4°C): do 21 dni.
+     * Zamrażalnikowy (obtoczenie w mleku w proszku -18°C): do 365 dni.
+     * Odwodniony (suszenie do bursztynowych kamyków): do 540 dni z 4-etapową procedurą rozruchu.
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w akordeonie Pro napojów w [`app/(tabs)/index.tsx`](file:///c:/Users/lukas/Documents/antigravity/calm-planck/app/(tabs)/index.tsx).
+  2. 100% testów jednostkowych (`tests/core/kefir-grains.test.ts`).
 * **Persona:** P3, P5, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 

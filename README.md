@@ -3,7 +3,7 @@
 > **Ekosystem:** Apps4Brew Studio  
 > **Repozytorium:** `lkarwowski494/ferment`  
 > **Technologia:** Expo 57, React Native 0.86, TypeScript Strict, SQLite (tryb WAL)  
-> **Piramida Jakości:** 48 zestawów testów (100% PASS, 250 testów), pełna zgodność i18n (PL/EN, 746 kluczy w kodzie / 800 w EN), `npm run verify` zielony  
+> **Piramida Jakości:** 50 zestawów testów (100% PASS, 263 testy), pełna zgodność i18n (PL/EN, 794 klucze w kodzie / 848 w EN), `npm run verify` zielony  
 
 
 ---
@@ -181,6 +181,16 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
     - Model hydrolizy enzymatycznej *Aspergillus oryzae*: proporcje Shio Koji (optimum zasolenia 11.5% z alertami <9% i >15%) oraz dawkowanie do kruszenia mięsa (10% masy).
     - Monitorowanie okna termicznego amylolizy w Amazake (55–60°C) z ochroną przed ukwaszeniem mlekowym ($<52^\circ\text{C}$) oraz termiczną denaturacją enzymów ($>63^\circ\text{C}$).
     - Bilansowanie soli i ciężaru dociskowego dla formulacji Miso (Shiro Miso 5.5% soli / 1.5 mies. vs Akamiso 12.0% soli / 12 mies.).
+46. **Ziarna Kefirowe & Tibicos (1F/2F) (`src/core/kefir-grains.ts`):**
+    - Symbiotyczna matryca polisacharydowa kefiranu dla kefiru mlecznego (2.5–5% inokulacji) i wodnego (Tibicos 5–10%).
+    - Ochrona przed przeinokulowaniem (>7%) wywołującym błyskawiczny podział na kwaśną serwatkę i grudki kazeiny (*whey pocketing* <12h).
+    - Kinetyka trawienia laktozy w 1F (spadek o 75%) i refermentacji 2F (spadek o 95% do stanu praktycznie bezlaktozowego) oraz stymulacja syntezy kwasu foliowego (B9) z owocami (+95%).
+    - Monitorowanie ciśnienia $CO_2$ w butelkach hermetycznych z Bottle Burst Guard ($\ge 3.6\text{ vol}$) oraz plany hibernacji (lodówka 21 dni, zamrażalnik 365 dni, suszenie 540 dni).
+47. **Japońskie Łoże Otrębowe Nukadoko (`src/core/nukazuke-engine.ts`):**
+    - Model tradycyjnego japońskiego łoża z prażonych otrębów ryżowych, konbu, chili takano-tsume i imbiru z 12-dniową fazą rozruchu *Sutezuke*.
+    - Regulacja wilgoci i bilans soli (ochrona przed rozwodnieniem <10% i bakteriami kwasu masłowego *Clostridium* o zapachu zepsucia) z kalkulatorem dosypki prażonych otrębów i soli kamiennej.
+    - Częstotliwość aeracji ręką *Te-ire* (lato: 2x dziennie rano i wieczorem, pokój: 1x dziennie, chłód: co 2–3 dni).
+    - Czasy kiszenia poszczególnych warzyw (ogórek 6–12h, bakłażan 12–24h, daikon 12–24h, marchew 18–36h, jajko/awokado 4–8h).
 
 ---
 
@@ -193,18 +203,18 @@ npm run typecheck
 # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
 npm run check:i18n
 
-# 3. Wykonanie 48 pakietów testowych Jest
+# 3. Wykonanie 50 pakietów testowych Jest
 npm test
 
 # 4. Uruchomienie całościowej bramki
 npm run verify
 ```
 
-Stan testów na dzień 16.10.2026:
-- **48 test suites PASS** (100%)
-- **250 unit & integration tests PASS** (100%)
-- **746 tekstów UI w kodzie przetłumaczone na PL i EN (800 w słowniku EN, 100% parytet)**
-- **BRD: 110.2 stron znormalizowanych (198,300 znaków ze spacjami, 25,684 słów, 25 modularnych rozdziałów)**
+Stan testów na dzień 17.10.2026:
+- **50 test suites PASS** (100%)
+- **263 unit & integration tests PASS** (100%)
+- **794 teksty UI w kodzie przetłumaczone na PL i EN (848 w słowniku EN, 100% parytet)**
+- **BRD: 112.6 stron znormalizowanych (202,748 znaków ze spacjami, 26,248 słów, 25 modularnych rozdziałów)**
 
 ---
 

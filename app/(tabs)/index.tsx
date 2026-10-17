@@ -143,6 +143,17 @@ import {
   calculateMisoFormulation,
   KojiMoistureState,
 } from '../../src/core/koji-fermentation';
+import {
+  calculateKefir1F,
+  calculateKefir2F,
+  KefirMediumType,
+} from '../../src/core/kefir-grains';
+import {
+  calculateNukadokoSetup,
+  calculateNukadokoMaintenance,
+  getPicklingTimeForVeg,
+  NukazukeVegType,
+} from '../../src/core/nukazuke-engine';
 
 
 
@@ -323,6 +334,21 @@ export default function CalculatorScreen() {
   const [amazakeTempC, setAmazakeTempC] = useState<number>(58.0);
   const [misoTypeInput, setMisoTypeInput] = useState<'SHIRO_MISO' | 'AKAMISO'>('SHIRO_MISO');
   const [misoSoyGrams, setMisoSoyGrams] = useState<number>(500);
+
+  // --- KEFIR GRAINS & TIBICOS KINETICS (1F/2F) ---
+  const [kefirMedium, setKefirMedium] = useState<KefirMediumType>('MILK_KEFIR');
+  const [kefirLiquidVolumeMl, setKefirLiquidVolumeMl] = useState<number>(1000);
+  const [kefirGrainWeightGrams, setKefirGrainWeightGrams] = useState<number>(35);
+  const [kefir2FDurationHours, setKefir2FDurationHours] = useState<number>(18);
+  const [kefir2FFlavor, setKefir2FFlavor] = useState<'CITRUS_PEEL' | 'BERRIES' | 'VANILLA_CHAI' | 'NONE'>('CITRUS_PEEL');
+
+  // --- NUKAZUKE RICE BRAN BED (NUKADOKO) ---
+  const [nukadokoTab, setNukadokoTab] = useState<'SETUP' | 'MAINTENANCE' | 'VEG_TIME'>('SETUP');
+  const [nukaBranGrams, setNukaBranGrams] = useState<number>(1000);
+  const [nukaBedMassGrams, setNukaBedMassGrams] = useState<number>(2000);
+  const [nukaSalinityPct, setNukaSalinityPct] = useState<number>(12.0);
+  const [nukaMoistureStatus, setNukaMoistureStatus] = useState<'OPTIMAL_SAND' | 'SLIGHTLY_WET' | 'VERY_SLUSHY'>('OPTIMAL_SAND');
+  const [nukaSelectedVeg, setNukaSelectedVeg] = useState<NukazukeVegType>('CUCUMBER');
 
   // Active Flocculation Timer
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
@@ -790,6 +816,65 @@ export default function CalculatorScreen() {
             kojiGrams: kojiMassGrams,
             misoType: misoTypeInput,
           }),
+        };
+      }
+    } catch {
+      return null;
+    }
+  })();
+
+  const kefir1FCalc = (() => {
+    try {
+      return calculateKefir1F({
+        medium: kefirMedium,
+        liquidVolumeMl: kefirLiquidVolumeMl,
+        grainWeightGrams: kefirGrainWeightGrams,
+        ambientTempC,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const kefir2FCalc = (() => {
+    try {
+      return calculateKefir2F({
+        medium: kefirMedium,
+        ripenedLiquidVolumeMl: kefirLiquidVolumeMl,
+        flavorAddition: kefir2FFlavor,
+        temperatureC: ambientTempC,
+        durationHours: kefir2FDurationHours,
+        isHermeticVessel: true,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const nukadokoCalc = (() => {
+    try {
+      if (nukadokoTab === 'SETUP') {
+        return {
+          tab: 'SETUP' as const,
+          data: calculateNukadokoSetup({
+            riceBranGrams: nukaBranGrams,
+            targetSalinityPct: 13.0,
+          }),
+        };
+      } else if (nukadokoTab === 'MAINTENANCE') {
+        return {
+          tab: 'MAINTENANCE' as const,
+          data: calculateNukadokoMaintenance({
+            bedTotalMassGrams: nukaBedMassGrams,
+            currentEstimatedSalinityPct: nukaSalinityPct,
+            moistureExcessStatus: nukaMoistureStatus,
+            ambientTempC,
+          }),
+        };
+      } else {
+        return {
+          tab: 'VEG_TIME' as const,
+          data: getPicklingTimeForVeg(nukaSelectedVeg, ambientTempC),
         };
       }
     } catch {
@@ -2881,6 +2966,173 @@ export default function CalculatorScreen() {
                     )}
                   </View>
                 )}
+
+                {/* Japońskie Łoże Otrębowe Nukadoko */}
+                {nukadokoCalc && (
+                  <View style={styles.proCard}>
+                    <Text style={styles.proCardTitle}>
+                      🥢 {t('Japońskie Łoże Otrębowe Nukadoko')}
+                    </Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Tradycyjna fermentacja w prażonych otrębach ryżowych: zakładanie (sutezuke), aeracja Te-ire i czasy kiszenia')}
+                    </Text>
+
+                    {/* Sub-tab selector */}
+                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Krok procesu:')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {[
+                        { id: 'SETUP' as const, label: t('Zakładanie łoża (Sutezuke)') },
+                        { id: 'MAINTENANCE' as const, label: t('Pielęgnacja & Aeracja (Te-ire)') },
+                        { id: 'VEG_TIME' as const, label: t('Czas kiszenia warzyw') },
+                      ].map((tb) => (
+                        <TouchableOpacity
+                          key={tb.id}
+                          style={[styles.presetPill, nukadokoTab === tb.id && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setNukadokoTab(tb.id);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, nukadokoTab === tb.id && styles.presetPillTextActive]}>
+                            {tb.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    {nukadokoTab === 'SETUP' && nukadokoCalc.tab === 'SETUP' && (
+                      <>
+                        <View style={styles.rowBetween}>
+                          <Text style={styles.inlineLabel}>{t('Masa prażonych otrębów (g):')}</Text>
+                          <TextInput
+                            style={styles.numInput}
+                            keyboardType="numeric"
+                            value={String(nukaBranGrams)}
+                            onChangeText={(v) => setNukaBranGrams(parseFloat(v) || 0)}
+                          />
+                        </View>
+
+                        <View style={styles.brineResultBox}>
+                          <Text style={styles.proCardDesc}>
+                            • {t('Wymagana woda:')} <Text style={styles.boldText}>{nukadokoCalc.data.waterGrams} g</Text> | {t('Wymagana sól kamienna:')} <Text style={styles.boldText}>{nukadokoCalc.data.saltGrams} g</Text>
+                          </Text>
+                          <Text style={styles.proCardDesc}>
+                            • {t('Masa całkowita łoża:')} <Text style={styles.boldText}>{nukadokoCalc.data.totalBedMassGrams} g</Text> ({t('Docelowe zasolenie:')} <Text style={styles.boldText}>{nukadokoCalc.data.effectiveSalinityPct}%</Text>)
+                          </Text>
+                          <Text style={styles.proCardDesc}>
+                            • {t('Aromatyki:')} Konbu {nukadokoCalc.data.aromaticsGrams.konbuGrams}g, Chili {nukadokoCalc.data.aromaticsGrams.driedChiliGrams}g, Imbir {nukadokoCalc.data.aromaticsGrams.gingerSlicesGrams}g
+                          </Text>
+                          <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                            ⏳ {t('Czas rozruchu ze sutezuke:')} <Text style={styles.boldText}>{nukadokoCalc.data.sutezukeDurationDays} {t('dni')}</Text>
+                          </Text>
+                          {nukadokoCalc.data.sutezukeInstructionsPl.map((inst, idx) => (
+                            <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 3 }}>
+                              💡 {inst}
+                            </Text>
+                          ))}
+                        </View>
+                      </>
+                    )}
+
+                    {nukadokoTab === 'MAINTENANCE' && nukadokoCalc.tab === 'MAINTENANCE' && (
+                      <>
+                        <View style={styles.rowBetween}>
+                          <Text style={styles.inlineLabel}>{t('Aktualna masa łoża (g):')}</Text>
+                          <TextInput
+                            style={styles.numInput}
+                            keyboardType="numeric"
+                            value={String(nukaBedMassGrams)}
+                            onChangeText={(v) => setNukaBedMassGrams(parseFloat(v) || 0)}
+                          />
+                        </View>
+
+                        <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Wilgotność łoża:')}</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                          {[
+                            { id: 'OPTIMAL_SAND' as const, label: t('Optymalna (wilgotny piasek)') },
+                            { id: 'SLIGHTLY_WET' as const, label: t('Lekko mokre') },
+                            { id: 'VERY_SLUSHY' as const, label: t('Bardzo błotniste (kałuża)') },
+                          ].map((ms) => (
+                            <TouchableOpacity
+                              key={ms.id}
+                              style={[styles.presetPill, nukaMoistureStatus === ms.id && styles.presetPillActive]}
+                              onPress={() => {
+                                triggerHapticFeedback();
+                                setNukaMoistureStatus(ms.id);
+                              }}
+                            >
+                              <Text style={[styles.presetPillText, nukaMoistureStatus === ms.id && styles.presetPillTextActive]}>
+                                {ms.label}
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </ScrollView>
+
+                        <View style={styles.brineResultBox}>
+                          <Text style={[
+                            styles.safetyStatus,
+                            nukadokoCalc.data.status !== 'HEALTHY' ? styles.safetyDanger : { color: '#15803D' }
+                          ]}>
+                            • {t('Status zdrowotny łoża:')} {nukadokoCalc.data.status}
+                          </Text>
+                          <Text style={styles.proCardDesc}>
+                            • {t('Częstotliwość mieszania ręką (Te-ire):')} <Text style={styles.boldText}>{nukadokoCalc.data.teireFrequencyDaily}x {t('dziennie')}</Text>
+                          </Text>
+                          <Text style={[styles.recipeDetailText, { marginTop: 2 }]}>
+                            ✋ {nukadokoCalc.data.teireInstructionPl}
+                          </Text>
+                          {(nukadokoCalc.data.dryBranTopupGrams > 0 || nukadokoCalc.data.saltTopupGrams > 0) && (
+                            <Text style={[styles.proCardDesc, { marginTop: 6 }]}>
+                              • {t('Wymagane dosypanie:')} <Text style={styles.boldText}>{nukadokoCalc.data.dryBranTopupGrams} g</Text> {t('prażonych otrębów')} + <Text style={styles.boldText}>{nukadokoCalc.data.saltTopupGrams} g</Text> {t('soli')}
+                            </Text>
+                          )}
+                          {nukadokoCalc.data.alertsPl.map((alert, idx) => (
+                            <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
+                              ⚠️ {alert}
+                            </Text>
+                          ))}
+                        </View>
+                      </>
+                    )}
+
+                    {nukadokoTab === 'VEG_TIME' && nukadokoCalc.tab === 'VEG_TIME' && (
+                      <>
+                        <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Wybierz warzywo do zakopania:')}</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                          {[
+                            { id: 'CUCUMBER' as const, label: t('Ogórek') },
+                            { id: 'EGGPLANT' as const, label: t('Bakłażan') },
+                            { id: 'DAIKON_RADISH' as const, label: t('Daikon (Rzodkiew)') },
+                            { id: 'CARROT' as const, label: t('Marchew') },
+                            { id: 'AVOCADO_BOILED_EGG' as const, label: t('Awokado / Jajko') },
+                          ].map((vg) => (
+                            <TouchableOpacity
+                              key={vg.id}
+                              style={[styles.presetPill, nukaSelectedVeg === vg.id && styles.presetPillActive]}
+                              onPress={() => {
+                                triggerHapticFeedback();
+                                setNukaSelectedVeg(vg.id);
+                              }}
+                            >
+                              <Text style={[styles.presetPillText, nukaSelectedVeg === vg.id && styles.presetPillTextActive]}>
+                                {vg.label}
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </ScrollView>
+
+                        <View style={styles.brineResultBox}>
+                          <Text style={styles.proCardDesc}>
+                            • {t('Czas kiszenia:')} <Text style={styles.boldText}>{nukadokoCalc.data.durationHoursMin}–{nukadokoCalc.data.durationHoursMax} {t('godzin')}</Text> ({t('w temp.')} {ambientTempC}°C)
+                          </Text>
+                          <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                            🥒 {nukadokoCalc.data.prepAdvicePl}
+                          </Text>
+                        </View>
+                      </>
+                    )}
+                  </View>
+                )}
               </View>
             )}
           </View>
@@ -3613,6 +3865,116 @@ export default function CalculatorScreen() {
                           💡 {rec}
                         </Text>
                       ))}
+                    </View>
+                  </View>
+                )}
+
+                {/* Ziarna Kefirowe & Tibicos 1F/2F */}
+                {kefir1FCalc && (
+                  <View style={styles.proCard}>
+                    <Text style={styles.proCardTitle}>
+                      🥛 {t('Ziarna Kefirowe & Tibicos (1F/2F)')}
+                    </Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Symbiotyczna matryca kefiranu, inokulacja (2.5-5%), kinetyka trawienia laktozy i nasycenie CO2')}
+                    </Text>
+
+                    {/* Medium selector */}
+                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Typ kefiru:')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {[
+                        { id: 'MILK_KEFIR' as const, label: t('Kefir Mleczny (Ziarna tybetańskie)') },
+                        { id: 'WATER_KEFIR_TIBICOS' as const, label: t('Kefir Wodny (Kryształki Tibicos)') },
+                      ].map((km) => (
+                        <TouchableOpacity
+                          key={km.id}
+                          style={[styles.presetPill, kefirMedium === km.id && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setKefirMedium(km.id);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, kefirMedium === km.id && styles.presetPillTextActive]}>
+                            {km.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Objętość płynu (ml):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(kefirLiquidVolumeMl)}
+                        onChangeText={(v) => setKefirLiquidVolumeMl(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Masa ziaren kefirowych (g):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(kefirGrainWeightGrams)}
+                        onChangeText={(v) => setKefirGrainWeightGrams(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.brineResultBox}>
+                      <Text style={[
+                        styles.safetyStatus,
+                        kefir1FCalc.status !== 'OPTIMAL' ? styles.safetyDanger : { color: '#15803D' }
+                      ]}>
+                        • {t('Status inokulacji 1F:')} {kefir1FCalc.status} ({kefir1FCalc.inoculationRatioPct}%)
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Zalecana masa ziaren:')} <Text style={styles.boldText}>{kefir1FCalc.recommendedGrainWeightMinG}–{kefir1FCalc.recommendedGrainWeightMaxG} g</Text> ({t('na')} {kefirLiquidVolumeMl} ml)
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Szacowany czas 1F:')} <Text style={styles.boldText}>~{kefir1FCalc.estimatedFermentationHours} {t('godzin')}</Text> ({t('w temp.')} {ambientTempC}°C)
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Redukcja laktozy w 1F:')} <Text style={styles.boldText}>~{kefir1FCalc.expectedLactoseReductionPct}%</Text> | {t('Przyrost biomasy ziaren:')} <Text style={styles.boldText}>+{kefir1FCalc.biomassGrowthPotentialGrams} g/dobę</Text>
+                      </Text>
+
+                      {kefir1FCalc.alertsPl.map((alert, idx) => (
+                        <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
+                          ⚠️ {alert}
+                        </Text>
+                      ))}
+
+                      {kefir1FCalc.recommendationsPl.map((rec, idx) => (
+                        <Text key={idx} style={[styles.recipeDetailText, { marginTop: 3 }]}>
+                          💡 {rec}
+                        </Text>
+                      ))}
+
+                      {/* 2F Secondary Fermentation Section */}
+                      {kefir2FCalc && (
+                        <View style={{ marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#E2E8F0' }}>
+                          <Text style={[styles.proCardTitle, { fontSize: 13 }]}>
+                            🍾 {t('Refermentacja Wtórna 2F (Bez ziaren):')}
+                          </Text>
+                          <Text style={styles.proCardDesc}>
+                            • {t('Nasycenie CO2:')} <Text style={styles.boldText}>{kefir2FCalc.carbonationLevelVol} vol</Text> | {t('Ostateczna redukcja laktozy:')} <Text style={styles.boldText}>{kefir2FCalc.finalLactoseReductionPct}%</Text> ({t('praktycznie bezlaktozowy')})
+                          </Text>
+                          <Text style={styles.proCardDesc}>
+                            • {t('Wzrost kwasu foliowego (B9):')} <Text style={styles.boldText}>+{kefir2FCalc.folateIncreasePct}%</Text>
+                          </Text>
+                          <Text style={[styles.recipeDetailText, { marginTop: 2 }]}>
+                            💡 {kefir2FCalc.servingNotesPl}
+                          </Text>
+                          {kefir2FCalc.alertsPl.map((alert, idx) => (
+                            <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 3 }}>
+                              ⚠️ {alert}
+                            </Text>
+                          ))}
+                        </View>
+                      )}
                     </View>
                   </View>
                 )}

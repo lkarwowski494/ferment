@@ -182,5 +182,30 @@
 * **Persona:** P2, P5, P6.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
+---
+
+### **BR-KISZ-023: Japońskie Łoże Otrębowe Nukadoko (Nukazuke Rice Bran Fermentation Bed Engine)**
+* **Opis:** Fizykochemiczny i mikrobiologiczny model tradycyjnego japońskiego łoża z prażonych otrębów ryżowych (*Nukadoko*), symbiozy bakterii mlekowych (*Lactobacillus plantarum*), drożdży aromatycznych (*Pichia*) i tłumienia anaerobów gnilnych (*Clostridium butyricum*) poprzez ręczne napowietrzanie *Te-ire* (`src/core/nukazuke-engine.ts`).
+* **Kluczowe reguły biochemiczne:**
+  1. **Zakładanie łoża i faza Sutezuke:**
+     * Proporcje wsadu: 1000g prażonych otrębów ryżowych + 900g wody + sól do poziomu 13.0% wagi całkowitej.
+     * Dodatki funkcjonalne: Glon Konbu (dostawca kwasu glutaminowego/umami i regulator wilgoci), chili takano-tsume (kapsaicyna przeciwpleśniowa) oraz plasterki świeżego imbiru.
+     * Faza Sutezuke (10–14 dni): codzienne zakopywanie twardych obierek warzywnych w celu zaszczepienia dzikich kultur LAB i wstępnego zbuforowania soli (warzywa sutezuke są niejadalne).
+  2. **Regulacja wilgoci i bilans soli:**
+     * Zakopywane świeże warzywa oddają wodę komórkową, powodując rozwodnienie łoża (spadek zasolenia poniżej 10% grozi rozwojem bakterii kwasu masłowego o zapachu zepsucia).
+     * W razie stanu błotnistego (`VERY_SLUSHY`): rekomendacja odsączenia kałuży i dodanie 15% prażonych suchych otrębów z solą (13%).
+  3. **Częstotliwość aeracji ręką (Te-ire):**
+     * Lato / wysoka temp. ($\ge 25^\circ\text{C}$): 2 razy dziennie (rano i wieczorem).
+     * Temperatura pokojowa (18–24°C): 1 raz dziennie.
+     * Chłód / zima (<16°C): raz na 2–3 dni (lodówka: raz na tydzień).
+  4. **Czasy penetracji solno-kwasowej warzyw:**
+     * Ogórek: 6–12h (w temp. 22°C+), Bakłażan: 12–24h (tarty solą pod kolor), Daikon: 12–24h (słupki 2cm), Marchew: 18–36h, Jajko na twardo / Awokado: 4–8h.
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w trybie Kiszonki & Warzywa Pro Accordion z podziałem na Krok: Zakładanie (Sutezuke), Pielęgnacja & Aeracja (Te-ire) oraz Czas kiszenia warzyw.
+  2. 100% testów jednostkowych (`tests/core/nukazuke-engine.test.ts`).
+* **Persona:** P2, P5, P6.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+
 
 

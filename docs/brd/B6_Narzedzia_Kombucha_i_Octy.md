@@ -221,6 +221,35 @@
 * **Persona:** P3, P5, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
+---
+
+### **BR-KOM-029: Ziarna Kefirowe & Tibicos (Kefir Grains Biomass & Fermentation Kinetics Engine)**
+* **Opis:** Model biologiczny matrycy polisacharydowej kefiranu dla kefiru mlecznego oraz wodnego (kryształki Tibicos), optymalizacji współczynnika inokulacji, kinetyki trawienia laktozy w 1F/2F, nasycenia gazem $CO_2$ oraz protokołów uśpienia/hibernacji (`src/core/kefir-grains.ts`).
+* **Kluczowe reguły biochemiczne:**
+  1. **Inokulacja 1F i kinetyka biomasy:**
+     * Kefir mleczny: zalecany stosunek 2.5% – 5.0% wagi ziaren do mleka (25–50g na 1L).
+     * Kefir wodny: zalecany stosunek 5.0% – 10.0% wagi kryształków na 1L 6% wody cukrowej.
+     * Alert przeinokulowania (>7% dla mleka): `OVER_INOCULATED` — natychmiastowe rozwarstwienie skrzepu i serwatki (*whey pocketing*) w mniej niż 12h, ziarnista kredowa struktura i ostry kwas.
+     * Alert niedoinokulowania (<1.5% dla mleka): `UNDER_INOCULATED` — wydłużenie fermentacji ponad 36h, ryzyko infekcji.
+     * Przyrost biomasy ziaren: ~7% masy na dobę w optymalnych warunkach.
+  2. **Kinetyka trawienia laktozy i syntazy folianów:**
+     * Fermentacja pierwotna 1F (24h): redukcja laktozy o 70–75%.
+     * Fermentacja wtórna 2F (12–24h w butelkach bez ziaren): redukcja laktozy do 92–95% (produkt bezpieczny dla osób z nietolerancją laktozy).
+     * Dodatek owoców cytrusowych / jagód w 2F stymuluje przyrost kwasu foliowego (witaminy B9) nawet o +95%.
+  3. **Refermentacja wtórna (2F) i Bottle Burst Guard:**
+     * W szczelnej butelce swing-top przyrost $CO_2$ wynosi ok. 0.07 vol/h w 20°C.
+     * Przy poziomie $\ge 3.6\text{ vol}$ aktywowany jest alarm eksplozji szkła z nakazem natychmiastowego odgazowania lub schłodzenia do 4°C.
+  4. **Protokoły uśpienia (Hibernacja):**
+     * Lodówkowy (płynny, w mleku 4°C): do 21 dni.
+     * Zamrażalnikowy (obtoczenie w mleku w proszku -18°C): do 365 dni.
+     * Odwodniony (suszenie do bursztynowych kamyków): do 540 dni z 4-etapową procedurą rozruchu.
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w akordeonie Pro napojów w [`app/(tabs)/index.tsx`](file:///c:/Users/lukas/Documents/antigravity/calm-planck/app/(tabs)/index.tsx).
+  2. 100% testów jednostkowych (`tests/core/kefir-grains.test.ts`).
+* **Persona:** P3, P5, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+
 
 
 
