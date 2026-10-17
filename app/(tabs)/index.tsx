@@ -175,10 +175,6 @@ import { styles } from '../../src/components/calculator/calculator.styles';
 import { CanonicalRecipesCard } from '../../src/components/calculator/CanonicalRecipesCard';
 import { ReverseSchedulerCard } from '../../src/components/calculator/ReverseSchedulerCard';
 import { CheeseCraftSection } from '../../src/components/calculator/CheeseCraftSection';
-import { VegCraftSection } from '../../src/components/calculator/VegCraftSection';
-import { BeverageCraftSection } from '../../src/components/calculator/BeverageCraftSection';
-
-
 
 export default function CalculatorScreen() {
   const {
@@ -189,8 +185,6 @@ export default function CalculatorScreen() {
     restorePurchases,
   } = useAppAccess();
 
-  // Mode Switcher: 🧀 Serowarstwo | 🥬 Kiszonki & Kimchi | 🫖 Kombucha & Ocet
-  const [craftMode, setCraftMode] = useState<'cheese' | 'veg' | 'beverage'>('cheese');
   const [isProExpanded, setIsProExpanded] = useState<boolean>(false);
   const [isKeepAwake, setIsKeepAwake] = useState<boolean>(false);
   const [corruptRecovery, setCorruptRecovery] = useState<CorruptRecoveryInfo | null>(null);
@@ -451,20 +445,8 @@ export default function CalculatorScreen() {
   const handleSelectRecipe = (recipe: CanonicalRecipe) => {
     triggerHapticFeedback();
     setSelectedRecipeId(recipe.id);
-    if (recipe.category === 'CHEESE') {
-      setMilkLiters(10);
-      setCraftMode('cheese');
-      setSchedulerProcess('CHEESE_HARD_GOUDA');
-    } else if (recipe.category === 'VEG_FERMENT') {
-      setVegGrams(1000);
-      setWaterGrams(1000);
-      setCraftMode('veg');
-      setSchedulerProcess('KIMCHI_TRADITIONAL');
-    } else {
-      setKombuchaWaterLiters(3);
-      setCraftMode('beverage');
-      setSchedulerProcess('KOMBUCHA_1F');
-    }
+    setMilkLiters(10);
+    setSchedulerProcess('CHEESE_HARD_GOUDA');
   };
 
   const handleCopyShareLink = async (recipe: CanonicalRecipe) => {
@@ -527,9 +509,7 @@ export default function CalculatorScreen() {
   })();
   const reverseScheduleCalc = calculateReverseSchedule(schedulerProcess, targetDateForSchedule);
 
-  const activeRecipes = getRecipesByCategory(
-    craftMode === 'cheese' ? 'CHEESE' : craftMode === 'veg' ? 'VEG_FERMENT' : 'KOMBUCHA'
-  );
+  const activeRecipes = getRecipesByCategory('CHEESE');
   const selectedRecipe = CANONICAL_RECIPES.find((r) => r.id === selectedRecipeId);
 
   const moldFittingCalc = calculateCurdAndMoldFitting(milkLiters, 10.5, selectedMoldTemplateId);
@@ -647,7 +627,7 @@ export default function CalculatorScreen() {
       return analyzeRefractometerBrix({
         originalBrix: originalBrixInput,
         currentBrix: currentBrixInput,
-        purpose: craftMode === 'beverage' ? 'KOMBUCHA' : 'VINEGAR_CIDER',
+        purpose: 'VINEGAR_CIDER',
       });
     } catch {
       return null;
@@ -1017,99 +997,54 @@ export default function CalculatorScreen() {
       const now = Date.now();
       const code = `BATCH-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
 
-      let name = '';
-      let category: Batch['category'] = 'CHEESE';
-
-      if (craftMode === 'cheese') {
-        name = `${t('Ser')} ${milkType === 'COW' ? t('Krowi') : milkType === 'GOAT' ? t('Kozi') : t('Owcza')} (${milkLiters}L)`;
-        category = 'CHEESE';
-      } else if (craftMode === 'veg') {
-        name = `${t('Kiszonka Warzywna')} (${((vegGrams + waterGrams) / 1000).toFixed(1)}kg)`;
-        category = 'VEG_FERMENT';
-      } else {
-        name = `${t('Nastaw Kombuchy')} (${kombuchaWaterLiters}L)`;
-        category = 'KOMBUCHA';
-      }
+      const name = selectedRecipe
+        ? selectedRecipe.name
+        : `${t('Ser')} ${milkType === 'COW' ? t('Krowi') : milkType === 'GOAT' ? t('Kozi') : t('Owcza')} (${milkLiters}L)`;
+      const category: Batch['category'] = 'CHEESE';
 
       // Prepare recipe requirements for auto-depletion (BR-MAG-005)
       const requirements: RecipeRequirement[] = [];
 
       if (selectedRecipe) {
-        const scale =
-          craftMode === 'cheese'
-            ? milkLiters
-            : craftMode === 'veg'
-            ? vegGrams / 1000
-            : kombuchaWaterLiters;
-
         for (const ing of selectedRecipe.ingredients) {
-          if (['MILK', 'RENNET', 'CULTURE', 'SALT', 'MINERAL', 'TEA', 'SUGAR'].includes(ing.category)) {
+          if (['MILK', 'RENNET', 'CULTURE', 'SALT', 'MINERAL'].includes(ing.category)) {
             requirements.push({
               name: ing.name,
               category: ing.category as any,
-              quantity: Math.round(ing.quantityPerUnit * scale * 100) / 100,
+              quantity: Math.round(ing.quantityPerUnit * milkLiters * 100) / 100,
               unit: ing.unit,
             });
           }
         }
       } else {
-        if (craftMode === 'cheese') {
+        requirements.push({
+          name:
+            milkType === 'COW'
+              ? t('Mleko Krowie')
+              : milkType === 'GOAT'
+              ? t('Mleko Kozie')
+              : milkType === 'SHEEP'
+              ? t('Mleko Owcze')
+              : t('Mleko Bawole'),
+          category: 'MILK',
+          quantity: milkLiters,
+          unit: 'L',
+        });
+        if (rennetCalc.volumeMl > 0) {
           requirements.push({
-            name:
-              milkType === 'COW'
-                ? t('Mleko Krowie')
-                : milkType === 'GOAT'
-                ? t('Mleko Kozie')
-                : milkType === 'SHEEP'
-                ? t('Mleko Owcze')
-                : t('Mleko Bawole'),
-            category: 'MILK',
-            quantity: milkLiters,
-            unit: 'L',
-
+            name: t('Podpuszczka'),
+            category: 'RENNET',
+            quantity: Math.round(rennetCalc.volumeMl * 100) / 100,
+            unit: 'ml',
           });
-          if (rennetCalc.volumeMl > 0) {
-            requirements.push({
-              name: t('Podpuszczka'),
-              category: 'RENNET',
-              quantity: Math.round(rennetCalc.volumeMl * 100) / 100,
-              unit: 'ml',
-            });
-          }
-          if (cacl2Calc.solution33PercentMl > 0) {
-            requirements.push({
-              name: t('Chlorek Wapnia'),
-              category: 'MINERAL',
-              quantity: Math.round(cacl2Calc.solution33PercentMl * 100) / 100,
-              unit: 'ml',
-            });
-          }
-        } else if (craftMode === 'veg') {
-          if (totalSalinityCalc.saltGrams > 0) {
-            requirements.push({
-              name: t('Sól Kamienna'),
-              category: 'SALT',
-              quantity: totalSalinityCalc.saltGrams,
-              unit: 'g',
-            });
-          }
-        } else {
-          if (kombucha1F.sugarGrams > 0) {
-            requirements.push({
-              name: t('Cukier'),
-              category: 'SUGAR',
-              quantity: kombucha1F.sugarGrams,
-              unit: 'g',
-            });
-          }
-          if (kombucha1F.teaGrams > 0) {
-            requirements.push({
-              name: t('Herbata'),
-              category: 'TEA',
-              quantity: kombucha1F.teaGrams,
-              unit: 'g',
-            });
-          }
+        }
+        if (cacl2Calc.solution33PercentMl > 0) {
+          requirements.push({
+            name: t('Chlorek Wapnia'),
+            category: 'MINERAL',
+            quantity: Math.round(cacl2Calc.solution33PercentMl * 100) / 100,
+            unit: 'ml',
+          });
         }
       }
 
@@ -1148,6 +1083,33 @@ export default function CalculatorScreen() {
 
       Alert.alert(t('Partia Zapisana!'), alertMsg, [{ text: t('OK') }]);
     });
+  };
+
+  const handleTransferToCave = async () => {
+    triggerHapticFeedback();
+    const store = getSqliteStore();
+    const now = Date.now();
+    const wheelWeightGrams = Math.round(milkLiters * 100);
+    const wheelName = selectedRecipe?.name || `${t('Ser')} #${now.toString().slice(-4)}`;
+
+    await store.saveCaveWheel({
+      id: `wheel_${now}`,
+      batchId: `batch_${now}`,
+      wheelTag: wheelName,
+      locationInCave: 'Półka A1',
+      initialWeightGrams: wheelWeightGrams,
+      currentWeightGrams: wheelWeightGrams,
+      rindType: 'NATURAL',
+      targetAgingDays: 60,
+      lastTurnedAt: now,
+      shrinkagePct: 0,
+    });
+
+    Alert.alert(
+      t('Przekazano do Dojrzewalni!'),
+      `${wheelName}\n${t('Waga początkowa:')} ${wheelWeightGrams} g\n${t('Krążek czeka w Zakładce 3 (Dojrzewalnia).')}`,
+      [{ text: t('OK') }]
+    );
   };
 
   return (
@@ -1198,50 +1160,8 @@ export default function CalculatorScreen() {
 
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.appTitle}>FERMENT</Text>
-          <Text style={styles.appSubtitle}>{t('Serowarstwo & Flora Domowa')}</Text>
-        </View>
-
-        {/* 3-Mode Craft Switcher */}
-        <View style={styles.modeSwitcher}>
-          <TouchableOpacity
-            style={[styles.modeButton, craftMode === 'cheese' && styles.modeButtonActive]}
-            onPress={() => {
-              triggerHapticFeedback();
-              setCraftMode('cheese');
-            }}
-            accessibilityRole="tab"
-          >
-            <Text style={[styles.modeText, craftMode === 'cheese' && styles.modeTextActive]}>
-              🧀 {t('Ser')}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.modeButton, craftMode === 'veg' && styles.modeButtonActive]}
-            onPress={() => {
-              triggerHapticFeedback();
-              setCraftMode('veg');
-            }}
-            accessibilityRole="tab"
-          >
-            <Text style={[styles.modeText, craftMode === 'veg' && styles.modeTextActive]}>
-              🥬 {t('Kiszonki')}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.modeButton, craftMode === 'beverage' && styles.modeButtonActive]}
-            onPress={() => {
-              triggerHapticFeedback();
-              setCraftMode('beverage');
-            }}
-            accessibilityRole="tab"
-          >
-            <Text style={[styles.modeText, craftMode === 'beverage' && styles.modeTextActive]}>
-              🫖 {t('Kombucha')}
-            </Text>
-          </TouchableOpacity>
+          <Text style={styles.appTitle}>SEROWAR</Text>
+          <Text style={styles.appSubtitle}>{t('Rzemieślniczy Warsztat Serowarski')}</Text>
         </View>
 
         {/* Keep-Awake Screen Toggle */}
@@ -1279,9 +1199,8 @@ export default function CalculatorScreen() {
           reverseScheduleCalc={reverseScheduleCalc}
         />
 
-        {/* MODE 1: CHEESEMAKING */}
-        {craftMode === 'cheese' && (
-          <CheeseCraftSection
+        {/* CHEESEMAKING WORKSHOP */}
+        <CheeseCraftSection
             milkLiters={milkLiters}
             setMilkLiters={setMilkLiters}
             milkType={milkType}
@@ -1413,205 +1332,17 @@ export default function CalculatorScreen() {
             syneresisDrainPh={syneresisDrainPh}
             setSyneresisDrainPh={setSyneresisDrainPh}
           />
-        )}
 
-        {/* MODE 2: VEGETABLE FERMENT & KIMCHI */}
-        {craftMode === 'veg' && (
-          <VegCraftSection
-            vegGrams={vegGrams}
-            setVegGrams={setVegGrams}
-            waterGrams={waterGrams}
-            setWaterGrams={setWaterGrams}
-            targetSalinity={targetSalinity}
-            setTargetSalinity={setTargetSalinity}
-            totalSalinityCalc={totalSalinityCalc}
-            isProExpanded={isProExpanded}
-            setIsProExpanded={setIsProExpanded}
-            measuredPh={measuredPh}
-            setMeasuredPh={setMeasuredPh}
-            fermentHours={fermentHours}
-            setFermentHours={setFermentHours}
-            botulinumSafety={botulinumSafety}
-            labKineticsCalc={labKineticsCalc}
-            cabbageGrams={cabbageGrams}
-            setCabbageGrams={setCabbageGrams}
-            kimchiPrep={kimchiPrep}
-            ambientTempC={ambientTempC}
-            setAmbientTempC={setAmbientTempC}
-            q10VegCalc={q10VegCalc}
-            jarCapacityMl={jarCapacityMl}
-            setJarCapacityMl={setJarCapacityMl}
-            stoneWeightGrams={stoneWeightGrams}
-            setStoneWeightGrams={setStoneWeightGrams}
-            crockHeadspaceCalc={crockHeadspaceCalc}
-            selectedBotanical={selectedBotanical}
-            setSelectedBotanical={setSelectedBotanical}
-            botanicalGrams={botanicalGrams}
-            setBotanicalGrams={setBotanicalGrams}
-            garlicGramsInput={garlicGramsInput}
-            setGarlicGramsInput={setGarlicGramsInput}
-            garlicPrepInput={garlicPrepInput}
-            setGarlicPrepInput={setGarlicPrepInput}
-            vegCrispnessCalc={vegCrispnessCalc}
-            kojiMode={kojiMode}
-            setKojiMode={setKojiMode}
-            kojiMassGrams={kojiMassGrams}
-            setKojiMassGrams={setKojiMassGrams}
-            kojiState={kojiState}
-            setKojiState={setKojiState}
-            kojiTempC={kojiTempC}
-            setKojiTempC={setKojiTempC}
-            amazakeCookedRiceGrams={amazakeCookedRiceGrams}
-            setAmazakeCookedRiceGrams={setAmazakeCookedRiceGrams}
-            amazakeTempC={amazakeTempC}
-            setAmazakeTempC={setAmazakeTempC}
-            misoSoyGrams={misoSoyGrams}
-            setMisoSoyGrams={setMisoSoyGrams}
-            misoTypeInput={misoTypeInput}
-            setMisoTypeInput={setMisoTypeInput}
-            kojiCalc={kojiCalc}
-            nukadokoTab={nukadokoTab}
-            setNukadokoTab={setNukadokoTab}
-            nukaBranGrams={nukaBranGrams}
-            setNukaBranGrams={setNukaBranGrams}
-            nukaBedMassGrams={nukaBedMassGrams}
-            setNukaBedMassGrams={setNukaBedMassGrams}
-            nukaSalinityPct={nukaSalinityPct}
-            setNukaSalinityPct={setNukaSalinityPct}
-            nukaMoistureStatus={nukaMoistureStatus}
-            setNukaMoistureStatus={setNukaMoistureStatus}
-            nukaSelectedVeg={nukaSelectedVeg}
-            setNukaSelectedVeg={setNukaSelectedVeg}
-            nukadokoCalc={nukadokoCalc}
-            tempehLegumeType={tempehLegumeType}
-            setTempehLegumeType={setTempehLegumeType}
-            tempehDryGrams={tempehDryGrams}
-            setTempehDryGrams={setTempehDryGrams}
-            tempehVinegarMl={tempehVinegarMl}
-            setTempehVinegarMl={setTempehVinegarMl}
-            tempehHours={tempehHours}
-            setTempehHours={setTempehHours}
-            tempehCoreTempC={tempehCoreTempC}
-            setTempehCoreTempC={setTempehCoreTempC}
-            tempehCalc={tempehCalc}
-            bgRawGrams={bgRawGrams}
-            setBgRawGrams={setBgRawGrams}
-            bgCurrentDay={bgCurrentDay}
-            setBgCurrentDay={setBgCurrentDay}
-            bgChamberTempC={bgChamberTempC}
-            setBgChamberTempC={setBgChamberTempC}
-            bgChamberRhPct={bgChamberRhPct}
-            setBgChamberRhPct={setBgChamberRhPct}
-            blackGarlicCalc={blackGarlicCalc}
-          />
-        )}
-
-        {/* MODE 3: KOMBUCHA & LIVING VINEGARS */}
-        {craftMode === 'beverage' && (
-          <BeverageCraftSection
-            kombuchaWaterLiters={kombuchaWaterLiters}
-            setKombuchaWaterLiters={setKombuchaWaterLiters}
-            kombucha1F={kombucha1F}
-            isProExpanded={isProExpanded}
-            setIsProExpanded={setIsProExpanded}
-            selectedJuiceId={selectedJuiceId}
-            setSelectedJuiceId={setSelectedJuiceId}
-            juiceVolumeMl={juiceVolumeMl}
-            setJuiceVolumeMl={setJuiceVolumeMl}
-            kombuchaBottleType={kombuchaBottleType}
-            setKombuchaBottleType={setKombuchaBottleType}
-            daysIn2F={daysIn2F}
-            setDaysIn2F={setDaysIn2F}
-            kombuchaBlendingCalc={kombuchaBlendingCalc}
-            vinegarBrix={vinegarBrix}
-            setVinegarBrix={setVinegarBrix}
-            vinegarCalc={vinegarCalc}
-            vinegarSampleMl={vinegarSampleMl}
-            setVinegarSampleMl={setVinegarSampleMl}
-            naohTiterMl={naohTiterMl}
-            setNaohTiterMl={setNaohTiterMl}
-            vinegarTitrationCalc={vinegarTitrationCalc}
-            ambientTempC={ambientTempC}
-            setAmbientTempC={setAmbientTempC}
-            q10KombuchaCalc={q10KombuchaCalc}
-            originalBrixInput={originalBrixInput}
-            setOriginalBrixInput={setOriginalBrixInput}
-            currentBrixInput={currentBrixInput}
-            setCurrentBrixInput={setCurrentBrixInput}
-            refractometerAlcoholCalc={refractometerAlcoholCalc}
-            hotelCultureType={hotelCultureType}
-            setHotelCultureType={setHotelCultureType}
-            hotelDaysSinceFed={hotelDaysSinceFed}
-            setHotelDaysSinceFed={setHotelDaysSinceFed}
-            hotelVolumeMl={hotelVolumeMl}
-            setHotelVolumeMl={setHotelVolumeMl}
-            hotelSludgeDepthCm={hotelSludgeDepthCm}
-            setHotelSludgeDepthCm={setHotelSludgeDepthCm}
-            cultureHotelCalc={cultureHotelCalc}
-            cbVesselLiters={cbVesselLiters}
-            setCbVesselLiters={setCbVesselLiters}
-            cbDrawLiters={cbDrawLiters}
-            setCbDrawLiters={setCbDrawLiters}
-            cbTempCelsius={cbTempCelsius}
-            setCbTempCelsius={setCbTempCelsius}
-            cbCyclesSincePurge={cbCyclesSincePurge}
-            setCbCyclesSincePurge={setCbCyclesSincePurge}
-            cbPreDrawPh={cbPreDrawPh}
-            setCbPreDrawPh={setCbPreDrawPh}
-            cbTeaBase={cbTeaBase}
-            setCbTeaBase={setCbTeaBase}
-            continuousBrewPlan={continuousBrewPlan}
-            puCategory={puCategory}
-            setPuCategory={setPuCategory}
-            puWaterBathTempC={puWaterBathTempC}
-            setPuWaterBathTempC={setPuWaterBathTempC}
-            puHoldMinutes={puHoldMinutes}
-            setPuHoldMinutes={setPuHoldMinutes}
-            puBottleVolumeMl={puBottleVolumeMl}
-            setPuBottleVolumeMl={setPuBottleVolumeMl}
-            puPlanCalc={puPlanCalc}
-            vinRawAcidity={vinRawAcidity}
-            setVinRawAcidity={setVinRawAcidity}
-            vinRawVolumeL={vinRawVolumeL}
-            setVinRawVolumeL={setVinRawVolumeL}
-            vinTargetAcidity={vinTargetAcidity}
-            setVinTargetAcidity={setVinTargetAcidity}
-            vinVesselDiameterCm={vinVesselDiameterCm}
-            setVinVesselDiameterCm={setVinVesselDiameterCm}
-            vinInitialAbv={vinInitialAbv}
-            setVinInitialAbv={setVinInitialAbv}
-            vinegarStdCalc={vinegarStdCalc}
-            vinegarStoichCalc={vinegarStoichCalc}
-            vinegarAerationCalc={vinegarAerationCalc}
-            kefirMedium={kefirMedium}
-            setKefirMedium={setKefirMedium}
-            kefirLiquidVolumeMl={kefirLiquidVolumeMl}
-            setKefirLiquidVolumeMl={setKefirLiquidVolumeMl}
-            kefirGrainWeightGrams={kefirGrainWeightGrams}
-            setKefirGrainWeightGrams={setKefirGrainWeightGrams}
-            kefir1FCalc={kefir1FCalc}
-            kefir2FCalc={kefir2FCalc}
-            meadGrade={meadGrade}
-            setMeadGrade={setMeadGrade}
-            meadTargetVolumeL={meadTargetVolumeL}
-            setMeadTargetVolumeL={setMeadTargetVolumeL}
-            meadPrepType={meadPrepType}
-            setMeadPrepType={setMeadPrepType}
-            meadCalc={meadCalc}
-            gbStarterDays={gbStarterDays}
-            setGbStarterDays={setGbStarterDays}
-            gbDaysSinceFeed={gbDaysSinceFeed}
-            setGbDaysSinceFeed={setGbDaysSinceFeed}
-            gbHasBubbles={gbHasBubbles}
-            setGbHasBubbles={setGbHasBubbles}
-            gbBatchVolumeL={gbBatchVolumeL}
-            setGbBatchVolumeL={setGbBatchVolumeL}
-            gbHoursInBottle={gbHoursInBottle}
-            setGbHoursInBottle={setGbHoursInBottle}
-            gingerBugStarterCalc={gingerBugStarterCalc}
-            gingerBeerBatchCalc={gingerBeerBatchCalc}
-          />
-        )}
+        {/* Direct Handoff CTA to Cave Log (BR-BPR-001) */}
+        <TouchableOpacity
+          style={[styles.saveBatchButton, { backgroundColor: '#B86D3B', marginTop: 16 }]}
+          onPress={handleTransferToCave}
+          accessibilityRole="button"
+        >
+          <Text style={styles.saveBatchButtonText}>
+            🏔️ {t('Przenieś krążek do Dojrzewalni (Cave Log)')}
+          </Text>
+        </TouchableOpacity>
 
         {/* Save As Batch Button */}
         <TouchableOpacity
