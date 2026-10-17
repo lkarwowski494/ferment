@@ -18,18 +18,6 @@ jest.mock('expo-audio', () => ({
   AudioPlayer: jest.fn(),
 }), { virtual: true });
 
-jest.mock('expo-av', () => ({
-  Audio: {
-    Sound: {
-      createAsync: jest.fn().mockResolvedValue({
-        sound: {
-          unloadAsync: jest.fn().mockResolvedValue(undefined),
-          playAsync: jest.fn().mockResolvedValue(undefined),
-        },
-      }),
-    },
-  },
-}), { virtual: true });
 
 jest.mock('expo-camera', () => {
   const React = require('react');
