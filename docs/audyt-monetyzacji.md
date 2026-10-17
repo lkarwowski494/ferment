@@ -69,3 +69,24 @@ Przeprowadzono weryfikację kodu modułu uprawnień ([`src/lib/app-access.ts`](f
 8. `[x]` **Wielojęzyczność Paywalla:** Wszystkie etykiety i opisy przechodzą przez funkcję `t()` i słowniki 35 języków.
 9. `[x]` **Konfiguracja StoreKit 2:** Utworzono plik lokalny [`SerowarStoreKit.storekit`](file:///C:/Users/lukas/Documents/antigravity/calm-planck/SerowarStoreKit.storekit) umożliwiający powtarzalne testowanie zakupów w Xcode bez połączenia z siecią.
 10. `[x]` **Pokrycie testami automatycznymi:** Testy w [`tests/access/app-access.test.ts`](file:///C:/Users/lukas/Documents/antigravity/calm-planck/tests/access/app-access.test.ts) w 100% zielone w `npm run verify`.
+
+---
+
+## **4. Wzorzec M20: Edytorski Paszport Serowara (Artisanal Craft Paywall)**
+
+Zgodnie z **Wzorcem M20 (Artisanal Craft Paywall)** i **Zasadą 10 (Anti-AI Slop Mandate)** ekran odblokowania SEROWAR PRO kategorycznie odrzuca generyczną estetykę AI SaaS:
+* **Zakazy bezwzględne:**
+  * Zakaz neonowych gradientów i pulsujących przycisków „Unlock Superpowers”.
+  * Zakaz sztucznych liczników odliczania FOMO („Oferta wygasa za 04:59”).
+  * Zakaz renderowanych w 3D monet, diamentów, rakiet i generycznych wektorów.
+* **Architektura Paszportu Serowara (Craftsman Passport):**
+  * **Edytorski List / Manifest Twórcy:** Krótki, rzemieślniczy manifest podpisany przez twórcę:  
+    *„SEROWAR powstał z pasji do prawdziwego mleka i rzemiosła. Nie zbieramy Twoich danych, nie mamy chmury i nie wyświetlamy reklam. Aplikacja działa w 100% na Twoim urządzeniu. Wybierając wersję PRO, wspierasz niezależny rozwój narzędzia i otrzymujesz nieograniczony Cave Log, pełne protokoły maziowo-pleśniowe oraz wsparcie czujników BLE.”*
+  * **Fizyczna Estetyka Certyfikatu:**
+    * Karta paszportowa stylizowana na tłoczony certyfikat cechowy z precyzyjną mikro-ramką 1px w kolorze miedzi lub ochry skórki (`#C68A4C` / `#B86D3B`).
+    * Zrównoważony układ typograficzny o wysokiej czytelności (`tabular-nums` dla cen i okresów).
+  * **Równorzędna Prezentacja Planów (z naciskiem na Lifetime):**
+    * Plan Dożywotni (Lifetime: 59,99 zł) prezentowany jest jako równorzędna, uczciwa alternatywa: *„Kup raz na całe życie — jak porządną prasę czy formę serowarską”*.
+    * Plan Roczny (19,99 zł/rok) jako standardowa opcja bieżącego wsparcia.
+    * Transparentna informacja o braku ukrytych kosztów i gwarancji stałego dostępu do historii partii (`isHistoryReadOnly: true`).
+

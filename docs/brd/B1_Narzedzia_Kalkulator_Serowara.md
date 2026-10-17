@@ -1,7 +1,8 @@
 # **SEROWAR BRD 0.1 — Rozdział 7: Narzędzia Serowarskie — Kalkulator Mleka, Kultur i Podpuszczki (B1)**
 
 > **Moduł:** `BR-SER-001` do `BR-SER-035`  
-> **Kontekst dziedzinowy:** Precyzyjne dozowanie enzymów koagulujących (IMCU wg IDF 157) i kultur bakteryjnych na litr mleka, gatunki mleka (krowa, koza, owca, bawół), bilans kazeinowo-wapniowy, stoper flokulacji.
+> **Kontekst dziedzinowy:** Precyzyjne dozowanie enzymów koagulujących (IMCU wg IDF 157) i kultur bakteryjnych na litr mleka, gatunki mleka (krowa, koza, owca, bawół), bilans kazeinowo-wapniowy, stoper flokulacji.  
+> **Warunki środowiskowe i ergonomia:** Praca w wilgotnym środowisku serowarni (mokre dłonie od serwatki, rękawice gumowe, przytłumione światło dojrzewalni). Wymagane cele dotykowe min. 48x48pt, wysoki kontrast WCAG AAA i potwierdzenia haptyczno-dźwiękowe bez konieczności dotykania ekranu mokrymi rękami.
 
 ---
 

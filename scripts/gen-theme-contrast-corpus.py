@@ -52,6 +52,12 @@ def main():
         {"name": "secondary_text_on_dark_bg", "foreground": "#94a3b8", "background": "#0b1120", "minTarget": 4.5},
         {"name": "alert_title_white_on_dark_red", "foreground": "#ffffff", "background": "#7f1d1d", "minTarget": 7.0},
         {"name": "alert_body_light_red_on_dark_red", "foreground": "#fca5a5", "background": "#7f1d1d", "minTarget": 4.5},
+        # SEROWAR Dairy Craft Material Palette (Anti-AI Bespoke Tokens)
+        {"name": "dairy_body_text_on_cellar_slate", "foreground": "#f8fafc", "background": "#1e2229", "minTarget": 7.0},
+        {"name": "dairy_subdued_text_on_cellar_slate", "foreground": "#94a3b8", "background": "#1e2229", "minTarget": 4.5},
+        {"name": "dairy_copper_vat_btn_white", "foreground": "#ffffff", "background": "#b86d3b", "minTarget": 3.0},
+        {"name": "dairy_dark_text_on_butter_cream", "foreground": "#1e2229", "background": "#fdfbf7", "minTarget": 7.0},
+        {"name": "dairy_ochre_on_cellar_slate", "foreground": "#c68a4c", "background": "#1e2229", "minTarget": 3.0},
     ]
 
     results = []

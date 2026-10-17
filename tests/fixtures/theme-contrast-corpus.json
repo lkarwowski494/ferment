@@ -64,6 +64,46 @@
       "calculatedRatio": 5.28,
       "minRequired": 4.5,
       "passes": true
+    },
+    {
+      "name": "dairy_body_text_on_cellar_slate",
+      "foreground": "#f8fafc",
+      "background": "#1e2229",
+      "calculatedRatio": 15.25,
+      "minRequired": 7.0,
+      "passes": true
+    },
+    {
+      "name": "dairy_subdued_text_on_cellar_slate",
+      "foreground": "#94a3b8",
+      "background": "#1e2229",
+      "calculatedRatio": 6.22,
+      "minRequired": 4.5,
+      "passes": true
+    },
+    {
+      "name": "dairy_copper_vat_btn_white",
+      "foreground": "#ffffff",
+      "background": "#b86d3b",
+      "calculatedRatio": 3.97,
+      "minRequired": 3.0,
+      "passes": true
+    },
+    {
+      "name": "dairy_dark_text_on_butter_cream",
+      "foreground": "#1e2229",
+      "background": "#fdfbf7",
+      "calculatedRatio": 15.44,
+      "minRequired": 7.0,
+      "passes": true
+    },
+    {
+      "name": "dairy_ochre_on_cellar_slate",
+      "foreground": "#c68a4c",
+      "background": "#1e2229",
+      "calculatedRatio": 5.43,
+      "minRequired": 3.0,
+      "passes": true
     }
   ]
 }

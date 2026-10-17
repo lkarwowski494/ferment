@@ -67,6 +67,8 @@ Wszystkie pomysły i wymagania spoza twardego rdzenia zostały skategoryzowane w
 | **Bezpośredni skaner BLE RuuviTag/Mijia w v1.0** | `[SCOPE-DEFERRED]` | Ryzyko opóźnienia premiery, zależność od fizycznego sprzętu | Ręczne wprowadzanie w v1.0; auto-odczyt BLE w v1.1 |
 | **Pełna niezależna aplikacja Apple Watch w v1.0** | `[SCOPE-DEFERRED]` | Złożoność architektury watchOS w pierwszym wydaniu | Live Activity na iOS + powiadomienia na zegarek w v1.0 |
 | **Wymóg wpisywania 15 parametrów dla krążka** | `[BLOAT-FORM]` | Porzucanie aplikacji przez zmęczenie formularzem | Zredukowanie do 3 pól obowiązkowych + mądre domyślne |
+| **Generatywny AI Chatbot („Zapytaj AI o skrzep”)** | `[BLOAT-AI]` | Ryzyko halucynacji biochemicznych, koszty tokenów API, łamanie zasady offline-first | Deterministyczny silnik diagnostyczny Cheese Doctor działający w 100% lokalnie |
+| **Generyczne ilustracje wektorowe/3D, avatary i tapety AI** | `[BLOAT-SLOP]` | Obniżenie zaufania użytkownika, estetyka szablonowego AI slop, odwracanie uwagi | Autentyczna paleta surowcowa (miedź, ochra, łupek, masło) i schematy techniczne |
 
 ---
 

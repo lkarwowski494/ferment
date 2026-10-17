@@ -185,7 +185,7 @@ Poniższa macierz definiuje zachowanie interfejsu w każdym z 9 stanów systemow
 | Stan UI | 🧀 Zakładka 1: SEROWAR | 🧈 Zakładka 2: NABIAŁ | 🏔️ Zakładka 3: DOJRZEWALNIA | 📦 Zakładka 4: SPIŻARNIA |
 |---|---|---|---|---|
 | **1. Domyślny (Golden Path)** | Formularz kalkulatora z ostatnio użytym gatunkiem mleka, aktywne przyciski obliczeń. | Karta zoptymalizowanych temperatur (twaróg 38–42°C, masło 11°C), gotowe receptury. | Lista krążków z wiekiem i wagą, zielony status mikroklimatu jaskini. | Stan magazynu surowców, lista wygenerowanych etykiet, skróty do lekcji. |
-| **2. Pierwsze Użycie (Zero Data)** | Podpowiedź: „Wybierz gatunek mleka, aby obliczyć dawkę podpuszczki”. Wartości domyślne: mleko krowie 10L. | Podpowiedź: „Wybierz proces: tradycyjny twaróg, rzemieślnicze masło lub obieg serwatki”. | Pusty stan z ilustracją piwniczki: „Brak krążków w dojrzewalni” + CTA „+ Dodaj pierwszy ser”. | Pusty stan spiżarni: „Twój magazyn jest pusty” + CTA „+ Wprowadź pierwsze mleko/kulturę”. |
+| **2. Pierwsze Użycie (Zero Data)** | Podpowiedź: „Wybierz gatunek mleka, aby obliczyć dawkę podpuszczki”. Wartości domyślne: mleko krowie 10L. | Podpowiedź: „Wybierz proces: tradycyjny twaróg, rzemieślnicze masło lub obieg serwatki”. | Karta startowa ze schematem technicznym i szablonem partii (Gouda / Koryciński): „Brak krążków w dojrzewalni” + CTA „+ Rozpocznij leżakowanie pierwszej partii” (kategoryczny zakaz generycznych pustych ilustracji wektorowych/3D). | Techniczna karta inwentarza surowców: „Magazyn czysty — dodaj pierwsze mleko, chlorek wapnia lub kultury DVI” + CTA „+ Dodaj surowiec”. |
 | **3. Ładowanie (Skeleton)** | Animowane szkielety pól liczbowych i przycisków kalkulatora. | Szkielety kart receptur nabiałowych. | Pulsujące szkielety kart krążków sera (odwzorowanie kształtu kart). | Szkielety wierszy magazynowych i kafelków wiedzy. |
 | **4. Błąd / Awaria (Recovery)** | Czerwony baner: „Nieprawidłowa objętość mleka”. Pole podświetlone z komunikatem błędu. | Alert: „Błąd odczytu termometru”. Przycisk ponowienia próby. | Alert: „Nie udało się zapisać pomiaru mikroklimatu”. Przycisk „Spróbuj ponownie”. | Alert: „Błąd odczytu bazy danych”. Przycisk „Przywróć z automatycznej kopii zapasowej”. |
 | **5. Częściowe Dane** | Wpisano 15L mleka bez podania mocy podpuszczki — system przyjmuje bezpieczny standard 200 IMCU/ml. | Wybrano śmietankę bez % tłuszczu — system podpowiada standardowe 36%. | Krążek dodany bez wagi końcowej — system szacuje wagę z typowego uzysku 10%. | Wprowadzono kulturę bez daty ważności — oznaczenie „Brak daty ważności”. |
@@ -208,3 +208,30 @@ Poniższa macierz definiuje zachowanie interfejsu w każdym z 9 stanów systemow
    * Każdy element klikalny posiada fizyczne pole dotykowe o wymiarach minimum **48 × 48 pt** z marginesem `hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}`.
    * Główne przyciski akcji umieszczone w dolnych 35% wysokości ekranu (strefa kciuka).
    * Dźwiękowe (`expo-av`) oraz wibracyjne (`expo-haptics`) potwierdzenie każdego zakończonego odliczania stoperów, pozwalające serowarowi usłyszeć alert bez spoglądania na ekran.
+
+---
+
+## **6. Design System Tokenów Surowcowych i Standard Estetyki Rzemieślniczej (Anti-AI Slop Mandate)**
+
+Zgodnie z **Zasadą 10 (Kategoryczny Zakaz Estetyki AI / Anti-AI Slop Mandate)** design systemu SEROWAR odrzuca szablonowy, generyczny styl AI (brak pastelowych fioletowo-różowych gradientów, brak pływających bąbli i rozmytych cieni, brak pustych stanów z generic clip-artem 3D).
+
+### **6.1 Paleta Kolorów Fizycznych Surowców (Physical Dairy Craft Palette)**
+Kolorystyka aplikacji bazuje wyłącznie na realnych barwach przetwórstwa mleka, dojrzewalni i rzemieślniczego wyposażenia:
+* **Tło Dojrzewalni / Ciemne (Cellar Slate):** `#1E2229` — chłodny, głęboki odcień piwnicznego kamienia i łupka.
+* **Tło Kart i Elementów (Cellar Slate Elevated):** `#262B34` — podniesiona warstwa kamienna z 1px mikro-ramką `#374151`.
+* **Krem Maślany / Tło Jasne (Butter Cream):** `#FDFBF7` — ciepły pergaminowy odcień naturalnego masła wiejskiego.
+* **Akcent Skórki i Dojrzewania (Aged Rind Ochre):** `#C68A4C` — ciepła ochra naturalnej skórki sera maziowego/dojrzewającego.
+* **Miedziany Kocioł (Copper Vat):** `#B86D3B` — miedź tradycyjnego alpejskiego kotła serowarskiego (używana dla stanów aktywnych i głównych akcji CTA).
+* **Bursztyn Serwatki (Whey Amber):** `#D99B26` — złocisty ton klarownej serwatki (wskaźniki i ostrzeżenia).
+* **Biel Skrzepu (Curd White):** `#FFFFFF` — czysta biel świeżo ściętego skrzepu mlecznego.
+* **Tekst Główny Jasny:** `#F8FAFC` na ciemnym tle (kontrast 14.8:1, spełnia WCAG AAA).
+* **Tekst Pomocniczy / Subdued:** `#94A3B8` na ciemnym tle (kontrast 5.2:1, spełnia WCAG AA).
+
+### **6.2 Fizyczne Wykończenie Mikro-Ramek (Tactile 1px Borders) zamiast Rozmytych Cieni**
+* **Kategoryczny zakaz rozmytych cieni AI:** Zakaz stosowania modnych, niepraktycznych cieni typu `box-shadow: 0 20px 40px rgba(0,0,0,0.1)`.
+* **Dotykowy rygor 1px:** Wszystkie karty, moduły kalkulatora i kafelki posiadają fizyczną mikro-ramkę `borderWidth: 1` z kolorem o precyzyjnie dobranym kontraście (`#374151` na ciemnym tle, `#E2E8F0` na jasnym). W warunkach słabego oświetlenia piwniczki zapewnia to natychmiastową czytelność granic elementów.
+
+### **6.3 Liczby Tabelaryczne (`tabular-nums`) i Typografia Rzemieślnicza**
+* **Reguła `tabular-nums`:** Wszelkie wartości liczbowe, wagi krążków, minuty/sekundy stoperów, pH, IMCU, ciśnienie prasy ($kg/cm^2$) oraz procenty wydajności MUSZĄ posiadać właściwość `fontVariant: ['tabular-nums']` lub rodzinę monospace dla zapobiegania skakaniu układu przy zmianie cyfr.
+* **Rytm pionowy:** Ciasna, techniczna siatka 4pt/8pt zapewniająca maksymalną gęstość informacyjną bez pustego marnowania przestrzeni ekranowej.
+* **Wizualna hierarchia:** Wyrazista typografia nagłówkowa (`Tektur` / `Space Grotesk`) połączona z technicznym, bezszeryfowym krokiem systemowym zoptymalizowanym pod kątem czytelności z odległości 60 cm (stół roboczy serowarni).
