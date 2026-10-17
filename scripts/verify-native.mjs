@@ -145,7 +145,7 @@ try {
 
       // Version
       check(
-        pbx.includes(`MARKETING_VERSION = ${ver};`),
+        pbx.includes(`MARKETING_VERSION = ${ver};`) || pbx.includes(`MARKETING_VERSION = "${ver}";`),
         `MARKETING_VERSION w project.pbxproj nie zgadza się z ${ver}`
       );
 

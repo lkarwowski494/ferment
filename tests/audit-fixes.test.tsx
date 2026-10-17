@@ -419,6 +419,13 @@ describe('Apps4Brew Studio Role-Model Audit Regression Suite (BR-REL-016)', () =
     expect(existsSync(verifyNativePath)).toBe(true);
   });
 
+  test('SEC-05b: plugins/withIosReleaseConfig.js exists and exports an Expo config plugin', () => {
+    const pluginPath = join(process.cwd(), 'plugins', 'withIosReleaseConfig.js');
+    expect(existsSync(pluginPath)).toBe(true);
+    const plugin = require(pluginPath);
+    expect(typeof plugin).toBe('function');
+  });
+
   test('SEC-06: app.json declares all 4 Required Reason API categories in privacyManifests', () => {
     const appJsonPath = join(process.cwd(), 'app.json');
     const appJson = JSON.parse(readFileSync(appJsonPath, 'utf8'));

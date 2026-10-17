@@ -15,6 +15,7 @@
     },
     "ios": {
       "supportsTablet": false,
+      "requireFullScreen": true,
       "bundleIdentifier": "com.apps4brew.ferment",
       "appleTeamId": "8NQ9GHY8GF",
       "buildNumber": "1",
@@ -23,6 +24,7 @@
         "LSSupportsOpeningDocumentsInPlace": true,
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleAllowMixedLocalizations": true,
+        "UIRequiresFullScreen": true,
         "NSCameraUsageDescription": "Ferment wymaga dostępu do aparatu, aby natychmiast zeskanować kod QR receptury lub partii sera/kiszonki w 100% offline."
       },
       "privacyManifests": {
@@ -72,9 +74,12 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Ferment wymaga dostępu do aparatu, aby natychmiast zeskanować kod QR receptury lub partii sera/kiszonki w 100% offline."
+          "cameraPermission": "Ferment wymaga dostępu do aparatu, aby natychmiast zeskanować kod QR receptury lub partii sera/kiszonki w 100% offline.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
         }
-      ]
+      ],
+      "./plugins/withIosReleaseConfig.js"
     ]
   }
 }
