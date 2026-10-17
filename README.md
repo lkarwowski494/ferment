@@ -3,7 +3,7 @@
 > **Ekosystem:** Apps4Brew Studio  
 > **Repozytorium:** `lkarwowski494/ferment`  
 > **Technologia:** Expo 57, React Native 0.86, TypeScript Strict, SQLite (tryb WAL)  
-> **Piramida Jakości:** 50 zestawów testów (100% PASS, 263 testy), pełna zgodność i18n (PL/EN, 794 klucze w kodzie / 848 w EN), `npm run verify` zielony  
+> **Piramida Jakości:** 52 zestawy testów (100% PASS, 274 testy), pełna zgodność i18n (PL/EN, 834 klucze w kodzie / 888 w EN), `npm run verify` zielony  
 
 
 ---
@@ -191,6 +191,16 @@ Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9
     - Regulacja wilgoci i bilans soli (ochrona przed rozwodnieniem <10% i bakteriami kwasu masłowego *Clostridium* o zapachu zepsucia) z kalkulatorem dosypki prażonych otrębów i soli kamiennej.
     - Częstotliwość aeracji ręką *Te-ire* (lato: 2x dziennie rano i wieczorem, pokój: 1x dziennie, chłód: co 2–3 dni).
     - Czasy kiszenia poszczególnych warzyw (ogórek 6–12h, bakłażan 12–24h, daikon 12–24h, marchew 18–36h, jajko/awokado 4–8h).
+48. **Kinetyka Mycelium Tempehu & Ochrona Przed Przegrzaniem (`src/core/tempeh-kinetics.ts`):**
+    - Model fermentacji stałopodłożowej (Solid-State Fermentation, SSF) soi/ziaren z grzybnią *Rhizopus oligosporus / oryzae*.
+    - Rygorystyczny warunek zakwaszania (pH < 4.80, 15 ml 5% octu na 500g soi) blokujący przetrwalniki patogenu *Bacillus cereus*.
+    - Faza wybuchu egzotermicznego (13–24h) z dynamicznym zaleceniem redukcji nastawy inkubatora do 24–25°C, zapobiegającym przegrzaniu rdzenia >38°C (zarodnikowanie) i >42°C (śmierć grzybni i gnicie bakteryjne).
+    - Kalkulator mikroperforacji woreczka z siatką otworów co 1.5 cm.
+49. **Tradycyjne Miodosytnictwo & Harmonogramowanie TOSNA 3.0 (`src/core/mead-kinetics.ts`):**
+    - Historyczne kategorie staropolskie: Półtorak (60 °Blg, SG 1.285), Dwójniak (50 °Blg, SG 1.225), Trójniak (34 °Blg, SG 1.150), Czwórniak (26 °Blg, SG 1.110).
+    - Obowiązkowy protokół Step-Feeding dla brzeczek wysokocukrowych (Półtorak, Dwójniak) chroniący drożdże szlachetne (*Saccharomyces bayanus*) przed szokiem osmotycznym (>180 atm).
+    - Organiczne nawożenie azotowe TOSNA 3.0 (Fermaid O) podzielone na 4 dawki (24h, 48h, 72h oraz 1/3 Sugar Break) eliminujące stres drożdży, zapach siarkowodoru ($H_2S$) i fuzle.
+    - Porównanie technologii termicznej: Miód Sycony (gotowany ze szumowaniem wosków i białek) vs Miód Niesycony (mieszany na zimno <38°C z pełnią enzymów i aromatów).
 
 ---
 
@@ -203,7 +213,7 @@ npm run typecheck
 # 2. Sprawdzenie 100% pokrycia tekstów UI w słowniku angielskim
 npm run check:i18n
 
-# 3. Wykonanie 50 pakietów testowych Jest
+# 3. Wykonanie 52 pakietów testowych Jest (274 testy)
 npm test
 
 # 4. Uruchomienie całościowej bramki

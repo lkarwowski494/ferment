@@ -206,6 +206,35 @@
 * **Persona:** P2, P5, P6.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 
+---
+
+### **BR-KISZ-024: Kinetyka Mycelium Tempehu & Ochrona Przed Przegrzaniem (Tempeh Solid-State Mycelium Fermentation Engine)**
+* **Opis:** Narzędzie kontroli fermentacji stałopodłożowej (Solid-State Fermentation, SSF) nasion soi lub zbóż zaszczepionych grzybnią *Rhizopus oligosporus / oryzae*, bilansu zakwaszania zapobiegającego *Bacillus cereus*, perforacji opakowania oraz zarządzania egzotermicznym wybuchem metabolicznym (`src/core/tempeh-kinetics.ts`).
+* **Kluczowe reguły biochemiczne i mikrobiologiczne:**
+  1. **Bariera antybakteryjna (Hurdle Technology — Zakwaszanie ziarna):**
+     * Przetrwalnikowe endospory *Bacillus cereus* przeżywają gotowanie.
+     * Wymagane zakwaszenie ziarna do $\text{pH} < 4.80$ (standardowo 15 ml 5% octu jabłkowego lub spirytusowego na 500g suchych nasion soi).
+     * Jeśli $\text{pH} \ge 4.80$, silnik generuje alarm blokujący `CRITICAL_BACILLUS_RISK` z nakazem natychmiastowego dokwaszenia ziarna.
+  2. **Cztery fazy wzrostu grzybni *Rhizopus*:**
+     * **Faza uśpienia / Lag (0–12h):** Grzybnia kiełkuje. Wymaga inkubacji zewnętrznej 30–32°C i wilgotności względnej RH ~75–85%. Ziarna muszą być suche na powierzchni, by uniknąć rozwoju bakterii.
+     * **Faza wybuchu egzotermicznego / Exponential Burst (13–24h):** Grzybnia syntetyzuje enzymy i gwałtownie oddycha, wydzielając intensywne ciepło metaboliczne. Temperatura rdzenia tempehu może wzrosnąć o 8–12°C powyżej temperatury otoczenia. Silnik nakazuje obniżenie nastawy inkubatora do 24–25°C lub jego całkowite wyłączenie (`EXOTHERMIC_ACTIVE_HEAT_REDUCTION`), zapobiegając ugotowaniu grzybni.
+     * **Faza dojrzałości / Mature White Cake (25–32h):** Zwarta, śnieżnobiała grzybnia wiąże ziarna w sztywny blok. Zapach świeżych pieczarek/orzechów. Czas zbioru i schłodzenia bloku.
+     * **Faza przejrzałości / Over-mature Sporulation (>32h):** Grzybnia zaczyna zarodnikować (czarno-szare plamy wokół perforacji), wzrasta stężenie amoniaku z proteolizy.
+  3. **Termiczna tolerancja *Rhizopus*:**
+     * $< 25^\circ\text{C}$: `TOO_COLD` — spowolniony wzrost, ryzyko dominacji bakterii.
+     * $28 - 32^\circ\text{C}$: `OPTIMAL` — idealne warunki wzrostu.
+     * $38 - 42^\circ\text{C}$: `OVERHEATING_WARNING` — grzybnia przestaje rosnąć, zarodnikuje, rozwija się nieprzyjemny zapach.
+     * $> 42^\circ\text{C}$: `CRITICAL_OVERHEAT_KILL` — denaturacja białek mycelium, gnicie bakteryjne, wsad do utylizacji.
+  4. **Kalkulator aeracji i mikroperforacji woreczka:**
+     * Grzybnia wymaga tlenu, lecz zbyt duży dopływ wysusza ziarna.
+     * Otwory nakłuwane grubą igłą / wykałaczką co 1.5 cm po obu stronach torebki z polietylenu zamykanej strunowo:
+       $$N_{holes} = 2 \times \frac{Szeroko\acute{s}\acute{c} \times D\l{}ugo\acute{s}\acute{c}}{1.5 \times 1.5}$$
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w trybie Kiszonki & Warzywa Pro Accordion w [`app/(tabs)/index.tsx`](file:///c:/Users/lukas/Documents/antigravity/calm-planck/app/(tabs)/index.tsx).
+  2. 100% testów jednostkowych (`tests/core/tempeh-kinetics.test.ts`).
+* **Persona:** P2, P5, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
 
 
 

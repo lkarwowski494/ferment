@@ -1579,6 +1579,35 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 
 ---
 
+### **BR-KISZ-024: Kinetyka Mycelium Tempehu & Ochrona Przed Przegrzaniem (Tempeh Solid-State Mycelium Fermentation Engine)**
+* **Opis:** Narzędzie kontroli fermentacji stałopodłożowej (Solid-State Fermentation, SSF) nasion soi lub zbóż zaszczepionych grzybnią *Rhizopus oligosporus / oryzae*, bilansu zakwaszania zapobiegającego *Bacillus cereus*, perforacji opakowania oraz zarządzania egzotermicznym wybuchem metabolicznym (`src/core/tempeh-kinetics.ts`).
+* **Kluczowe reguły biochemiczne i mikrobiologiczne:**
+  1. **Bariera antybakteryjna (Hurdle Technology — Zakwaszanie ziarna):**
+     * Przetrwalnikowe endospory *Bacillus cereus* przeżywają gotowanie.
+     * Wymagane zakwaszenie ziarna do $\text{pH} < 4.80$ (standardowo 15 ml 5% octu jabłkowego lub spirytusowego na 500g suchych nasion soi).
+     * Jeśli $\text{pH} \ge 4.80$, silnik generuje alarm blokujący `CRITICAL_BACILLUS_RISK` z nakazem natychmiastowego dokwaszenia ziarna.
+  2. **Cztery fazy wzrostu grzybni *Rhizopus*:**
+     * **Faza uśpienia / Lag (0–12h):** Grzybnia kiełkuje. Wymaga inkubacji zewnętrznej 30–32°C i wilgotności względnej RH ~75–85%. Ziarna muszą być suche na powierzchni, by uniknąć rozwoju bakterii.
+     * **Faza wybuchu egzotermicznego / Exponential Burst (13–24h):** Grzybnia syntetyzuje enzymy i gwałtownie oddycha, wydzielając intensywne ciepło metaboliczne. Temperatura rdzenia tempehu może wzrosnąć o 8–12°C powyżej temperatury otoczenia. Silnik nakazuje obniżenie nastawy inkubatora do 24–25°C lub jego całkowite wyłączenie (`EXOTHERMIC_ACTIVE_HEAT_REDUCTION`), zapobiegając ugotowaniu grzybni.
+     * **Faza dojrzałości / Mature White Cake (25–32h):** Zwarta, śnieżnobiała grzybnia wiąże ziarna w sztywny blok. Zapach świeżych pieczarek/orzechów. Czas zbioru i schłodzenia bloku.
+     * **Faza przejrzałości / Over-mature Sporulation (>32h):** Grzybnia zaczyna zarodnikować (czarno-szare plamy wokół perforacji), wzrasta stężenie amoniaku z proteolizy.
+  3. **Termiczna tolerancja *Rhizopus*:**
+     * $< 25^\circ\text{C}$: `TOO_COLD` — spowolniony wzrost, ryzyko dominacji bakterii.
+     * $28 - 32^\circ\text{C}$: `OPTIMAL` — idealne warunki wzrostu.
+     * $38 - 42^\circ\text{C}$: `OVERHEATING_WARNING` — grzybnia przestaje rosnąć, zarodnikuje, rozwija się nieprzyjemny zapach.
+     * $> 42^\circ\text{C}$: `CRITICAL_OVERHEAT_KILL` — denaturacja białek mycelium, gnicie bakteryjne, wsad do utylizacji.
+  4. **Kalkulator aeracji i mikroperforacji woreczka:**
+     * Grzybnia wymaga tlenu, lecz zbyt duży dopływ wysusza ziarna.
+     * Otwory nakłuwane grubą igłą / wykałaczką co 1.5 cm po obu stronach torebki z polietylenu zamykanej strunowo:
+       $$N_{holes} = 2 \times \frac{Szeroko\acute{s}\acute{c} \times D\l{}ugo\acute{s}\acute{c}}{1.5 \times 1.5}$$
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w trybie Kiszonki & Warzywa Pro Accordion w [`app/(tabs)/index.tsx`](file:///c:/Users/lukas/Documents/antigravity/calm-planck/app/(tabs)/index.tsx).
+  2. 100% testów jednostkowych (`tests/core/tempeh-kinetics.test.ts`).
+* **Persona:** P2, P5, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
 
 <!-- ========================================== -->
 <!-- ROZPOCZĘCIE ROZDZIAŁU: B6_Narzedzia_Kombucha_i_Octy.md -->
@@ -1832,6 +1861,38 @@ Strategia wprowadzenia na rynek opiera się na organicznym zaufaniu w wąskich k
 * **Kryteria akceptacji:**
   1. Karta zintegrowana w akordeonie Pro napojów w [`app/(tabs)/index.tsx`](file:///c:/Users/lukas/Documents/antigravity/calm-planck/app/(tabs)/index.tsx).
   2. 100% testów jednostkowych (`tests/core/kefir-grains.test.ts`).
+* **Persona:** P3, P5, P6, P7.
+* **Priorytet:** MUST | **Etap:** MVP/1.1.
+
+---
+
+### **BR-KOM-030: Tradycyjne Miodosytnictwo & Ekstrakt Brzeczki (Traditional Polish Mead & Nutrient Scheduling Engine)**
+* **Opis:** Narzędzie obliczeniowe tradycyjnego miodosytnictwa staropolskiego (Półtorak, Dwójniak, Trójniak, Czwórniak), wyliczania gęstości brzeczki w skali Ballinga (°Blg) i ciężaru właściwego (SG), zapobiegania szokowi osmotycznemu drożdży poprzez skokowe dokarmianie miodem (Step-Feeding) oraz harmonogramowania odżywek organicznych TOSNA 3.0 (`src/core/mead-kinetics.ts`).
+* **Kluczowe reguły miodosytnicze:**
+  1. **Klasyfikacja historyczna i proporcje nastawne (Miód : Woda):**
+     * **Półtorak (1:0.5):** 60.0 °Blg, SG 1.285. Miód królewski, słodki/likierowy. Dojrzewanie 5–10 lat.
+     * **Dwójniak (1:1.0):** 50.0 °Blg, SG 1.225. Słodki, dojrzewanie 2–4 lata.
+     * **Trójniak (1:2.0):** 34.0 °Blg, SG 1.150. Półsłodki, dojrzewanie 1–2 lata.
+     * **Czwórniak (1:3.0):** 26.0 °Blg, SG 1.110. Wytrawny/półwytrawny, dojrzewanie 6–9 miesięcy.
+  2. **Ciśnienie osmotyczne & Obowiązkowy Step-Feeding (Dozowanie skokowe miodu):**
+     * Brzeczki o ekstrakcie $\ge 35^\circ\text{Blg}$ (zwłaszcza Półtorak i Dwójniak) wywierają potężne ciśnienie osmotyczne (>180 atm), powodujące plazmolizę i śmierć komórek drożdży szlachetnych (*Saccharomyces bayanus*).
+     * Silnik wymusza protokół Step-Feeding: nastaw startuje z gęstością bezpieczną (25–34 °Blg), a pozostała pula miodu dzielona jest na 2–3 równe dawki dodawane po przejściu 1/3 i 2/3 fermentacji.
+  3. **Organic Staggered Nutrient Addition (TOSNA 3.0 — Fermaid O):**
+     * Miód pszczeli jest surowcem ubogim w azot przyswajalny (YAN, 20–50 ppm, podczas gdy drożdże wymagają 200–350 ppm).
+     * Brak suplementacji skutkuje stresem drożdży, syntezą siarkowodoru ($H_2S$ — zapach zgnitych jaj) oraz fuzli.
+     * Dawka Fermaid O wyliczana wg wzoru:
+       $$M_{total\text{ [g]}} = V_{\text{[L]}} \times SG \times \text{Współczynnik N} \times 0.25$$
+     * Podział na 4 równe dawki:
+       * Dawka 1: 24h po zaszczepieniu
+       * Dawka 2: 48h po zaszczepieniu
+       * Dawka 3: 72h po zaszczepieniu
+       * Dawka 4: przy spadku ekstraktu o 1/3 (Sugar Break: $\text{SG} = \text{SG}_{start} - \frac{\text{SG}_{start} - 1.000}{3}$).
+  4. **Metoda termiczna (Sycony vs Niesycony):**
+     * **Miód Sycony:** Brzeczka gotowana przez 30–60 minut ze szumowaniem wosków i ściętych białek. Zapewnia klarowność i sterylność, ale ulatnia lotne aromaty kwiatowe.
+     * **Miód Niesycony:** Miód rozpuszczany w wodzie w temperaturze $< 38^\circ\text{C}$. Zachowuje 100% olejków eterycznych, enzymów (inhibina) i antyoksydantów pszczelich. Wymaga rygorystycznej higieny i silnej gęstwy drożdżowej.
+* **Kryteria akceptacji:**
+  1. Karta zintegrowana w akordeonie Pro napojów w [`app/(tabs)/index.tsx`](file:///c:/Users/lukas/Documents/antigravity/calm-planck/app/(tabs)/index.tsx).
+  2. 100% testów jednostkowych (`tests/core/mead-kinetics.test.ts`).
 * **Persona:** P3, P5, P6, P7.
 * **Priorytet:** MUST | **Etap:** MVP/1.1.
 

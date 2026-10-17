@@ -154,6 +154,16 @@ import {
   getPicklingTimeForVeg,
   NukazukeVegType,
 } from '../../src/core/nukazuke-engine';
+import {
+  calculateTempehKinetics,
+  LegumeType,
+} from '../../src/core/tempeh-kinetics';
+import {
+  calculateMeadBatch,
+  PolishMeadGrade,
+  MeadPreparationType,
+  MEAD_GRADE_CONFIGS,
+} from '../../src/core/mead-kinetics';
 
 
 
@@ -349,6 +359,18 @@ export default function CalculatorScreen() {
   const [nukaSalinityPct, setNukaSalinityPct] = useState<number>(12.0);
   const [nukaMoistureStatus, setNukaMoistureStatus] = useState<'OPTIMAL_SAND' | 'SLIGHTLY_WET' | 'VERY_SLUSHY'>('OPTIMAL_SAND');
   const [nukaSelectedVeg, setNukaSelectedVeg] = useState<NukazukeVegType>('CUCUMBER');
+
+  // --- TEMPEH MYCELIAL FERMENTATION KINETICS ---
+  const [tempehLegumeType, setTempehLegumeType] = useState<LegumeType>('SOYBEAN');
+  const [tempehDryGrams, setTempehDryGrams] = useState<number>(500);
+  const [tempehHours, setTempehHours] = useState<number>(16);
+  const [tempehCoreTempC, setTempehCoreTempC] = useState<number>(33.0);
+  const [tempehVinegarMl, setTempehVinegarMl] = useState<number>(15);
+
+  // --- TRADITIONAL POLISH MEAD (MIODOSYTNIK) ---
+  const [meadGrade, setMeadGrade] = useState<PolishMeadGrade>('TROJNIAK');
+  const [meadTargetVolumeL, setMeadTargetVolumeL] = useState<number>(15.0);
+  const [meadPrepType, setMeadPrepType] = useState<MeadPreparationType>('NIESYCONY');
 
   // Active Flocculation Timer
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
@@ -877,6 +899,34 @@ export default function CalculatorScreen() {
           data: getPicklingTimeForVeg(nukaSelectedVeg, ambientTempC),
         };
       }
+    } catch {
+      return null;
+    }
+  })();
+
+  const tempehCalc = (() => {
+    try {
+      return calculateTempehKinetics({
+        dryLegumeWeightGrams: tempehDryGrams,
+        legumeType: tempehLegumeType,
+        soakVinegarMl5Pct: tempehVinegarMl,
+        incubationHours: tempehHours,
+        currentCoreTempC: tempehCoreTempC,
+        ambientTempC,
+      });
+    } catch {
+      return null;
+    }
+  })();
+
+  const meadCalc = (() => {
+    try {
+      return calculateMeadBatch({
+        grade: meadGrade,
+        targetTotalVolumeLiters: meadTargetVolumeL,
+        preparation: meadPrepType,
+        ambientTempC,
+      });
     } catch {
       return null;
     }
@@ -3133,6 +3183,123 @@ export default function CalculatorScreen() {
                     )}
                   </View>
                 )}
+
+                {/* Kinetyka Mycelium Tempehu & Ochrona Przed Przegrzaniem */}
+                {tempehCalc && (
+                  <View style={styles.proCard}>
+                    <Text style={styles.proCardTitle}>
+                      🌱 {t('Kinetyka Mycelium Tempehu (Rhizopus)')}
+                    </Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Stało-fazowa fermentacja strączków: bariera kwasowa Bacillus cereus, faza egzotermiczna i perforacja torebek')}
+                    </Text>
+
+                    {/* Legume type selector */}
+                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Rodzaj nasion strączkowych:')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {[
+                        { id: 'SOYBEAN' as const, label: t('Soja (Tradycyjna)') },
+                        { id: 'CHICKPEA' as const, label: t('Ciecierzyca') },
+                        { id: 'LENTIL' as const, label: t('Soczewica') },
+                        { id: 'BLACK_BEAN' as const, label: t('Czarna fasola') },
+                      ].map((lg) => (
+                        <TouchableOpacity
+                          key={lg.id}
+                          style={[styles.presetPill, tempehLegumeType === lg.id && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setTempehLegumeType(lg.id);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, tempehLegumeType === lg.id && styles.presetPillTextActive]}>
+                            {lg.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Masa suchych nasion (g):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(tempehDryGrams)}
+                        onChangeText={(v) => setTempehDryGrams(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Ocet 5% do moczenia/gotowania (ml):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(tempehVinegarMl)}
+                        onChangeText={(v) => setTempehVinegarMl(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Godzina inkubacji (0-36h):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(tempehHours)}
+                        onChangeText={(v) => setTempehHours(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Temperatura rdzenia wsadu (°C):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(tempehCoreTempC)}
+                        onChangeText={(v) => setTempehCoreTempC(parseFloat(v) || 0)}
+                      />
+                    </View>
+
+                    <View style={styles.brineResultBox}>
+                      <Text style={[
+                        styles.safetyStatus,
+                        !tempehCalc.isSoakAcidSafe || tempehCalc.thermalStatus === 'CRITICAL_DEATH'
+                          ? styles.safetyDanger
+                          : tempehCalc.thermalStatus === 'OVERHEATING_WARNING'
+                          ? { color: '#B45309' }
+                          : { color: '#15803D' }
+                      ]}>
+                        • {tempehCalc.phaseLabelPl}
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Masa po namoczeniu/ugotowaniu:')} <Text style={styles.boldText}>{tempehCalc.hydratedLegumeWeightGrams} g</Text> | {t('Doza startera Ragi:')} <Text style={styles.boldText}>{tempehCalc.recommendedStarterGrams} g</Text>
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Nastawa inkubatora:')} <Text style={styles.boldText}>{tempehCalc.recommendedIncubatorTempC}°C</Text> {tempehCalc.isExothermicBurstActive ? `(${t('Wyłącz/obniż grzanie!')})` : ''}
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Otwory perforacyjne w torebce:')} <Text style={styles.boldText}>~{tempehCalc.perforationHolesRecommended}</Text> ({t('nakłucia igłą co 1.5 cm')})
+                      </Text>
+
+                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
+                        🛡️ {t('Bariera kwasowa:')} {tempehCalc.isSoakAcidSafe ? t('Zabezpieczona (pH < 4.80)') : t('ZAGROŻONA (dolej octu!)')} ({t('min. zalecane:')} {tempehCalc.soakVinegarRecommendedMl} ml)
+                      </Text>
+
+                      {tempehCalc.alertsPl.map((alert, idx) => (
+                        <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
+                          ⚠️ {alert}
+                        </Text>
+                      ))}
+
+                      {tempehCalc.recommendationsPl.map((rec, idx) => (
+                        <Text key={idx} style={[styles.recipeDetailText, { marginTop: 3 }]}>
+                          💡 {rec}
+                        </Text>
+                      ))}
+                    </View>
+                  </View>
+                )}
               </View>
             )}
           </View>
@@ -3975,6 +4142,120 @@ export default function CalculatorScreen() {
                           ))}
                         </View>
                       )}
+                    </View>
+                  </View>
+                )}
+
+                {/* Tradycyjne Miodosytnictwo & Ekstrakt Brzeczki */}
+                {meadCalc && (
+                  <View style={styles.proCard}>
+                    <Text style={styles.proCardTitle}>
+                      🍯 {t('Tradycyjne Miodosytnictwo (Półtorak/Trójniak)')}
+                    </Text>
+                    <Text style={styles.proCardDesc}>
+                      {t('Polska klasyfikacja miodów pitnych: bilans miodu i wody, szok osmotyczny, partionowanie i protokół TOSNA 3.0')}
+                    </Text>
+
+                    {/* Grade selector */}
+                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Klasa miodu pitnego:')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {(['POLTORAK', 'DWOJNIAK', 'TROJNIAK', 'CZWORNIAK'] as PolishMeadGrade[]).map((mg) => (
+                        <TouchableOpacity
+                          key={mg}
+                          style={[styles.presetPill, meadGrade === mg && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setMeadGrade(mg);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, meadGrade === mg && styles.presetPillTextActive]}>
+                            {MEAD_GRADE_CONFIGS[mg].namePl.split(' (')[0]}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.inlineLabel}>{t('Docelowa objętość brzeczki (L):')}</Text>
+                      <TextInput
+                        style={styles.numInput}
+                        keyboardType="numeric"
+                        value={String(meadTargetVolumeL)}
+                        onChangeText={(v) => setMeadTargetVolumeL(parseFloat(v) || 1)}
+                      />
+                    </View>
+
+                    {/* Preparation method */}
+                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Metoda przygotowania brzeczki:')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+                      {[
+                        { id: 'NIESYCONY' as const, label: t('Niesycony (Na zimno, aromatyczny)') },
+                        { id: 'SYCONY' as const, label: t('Sycony (Gotowany z szumowaniem)') },
+                      ].map((pr) => (
+                        <TouchableOpacity
+                          key={pr.id}
+                          style={[styles.presetPill, meadPrepType === pr.id && styles.presetPillActive]}
+                          onPress={() => {
+                            triggerHapticFeedback();
+                            setMeadPrepType(pr.id);
+                          }}
+                        >
+                          <Text style={[styles.presetPillText, meadPrepType === pr.id && styles.presetPillTextActive]}>
+                            {pr.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.brineResultBox}>
+                      <Text style={[styles.safetyStatus, { color: '#15803D' }]}>
+                        • {meadCalc.gradeNamePl} — {MEAD_GRADE_CONFIGS[meadGrade].honeyToWaterRatio}
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Miód pszczeli:')} <Text style={styles.boldText}>{meadCalc.honeyLiters} L</Text> ({meadCalc.honeyWeightKg} kg) | {t('Woda niechlorowana:')} <Text style={styles.boldText}>{meadCalc.waterLiters} L</Text>
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Ekstrakt brzeczki:')} <Text style={styles.boldText}>{meadCalc.initialBallingDegrees} °Blg</Text> (SG {meadCalc.initialSpecificGravity}) &rarr; {t('Docelowy alkohol:')} <Text style={styles.boldText}>~{meadCalc.expectedAbvPct}% ABV</Text>
+                      </Text>
+
+                      <Text style={styles.proCardDesc}>
+                        • {t('Okres leżakowania:')} <Text style={styles.boldText}>{meadCalc.expectedAgingYears.min}–{meadCalc.expectedAgingYears.max} {t('lat')}</Text>
+                      </Text>
+
+                      {meadCalc.isStepFeedingMandatory && (
+                        <View style={{ marginTop: 6, padding: 6, backgroundColor: '#FEF3C7', borderRadius: 6 }}>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#B45309' }}>
+                            ⚠️ {t('Wymagane partionowanie miodu (Step-Feeding):')}
+                          </Text>
+                          <Text style={{ fontSize: 11, color: '#92400E', marginTop: 2 }}>
+                            {t('Podziel')} {meadCalc.honeyLiters} L {t('miodu na')} {meadCalc.stepFeedingDosesLiters.length} {t('dawki:')} {meadCalc.stepFeedingDosesLiters.map((d, i) => `${i + 1}. doza: ${d}L`).join(', ')}
+                          </Text>
+                        </View>
+                      )}
+
+                      <Text style={[styles.recipeDetailText, { marginTop: 6 }]}>
+                        🍯 {meadCalc.preparationAdvicePl}
+                      </Text>
+
+                      {/* TOSNA 3.0 Nutrient schedule */}
+                      <View style={{ marginTop: 8, paddingTop: 6, borderTopWidth: 1, borderTopColor: '#E2E8F0' }}>
+                        <Text style={[styles.proCardTitle, { fontSize: 12 }]}>
+                          🧪 {t('Protokół Odżywczy TOSNA 3.0 (Fermaid O):')} {meadCalc.tosnaNutrientGramsTotal} g {t('łącznie')}
+                        </Text>
+                        {meadCalc.tosnaAdditionsSchedulePl.map((sch, idx) => (
+                          <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 2 }}>
+                            • {sch}
+                          </Text>
+                        ))}
+                      </View>
+
+                      {meadCalc.alertsPl.map((alert, idx) => (
+                        <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
+                          ⚠️ {alert}
+                        </Text>
+                      ))}
                     </View>
                   </View>
                 )}
