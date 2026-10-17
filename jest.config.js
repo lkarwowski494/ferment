@@ -10,4 +10,23 @@ module.exports = {
     '**/__tests__/**/*.test.[jt]s?(x)',
     '**/tests/**/*.test.[jt]s?(x)',
   ],
+  collectCoverageFrom: [
+    'src/core/**/*.ts',
+    'src/lib/**/*.ts',
+    '!src/core/domain/**',
+  ],
+  coverageThreshold: {
+    './src/core/': {
+      statements: 93,
+      branches: 83,
+      functions: 96,
+      lines: 95,
+    },
+    './src/lib/': {
+      statements: 70,
+      branches: 55,
+      functions: 80,
+      lines: 72,
+    },
+  },
 };
