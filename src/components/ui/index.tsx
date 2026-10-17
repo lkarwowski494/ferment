@@ -410,6 +410,47 @@ export const Missing: React.FC<MissingProps> = ({
 );
 
 // ==========================================
+// S4: DeletableRow (Accessible Swipe/Tap Delete)
+// ==========================================
+export interface DeletableRowProps {
+  title: string;
+  onDelete: () => void;
+  deleteLabel?: string;
+  testID?: string;
+  children?: React.ReactNode;
+}
+
+export const DeletableRow: React.FC<DeletableRowProps> = ({
+  title,
+  onDelete,
+  deleteLabel = 'Usuń',
+  testID = 'deletable-row',
+  children,
+}) => (
+  <View
+    testID={testID}
+    accessibilityRole="none"
+    accessibilityActions={[{ name: 'delete', label: deleteLabel }]}
+    onAccessibilityAction={(event) => {
+      if (event.nativeEvent?.actionName === 'delete') {
+        onDelete();
+      }
+    }}
+    style={styles.deletableRowContainer}
+  >
+    {children || <Text style={styles.deletableRowTitle}>{title}</Text>}
+    <TouchableOpacity
+      accessibilityRole="button"
+      accessibilityLabel={`${deleteLabel} ${title}`}
+      onPress={onDelete}
+      style={styles.deletableRowButton}
+    >
+      <Text style={styles.deletableRowButtonText}>{deleteLabel}</Text>
+    </TouchableOpacity>
+  </View>
+);
+
+// ==========================================
 // S7: Screen
 // ==========================================
 export interface ScreenProps {
@@ -503,6 +544,7 @@ const styles = StyleSheet.create({
   },
   btnBase: {
     minHeight: 44,
+    minWidth: 44,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -591,6 +633,7 @@ const styles = StyleSheet.create({
   },
   chipBase: {
     minHeight: 44,
+    minWidth: 44,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
@@ -684,5 +727,34 @@ const styles = StyleSheet.create({
   screenContent: {
     padding: 16,
     flexGrow: 1,
+  },
+  deletableRowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#1e293b',
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  deletableRowTitle: {
+    flex: 1,
+    color: '#f8fafc',
+    fontSize: 15,
+  },
+  deletableRowButton: {
+    minWidth: 44,
+    minHeight: 44,
+    backgroundColor: '#dc2626',
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+  deletableRowButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });

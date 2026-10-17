@@ -11,6 +11,9 @@ describe('S1 Close & Done Button Guard (tests/close-button-guard.test.tsx)', () 
 
     const btn = tree.root.findByProps({ accessibilityRole: 'button' });
     expect(btn.props.accessibilityLabel).toBe('Zamknij');
+    const flatStyle = Array.isArray(btn.props.style) ? Object.assign({}, ...btn.props.style) : btn.props.style || {};
+    expect(flatStyle.minHeight).toBeGreaterThanOrEqual(44);
+    expect(flatStyle.minWidth).toBeGreaterThanOrEqual(44);
   });
 
   it('DoneButton has minimum touch target >= 44pt and descriptive accessibilityLabel', () => {
@@ -21,5 +24,8 @@ describe('S1 Close & Done Button Guard (tests/close-button-guard.test.tsx)', () 
 
     const btn = tree.root.findByProps({ accessibilityRole: 'button' });
     expect(btn.props.accessibilityLabel).toBe('Gotowe');
+    const flatStyle = Array.isArray(btn.props.style) ? Object.assign({}, ...btn.props.style) : btn.props.style || {};
+    expect(flatStyle.minHeight).toBeGreaterThanOrEqual(44);
+    expect(flatStyle.minWidth).toBeGreaterThanOrEqual(44);
   });
 });
