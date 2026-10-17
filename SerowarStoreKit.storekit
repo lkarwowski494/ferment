@@ -1,0 +1,100 @@
+{
+  "identifier" : "E2B84D3C-8A9F-4D21-B2C4-9A0B5C1D2E3F",
+  "nonRenewingSubscriptions" : [ ],
+  "products" : [
+    {
+      "displayPrice" : "14.99",
+      "familyShareable" : true,
+      "internalID" : "SEROWAR_PRO_LIFETIME_01",
+      "localizations" : [
+        {
+          "description" : "Dożywotni nielimitowany dostęp do SEROWAR PRO",
+          "displayName" : "SEROWAR PRO Dożywotni",
+          "locale" : "pl"
+        },
+        {
+          "description" : "Lifetime unlimited access to SEROWAR PRO",
+          "displayName" : "SEROWAR PRO Lifetime",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.apps4brew.serowar.lifetime",
+      "referenceName" : "SEROWAR Lifetime Non-Consumable",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "pl",
+    "_storefront" : "POL"
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "SEROWAR_SUBSCRIPTIONS_GROUP",
+      "localizations" : [ ],
+      "name" : "SEROWAR Pro Subscriptions",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [ ],
+          "codeOffers" : [ ],
+          "displayPrice" : "0.99",
+          "familyShareable" : true,
+          "groupNumber" : 2,
+          "internalID" : "SEROWAR_SUB_MONTHLY_01",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Miesięczny dostęp do SEROWAR PRO",
+              "displayName" : "SEROWAR PRO Miesięczny",
+              "locale" : "pl"
+            },
+            {
+              "description" : "Monthly access to SEROWAR PRO",
+              "displayName" : "SEROWAR PRO Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.apps4brew.serowar.sub.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Monthly Recurring Subscription",
+          "subscriptionGroupID" : "SEROWAR_SUBSCRIPTIONS_GROUP",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [ ],
+          "codeOffers" : [ ],
+          "displayPrice" : "4.99",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "SEROWAR_SUB_ANNUAL_01",
+          "introductoryOffer" : {
+            "internalID" : "SEROWAR_TRIAL_14D",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P14D"
+          },
+          "localizations" : [
+            {
+              "description" : "Roczny dostęp do SEROWAR PRO z 14-dniowym okresem próbnym",
+              "displayName" : "SEROWAR PRO Roczny",
+              "locale" : "pl"
+            },
+            {
+              "description" : "Annual access to SEROWAR PRO with 14-day trial",
+              "displayName" : "SEROWAR PRO Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.apps4brew.serowar.sub.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Annual Recurring Subscription",
+          "subscriptionGroupID" : "SEROWAR_SUBSCRIPTIONS_GROUP",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
