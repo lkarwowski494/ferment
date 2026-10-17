@@ -3,6 +3,7 @@
  * scripts/patch-expo-modules-jsi.mjs
  * Patches expo-modules-jsi/apple/Package.swift to use swift-tools-version: 6.0
  * aligning with Xcode 16.0..16.2 on macOS CI runners and podspec s.swift_version = '6.0'.
+ * Removes Swift 6.2-specific upcoming features and trailing commas before ')' which are invalid in Swift 6.0.
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -31,8 +32,14 @@ if (existsSync(pkgPath)) {
     changed = true;
   }
 
+  // Remove trailing commas before closing parentheses (invalid syntax in Swift < 6.2)
+  if (/,([ \t\r\n]*\))/.test(content)) {
+    content = content.replace(/,([ \t\r\n]*\))/g, '$1');
+    changed = true;
+  }
+
   if (changed) {
     writeFileSync(pkgPath, content, 'utf8');
-    console.log('[patch-expo-modules-jsi] Pomyślnie spatchowano Package.swift do swift-tools-version: 6.0 dla Xcode 16.');
+    console.log('[patch-expo-modules-jsi] Pomyślnie spatchowano Package.swift (swift-tools-version: 6.0 + usunięcie trailing commas) dla Xcode 16.');
   }
 }
