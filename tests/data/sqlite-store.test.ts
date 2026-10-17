@@ -22,8 +22,29 @@ import {
   getAppSetting,
   setAppSetting,
   _resetMemStore,
+  saveCurdDetails,
+  getCurdDetails,
+  saveButterDetails,
+  getButterDetails,
+  saveFermentedMilkDetails,
+  getFermentedMilkDetails,
+  saveWheyProductDetails,
+  getWheyProductDetails,
+  logWheelWeight,
+  getWheelWeights,
 } from '../../src/data/sqlite-store';
-import { Batch, CaveCheeseWheel, PantryItem, CaveActionLog, SensoryEvaluation } from '../../src/data/db';
+import {
+  Batch,
+  CaveCheeseWheel,
+  PantryItem,
+  CaveActionLog,
+  SensoryEvaluation,
+  CurdBatchDetails,
+  ButterChurnDetails,
+  FermentedMilkDetails,
+  WheyProductDetails,
+  WheelWeightLog,
+} from '../../src/data/db';
 
 describe('FERMENT SQLite Store & Persistence (Faza 1)', () => {
   beforeEach(async () => {
@@ -199,4 +220,107 @@ describe('FERMENT SQLite Store & Persistence (Faza 1)', () => {
     pantry = await getPantry();
     expect(pantry.find((p) => p.id === 'pantry_dep_test')?.quantityAvailable).toBe(700);
   });
+
+  it('manages dairy craft details: curd, butter, fermented milk, whey product and wheel weights', async () => {
+    // 1. Curd details
+    const curd: CurdBatchDetails = {
+      batchId: 'batch_twarog_01',
+      acidificationMethod: 'MESOPHILIC_DVI',
+      milkVolumeLiters: 10,
+      measuredPh: 4.6,
+      heatingTempC: 38,
+      drainDurationMinutes: 120,
+      pressedWeightKg: 2.0,
+      finalCurdWeightGrams: 1450,
+    };
+    await saveCurdDetails(curd);
+    const loadedCurd = await getCurdDetails('batch_twarog_01');
+    expect(loadedCurd).toBeDefined();
+    expect(loadedCurd?.measuredPh).toBe(4.6);
+    expect(loadedCurd?.finalCurdWeightGrams).toBe(1450);
+
+    // 2. Butter churn details
+    const butter: ButterChurnDetails = {
+      batchId: 'batch_butter_01',
+      creamFatPct: 36,
+      creamVolumeLiters: 5,
+      creamTemperatureC: 12,
+      creamType: 'CULTURED',
+      churnDurationMinutes: 18,
+      washCyclesCount: 3,
+      butterYieldGrams: 2100,
+      buttermilkYieldMl: 2800,
+      gheeYieldGrams: 1750,
+    };
+    await saveButterDetails(butter);
+    const loadedButter = await getButterDetails('batch_butter_01');
+    expect(loadedButter).toBeDefined();
+    expect(loadedButter?.butterYieldGrams).toBe(2100);
+    expect(loadedButter?.creamType).toBe('CULTURED');
+
+    // 3. Fermented milk details
+    const milk: FermentedMilkDetails = {
+      batchId: 'batch_kefir_01',
+      cultureType: 'KEFIR_GRAINS',
+      incubationTempC: 22,
+      incubationDurationHours: 24,
+      targetPh: 4.4,
+    };
+    await saveFermentedMilkDetails(milk);
+    const loadedMilk = await getFermentedMilkDetails('batch_kefir_01');
+    expect(loadedMilk).toBeDefined();
+    expect(loadedMilk?.cultureType).toBe('KEFIR_GRAINS');
+
+    // 4. Whey product details
+    const whey: WheyProductDetails = {
+      batchId: 'batch_ricotta_01',
+      sourceBatchId: 'batch_gouda_01',
+      wheyType: 'SWEET_RENNET',
+      wheyVolumeLiters: 18,
+      wholeMilkAddedLiters: 2,
+      creamAddedLiters: 0.5,
+      heatingTempC: 88,
+      productType: 'RICOTTA',
+      finalYieldGrams: 920,
+    };
+    await saveWheyProductDetails(whey);
+    const loadedWhey = await getWheyProductDetails('batch_ricotta_01');
+    expect(loadedWhey).toBeDefined();
+    expect(loadedWhey?.productType).toBe('RICOTTA');
+    expect(loadedWhey?.heatingTempC).toBe(88);
+
+    // 5. Wheel weight logs
+    const wheel: CaveCheeseWheel = {
+      id: 'wheel_dyn_01',
+      batchId: 'batch_gouda_01',
+      wheelTag: 'W-DYN-01',
+      locationInCave: 'Półka B1',
+      initialWeightGrams: 2500,
+      currentWeightGrams: 2500,
+      rindType: 'NATURAL',
+      targetAgingDays: 90,
+      shrinkagePct: 0.0,
+    };
+    await saveCaveWheel(wheel);
+
+    const weightLog: WheelWeightLog = {
+      id: 'wlog_01',
+      wheelId: 'wheel_dyn_01',
+      weightGrams: 2350,
+      shrinkagePct: 6.0,
+      loggedAt: Date.now(),
+      notes: 'Pomiar po 14 dniach',
+    };
+    await logWheelWeight(weightLog);
+
+    const weights = await getWheelWeights('wheel_dyn_01');
+    expect(weights).toHaveLength(1);
+    expect(weights[0].weightGrams).toBe(2350);
+
+    const wheels = await getCaveWheels();
+    const updatedWheel = wheels.find((w) => w.id === 'wheel_dyn_01');
+    expect(updatedWheel?.currentWeightGrams).toBe(2350);
+    expect(updatedWheel?.shrinkagePct).toBe(6.0);
+  });
 });
+

@@ -19,6 +19,12 @@ import {
   CaveActionLog,
   StoredAppAccess,
   SubscriptionTier,
+  CurdBatchDetails,
+  ButterChurnDetails,
+  FermentedMilkDetails,
+  WheyProductDetails,
+  WheelWeightLog,
+  PendingOp,
 } from './db';
 
 const DB_NAME = 'ferment.db';
@@ -33,6 +39,12 @@ let memBriningLogs: Map<string, BriningLog> = new Map();
 let memCaveWheels: CaveCheeseWheel[] = [];
 let memCaveActions: CaveActionLog[] = [];
 let memEnvLogs: CaveEnvironmentLog[] = [];
+let memCurdDetails: Map<string, CurdBatchDetails> = new Map();
+let memButterDetails: Map<string, ButterChurnDetails> = new Map();
+let memFermentedMilkDetails: Map<string, FermentedMilkDetails> = new Map();
+let memWheyProductDetails: Map<string, WheyProductDetails> = new Map();
+let memWheelWeightLogs: Map<string, WheelWeightLog[]> = new Map();
+let memPendingOps: PendingOp[] = [];
 let memVegDetails: Map<string, VegFermentDetails> = new Map();
 let memBeverageDetails: Map<string, SymbioticBeverageDetails> = new Map();
 let memPantry: PantryItem[] = [];
@@ -55,6 +67,12 @@ export function _resetMemStore(): void {
   memCaveWheels = [];
   memCaveActions = [];
   memEnvLogs = [];
+  memCurdDetails = new Map();
+  memButterDetails = new Map();
+  memFermentedMilkDetails = new Map();
+  memWheyProductDetails = new Map();
+  memWheelWeightLogs = new Map();
+  memPendingOps = [];
   memVegDetails = new Map();
   memBeverageDetails = new Map();
   memPantry = [];
@@ -100,7 +118,7 @@ export async function initDatabase(): Promise<void> {
         CREATE TABLE IF NOT EXISTS batches (
           id TEXT PRIMARY KEY NOT NULL,
           batch_number TEXT UNIQUE NOT NULL,
-          category TEXT NOT NULL CHECK(category IN ('CHEESE', 'VEG_FERMENT', 'KIMCHI', 'KOMBUCHA', 'VINEGAR')),
+          category TEXT NOT NULL CHECK(category IN ('CHEESE', 'HARD_CHEESE', 'SOFT_CHEESE', 'FRESH_CURD', 'BUTTER_GHEE', 'FERMENTED_MILK', 'WHEY_PRODUCT', 'VEG_FERMENT', 'KIMCHI', 'KOMBUCHA', 'VINEGAR')),
           style_name TEXT NOT NULL,
           created_at INTEGER NOT NULL,
           status TEXT NOT NULL CHECK(status IN ('PREPARING', 'COAGULATING', 'PRESSING', 'BRINING', 'AGING', 'COMPLETED', 'DISCARDED')),
@@ -173,6 +191,15 @@ export async function initDatabase(): Promise<void> {
           notes TEXT
         );
 
+        CREATE TABLE IF NOT EXISTS wheel_weight_logs (
+          id TEXT PRIMARY KEY NOT NULL,
+          wheel_id TEXT NOT NULL REFERENCES cave_cheese_wheels(id) ON DELETE CASCADE,
+          weight_grams REAL NOT NULL,
+          shrinkage_pct REAL NOT NULL,
+          logged_at INTEGER NOT NULL,
+          notes TEXT
+        );
+
         CREATE TABLE IF NOT EXISTS cave_environment_logs (
           id TEXT PRIMARY KEY NOT NULL,
           timestamp INTEGER NOT NULL,
@@ -180,6 +207,59 @@ export async function initDatabase(): Promise<void> {
           humidity_rh_pct REAL NOT NULL,
           dew_point_c REAL NOT NULL,
           sensor_source TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS curd_batch_details (
+          batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+          acidification_method TEXT NOT NULL,
+          milk_volume_liters REAL NOT NULL,
+          measured_ph REAL,
+          heating_temp_c REAL NOT NULL,
+          drain_duration_minutes INTEGER NOT NULL,
+          pressed_weight_kg REAL,
+          final_curd_weight_grams REAL
+        );
+
+        CREATE TABLE IF NOT EXISTS butter_churn_details (
+          batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+          cream_fat_pct REAL NOT NULL,
+          cream_volume_liters REAL NOT NULL,
+          cream_temperature_c REAL NOT NULL,
+          cream_type TEXT NOT NULL,
+          churn_duration_minutes INTEGER,
+          wash_cycles_count INTEGER NOT NULL DEFAULT 3,
+          butter_yield_grams REAL,
+          buttermilk_yield_ml REAL,
+          ghee_yield_grams REAL
+        );
+
+        CREATE TABLE IF NOT EXISTS fermented_milk_details (
+          batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+          culture_type TEXT NOT NULL,
+          incubation_temp_c REAL NOT NULL,
+          incubation_duration_hours REAL NOT NULL,
+          target_ph REAL DEFAULT 4.5,
+          strained_greek_yield_grams REAL
+        );
+
+        CREATE TABLE IF NOT EXISTS whey_product_details (
+          batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+          source_batch_id TEXT,
+          whey_type TEXT NOT NULL,
+          whey_volume_liters REAL NOT NULL,
+          whole_milk_added_liters REAL DEFAULT 0.0,
+          cream_added_liters REAL DEFAULT 0.0,
+          heating_temp_c REAL NOT NULL,
+          product_type TEXT NOT NULL,
+          final_yield_grams REAL
+        );
+
+        CREATE TABLE IF NOT EXISTS pending_ops (
+          id TEXT PRIMARY KEY NOT NULL,
+          op_type TEXT NOT NULL,
+          payload TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          status TEXT NOT NULL DEFAULT 'PENDING'
         );
 
         CREATE TABLE IF NOT EXISTS veg_ferment_details (
@@ -232,6 +312,15 @@ export async function initDatabase(): Promise<void> {
           nuttiness INTEGER,
           tasting_notes TEXT
         );
+
+        CREATE INDEX IF NOT EXISTS idx_batches_category ON batches(category, status);
+        CREATE INDEX IF NOT EXISTS idx_pressing_stages_batch ON pressing_stages(batch_id);
+        CREATE INDEX IF NOT EXISTS idx_cave_wheels_batch ON cave_cheese_wheels(batch_id);
+        CREATE INDEX IF NOT EXISTS idx_cave_actions_wheel ON cave_action_logs(wheel_id);
+        CREATE INDEX IF NOT EXISTS idx_wheel_weights_wheel ON wheel_weight_logs(wheel_id);
+        CREATE INDEX IF NOT EXISTS idx_pantry_category ON pantry_inventory(category);
+        CREATE INDEX IF NOT EXISTS idx_sensory_batch ON sensory_evaluations(batch_id);
+        CREATE INDEX IF NOT EXISTS idx_pending_ops_status ON pending_ops(status);
       `);
     } catch {
       // Ignore DDL errors in fallback environments
@@ -786,6 +875,277 @@ export async function deleteCaveWheel(wheelId: string): Promise<void> {
     }
   }
   memCaveWheels = memCaveWheels.filter((w) => w.id !== wheelId);
+}
+
+export async function getCurdDetails(batchId: string): Promise<CurdBatchDetails | null> {
+  const db = await getDb();
+  if (db) {
+    try {
+      const row = await db.getFirstAsync<any>(
+        'SELECT * FROM curd_batch_details WHERE batch_id = ?',
+        [batchId]
+      );
+      if (row) {
+        return {
+          batchId: row.batch_id,
+          acidificationMethod: row.acidification_method,
+          milkVolumeLiters: row.milk_volume_liters,
+          measuredPh: row.measured_ph ?? undefined,
+          heatingTempC: row.heating_temp_c,
+          drainDurationMinutes: row.drain_duration_minutes,
+          pressedWeightKg: row.pressed_weight_kg ?? undefined,
+          finalCurdWeightGrams: row.final_curd_weight_grams ?? undefined,
+        };
+      }
+    } catch {
+      // Fallback to mem store
+    }
+  }
+  return memCurdDetails.get(batchId) || null;
+}
+
+export async function saveCurdDetails(curd: CurdBatchDetails): Promise<void> {
+  const db = await getDb();
+  if (db) {
+    try {
+      await db.runAsync(
+        `INSERT OR REPLACE INTO curd_batch_details
+         (batch_id, acidification_method, milk_volume_liters, measured_ph, heating_temp_c, drain_duration_minutes, pressed_weight_kg, final_curd_weight_grams)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          curd.batchId,
+          curd.acidificationMethod,
+          curd.milkVolumeLiters,
+          curd.measuredPh ?? null,
+          curd.heatingTempC,
+          curd.drainDurationMinutes,
+          curd.pressedWeightKg ?? null,
+          curd.finalCurdWeightGrams ?? null,
+        ]
+      );
+      return;
+    } catch {
+      // Fallback
+    }
+  }
+  memCurdDetails.set(curd.batchId, curd);
+}
+
+export async function getButterDetails(batchId: string): Promise<ButterChurnDetails | null> {
+  const db = await getDb();
+  if (db) {
+    try {
+      const row = await db.getFirstAsync<any>(
+        'SELECT * FROM butter_churn_details WHERE batch_id = ?',
+        [batchId]
+      );
+      if (row) {
+        return {
+          batchId: row.batch_id,
+          creamFatPct: row.cream_fat_pct,
+          creamVolumeLiters: row.cream_volume_liters,
+          creamTemperatureC: row.cream_temperature_c,
+          creamType: row.cream_type,
+          churnDurationMinutes: row.churn_duration_minutes ?? undefined,
+          washCyclesCount: row.wash_cycles_count,
+          butterYieldGrams: row.butter_yield_grams ?? undefined,
+          buttermilkYieldMl: row.buttermilk_yield_ml ?? undefined,
+          gheeYieldGrams: row.ghee_yield_grams ?? undefined,
+        };
+      }
+    } catch {
+      // Fallback
+    }
+  }
+  return memButterDetails.get(batchId) || null;
+}
+
+export async function saveButterDetails(butter: ButterChurnDetails): Promise<void> {
+  const db = await getDb();
+  if (db) {
+    try {
+      await db.runAsync(
+        `INSERT OR REPLACE INTO butter_churn_details
+         (batch_id, cream_fat_pct, cream_volume_liters, cream_temperature_c, cream_type, churn_duration_minutes, wash_cycles_count, butter_yield_grams, buttermilk_yield_ml, ghee_yield_grams)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          butter.batchId,
+          butter.creamFatPct,
+          butter.creamVolumeLiters,
+          butter.creamTemperatureC,
+          butter.creamType,
+          butter.churnDurationMinutes ?? null,
+          butter.washCyclesCount,
+          butter.butterYieldGrams ?? null,
+          butter.buttermilkYieldMl ?? null,
+          butter.gheeYieldGrams ?? null,
+        ]
+      );
+      return;
+    } catch {
+      // Fallback
+    }
+  }
+  memButterDetails.set(butter.batchId, butter);
+}
+
+export async function getFermentedMilkDetails(batchId: string): Promise<FermentedMilkDetails | null> {
+  const db = await getDb();
+  if (db) {
+    try {
+      const row = await db.getFirstAsync<any>(
+        'SELECT * FROM fermented_milk_details WHERE batch_id = ?',
+        [batchId]
+      );
+      if (row) {
+        return {
+          batchId: row.batch_id,
+          cultureType: row.culture_type,
+          incubationTempC: row.incubation_temp_c,
+          incubationDurationHours: row.incubation_duration_hours,
+          targetPh: row.target_ph,
+          strainedGreekYieldGrams: row.strained_greek_yield_grams ?? undefined,
+        };
+      }
+    } catch {
+      // Fallback
+    }
+  }
+  return memFermentedMilkDetails.get(batchId) || null;
+}
+
+export async function saveFermentedMilkDetails(milk: FermentedMilkDetails): Promise<void> {
+  const db = await getDb();
+  if (db) {
+    try {
+      await db.runAsync(
+        `INSERT OR REPLACE INTO fermented_milk_details
+         (batch_id, culture_type, incubation_temp_c, incubation_duration_hours, target_ph, strained_greek_yield_grams)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+          milk.batchId,
+          milk.cultureType,
+          milk.incubationTempC,
+          milk.incubationDurationHours,
+          milk.targetPh,
+          milk.strainedGreekYieldGrams ?? null,
+        ]
+      );
+      return;
+    } catch {
+      // Fallback
+    }
+  }
+  memFermentedMilkDetails.set(milk.batchId, milk);
+}
+
+export async function getWheyProductDetails(batchId: string): Promise<WheyProductDetails | null> {
+  const db = await getDb();
+  if (db) {
+    try {
+      const row = await db.getFirstAsync<any>(
+        'SELECT * FROM whey_product_details WHERE batch_id = ?',
+        [batchId]
+      );
+      if (row) {
+        return {
+          batchId: row.batch_id,
+          sourceBatchId: row.source_batch_id ?? undefined,
+          wheyType: row.whey_type,
+          wheyVolumeLiters: row.whey_volume_liters,
+          wholeMilkAddedLiters: row.whole_milk_added_liters,
+          creamAddedLiters: row.cream_added_liters,
+          heatingTempC: row.heating_temp_c,
+          productType: row.product_type,
+          finalYieldGrams: row.final_yield_grams ?? undefined,
+        };
+      }
+    } catch {
+      // Fallback
+    }
+  }
+  return memWheyProductDetails.get(batchId) || null;
+}
+
+export async function saveWheyProductDetails(whey: WheyProductDetails): Promise<void> {
+  const db = await getDb();
+  if (db) {
+    try {
+      await db.runAsync(
+        `INSERT OR REPLACE INTO whey_product_details
+         (batch_id, source_batch_id, whey_type, whey_volume_liters, whole_milk_added_liters, cream_added_liters, heating_temp_c, product_type, final_yield_grams)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          whey.batchId,
+          whey.sourceBatchId ?? null,
+          whey.wheyType,
+          whey.wheyVolumeLiters,
+          whey.wholeMilkAddedLiters,
+          whey.creamAddedLiters,
+          whey.heatingTempC,
+          whey.productType,
+          whey.finalYieldGrams ?? null,
+        ]
+      );
+      return;
+    } catch {
+      // Fallback
+    }
+  }
+  memWheyProductDetails.set(whey.batchId, whey);
+}
+
+export async function logWheelWeight(log: WheelWeightLog): Promise<void> {
+  const db = await getDb();
+  if (db) {
+    try {
+      await db.runAsync(
+        `INSERT INTO wheel_weight_logs (id, wheel_id, weight_grams, shrinkage_pct, logged_at, notes)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [log.id, log.wheelId, log.weightGrams, log.shrinkagePct, log.loggedAt, log.notes ?? null]
+      );
+      await db.runAsync(
+        `UPDATE cave_cheese_wheels
+         SET current_weight_grams = ?, shrinkage_pct = ?
+         WHERE id = ?`,
+        [log.weightGrams, log.shrinkagePct, log.wheelId]
+      );
+      return;
+    } catch {
+      // Fallback
+    }
+  }
+  const existing = memWheelWeightLogs.get(log.wheelId) || [];
+  existing.push(log);
+  memWheelWeightLogs.set(log.wheelId, existing);
+  const wheel = memCaveWheels.find((w) => w.id === log.wheelId);
+  if (wheel) {
+    wheel.currentWeightGrams = log.weightGrams;
+    wheel.shrinkagePct = log.shrinkagePct;
+  }
+}
+
+export async function getWheelWeights(wheelId: string): Promise<WheelWeightLog[]> {
+  const db = await getDb();
+  if (db) {
+    try {
+      const rows = await db.getAllAsync<any>(
+        'SELECT * FROM wheel_weight_logs WHERE wheel_id = ? ORDER BY logged_at ASC',
+        [wheelId]
+      );
+      return rows.map((r) => ({
+        id: r.id,
+        wheelId: r.wheel_id,
+        weightGrams: r.weight_grams,
+        shrinkagePct: r.shrinkage_pct,
+        loggedAt: r.logged_at,
+        notes: r.notes ?? undefined,
+      }));
+    } catch {
+      // Fallback
+    }
+  }
+  return memWheelWeightLogs.get(wheelId) || [];
 }
 
 export interface AppSettings {

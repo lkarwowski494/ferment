@@ -55,6 +55,21 @@ import { CraftProcessType } from '../src/core/reverse-scheduler';
 import { LegumeType, TempehPhase } from '../src/core/tempeh-kinetics';
 import { WheyLevainType, LevainRipenessStatus, GenerationVitalityStatus } from '../src/core/whey-levain-engine';
 import { AccessStatus, TRIAL_DURATION_DAYS } from '../src/lib/app-access';
+import {
+  DairyCategory,
+  DairyBatchStatus,
+  MilkSpecies,
+  MilkHeatTreatment,
+  CheeseRindType,
+  CaveWheelStatus,
+  CaveAction,
+  AcidificationMethod,
+  CreamType,
+  FermentedMilkCulture,
+  WheyProductType,
+  DairyPantryCategory,
+  SubscriptionTier,
+} from '../src/core/domain/types';
 
 describe('AST Matrix Dimensions (WYMIAR) and Logic Coverage (BR-TEST-028..030)', () => {
   it('covers missing logic functions', async () => {
@@ -184,6 +199,20 @@ describe('AST Matrix Dimensions (WYMIAR) and Logic Coverage (BR-TEST-028..030)',
     const accessStatus: AccessStatus = 'trial_active';
     const unitSystem: UnitSystem = 'metric';
 
+    const dairyCategory: DairyCategory = 'HARD_CHEESE';
+    const dairyBatchStatus: DairyBatchStatus = 'PREPARING';
+    const milkSpeciesEnum: MilkSpecies = 'COW';
+    const milkHeatTreatment: MilkHeatTreatment = 'RAW';
+    const cheeseRindType: CheeseRindType = 'NATURAL';
+    const caveWheelStatus: CaveWheelStatus = 'ACTIVE_AFFINAGE';
+    const caveActionEnum: CaveAction = 'TURN';
+    const acidificationMethod: AcidificationMethod = 'MESOPHILIC_DVI';
+    const creamType: CreamType = 'SWEET';
+    const fermentedMilkCulture: FermentedMilkCulture = 'YOGURT_THERMOPHILIC';
+    const wheyProductType: WheyProductType = 'RICOTTA';
+    const dairyPantryCategory: DairyPantryCategory = 'MILK';
+    const subscriptionTier: SubscriptionTier = 'yearly';
+
     expect([
       craftType, bgPhase, bgDev, bgAlert, botSrc, garlicPrep, hydroTemp, brineKey,
       caveType, affAction, caveAction, firmness, fatClass, saltMoisture, teaBase, weightMat,
@@ -192,7 +221,10 @@ describe('AST Matrix Dimensions (WYMIAR) and Logic Coverage (BR-TEST-028..030)',
       carbonationStage, calibSalt, sensorGrade, kefirMedium, kefirHib, kojiProd,
       kojiMoist, kombuchaBottle, meadGrade, meadPrep, milkSpecies, moldShape, nukaAge,
       nukaVeg, pasteurCat, qrType, craftProc, legume, tempehPhase, wheyLevain,
-      levainRipeness, genVitality, accessStatus, unitSystem
-    ].length).toBeGreaterThan(40);
+      levainRipeness, genVitality, accessStatus, unitSystem,
+      dairyCategory, dairyBatchStatus, milkSpeciesEnum, milkHeatTreatment, cheeseRindType,
+      caveWheelStatus, caveActionEnum, acidificationMethod, creamType, fermentedMilkCulture,
+      wheyProductType, dairyPantryCategory, subscriptionTier
+    ].length).toBeGreaterThan(50);
   });
 });

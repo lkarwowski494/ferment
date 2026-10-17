@@ -11,9 +11,9 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | **UI** | 26 | 26 | **100.0%** | ✅ POKRYTE |
 | **TEKST** | 845 | 845 | **100.0%** | ✅ POKRYTE |
 | **LOGIKA** | 179 | 179 | **100.0%** | ✅ POKRYTE |
-| **WYMIAR** | 79 | 79 | **100.0%** | ✅ POKRYTE |
+| **WYMIAR** | 92 | 92 | **100.0%** | ✅ POKRYTE |
 
-Łącznie elementów: **1134** | Pokrytych: **1134** | Brakujących: **0**
+Łącznie elementów: **1147** | Pokrytych: **1147** | Brakujących: **0**
 
 ## Szczegółowa Lista Elementów
 
@@ -92,7 +92,7 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Data nastawienia:` | `app/(tabs)/batches.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Zmień status:` | `app/(tabs)/batches.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Harmonogram:` | `app/(tabs)/batches.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `dni` | `app/(tabs)/batches.tsx` | ✅ | tests/core/brine-diffusion.test.ts, tests/lib/csv-export.test.ts |
+| `TEKST` | `dni` | `app/(tabs)/batches.tsx` | ✅ | tests/core/brine-diffusion.test.ts, tests/data/sqlite-store.test.ts |
 | `TEKST` | `tempo` | `app/(tabs)/batches.tsx` | ✅ | tests/core/fermentation-timeline.test.ts, tests/matrix-translations.test.ts |
 | `TEKST` | `Odgazowanie 1-` | `app/(tabs)/batches.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `d` | `app/(tabs)/batches.tsx` | ✅ | tests/access/app-access.test.ts, tests/audit-fixes.test.tsx |
@@ -320,4 +320,4 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `UI` | `Przywrócono` | `app/(tabs)/settings.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `UI` | `Zakup został pomyślnie przywrócony!` | `app/(tabs)/settings.tsx` | ✅ | tests/matrix-translations.test.ts |
 
-*(... i 834 kolejnych elementów w pełnym wykazie)*
+*(... i 847 kolejnych elementów w pełnym wykazie)*

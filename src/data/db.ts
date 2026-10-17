@@ -2,7 +2,18 @@
 // Apps4Brew Studio — FERMENT Data Model & Database Schemas
 // ============================================================================
 
-export type BatchCategory = 'CHEESE' | 'VEG_FERMENT' | 'KIMCHI' | 'KOMBUCHA' | 'VINEGAR';
+export type BatchCategory =
+  | 'CHEESE'
+  | 'HARD_CHEESE'
+  | 'SOFT_CHEESE'
+  | 'FRESH_CURD'
+  | 'BUTTER_GHEE'
+  | 'FERMENTED_MILK'
+  | 'WHEY_PRODUCT'
+  | 'VEG_FERMENT'
+  | 'KIMCHI'
+  | 'KOMBUCHA'
+  | 'VINEGAR';
 
 export type BatchStatus =
   | 'PREPARING'
@@ -31,7 +42,16 @@ export type SaltingMethod = 'TOTAL_MASS_BRINE' | 'DRY_SALTING_CABBAGE' | 'LIQUID
 
 export type BeveragePhase = '1F_AEROBIC' | '2F_BOTTLE_PRESSURE' | 'ACETIC_OXIDATION';
 
-export type PantryCategory = 'MILK' | 'CULTURE' | 'RENNET' | 'SALT' | 'MINERAL' | 'TEA' | 'SUGAR';
+export type PantryCategory =
+  | 'MILK'
+  | 'CREAM'
+  | 'CULTURE'
+  | 'RENNET'
+  | 'SALT'
+  | 'MINERAL'
+  | 'HERB'
+  | 'TEA'
+  | 'SUGAR';
 
 export type SubscriptionTier = 'none' | 'monthly' | 'yearly' | 'lifetime';
 
@@ -200,3 +220,66 @@ export interface AppSetting {
   key: string;
   value: string;
 }
+
+export interface CurdBatchDetails {
+  batchId: string;
+  acidificationMethod: 'NATURAL_SOURED' | 'MESOPHILIC_DVI' | 'CITRIC_ACID' | 'ACID_WHEY';
+  milkVolumeLiters: number;
+  measuredPh?: number;
+  heatingTempC: number;
+  drainDurationMinutes: number;
+  pressedWeightKg?: number;
+  finalCurdWeightGrams?: number;
+}
+
+export interface ButterChurnDetails {
+  batchId: string;
+  creamFatPct: number;
+  creamVolumeLiters: number;
+  creamTemperatureC: number;
+  creamType: 'SWEET' | 'CULTURED';
+  churnDurationMinutes?: number;
+  washCyclesCount: number;
+  butterYieldGrams?: number;
+  buttermilkYieldMl?: number;
+  gheeYieldGrams?: number;
+}
+
+export interface FermentedMilkDetails {
+  batchId: string;
+  cultureType: 'YOGURT_THERMOPHILIC' | 'KEFIR_GRAINS' | 'BUTTERMILK_MESOPHILIC';
+  incubationTempC: number;
+  incubationDurationHours: number;
+  targetPh: number;
+  strainedGreekYieldGrams?: number;
+}
+
+export interface WheyProductDetails {
+  batchId: string;
+  sourceBatchId?: string;
+  wheyType: 'SWEET_RENNET' | 'ACID_CURD';
+  wheyVolumeLiters: number;
+  wholeMilkAddedLiters: number;
+  creamAddedLiters: number;
+  heatingTempC: number;
+  productType: 'RICOTTA' | 'BRUNOST_MYSOST';
+  finalYieldGrams?: number;
+}
+
+export interface WheelWeightLog {
+  id: string;
+  wheelId: string;
+  weightGrams: number;
+  shrinkagePct: number;
+  loggedAt: number;
+  notes?: string;
+}
+
+export interface PendingOp {
+  id: string;
+  opType: string;
+  payload: string;
+  createdAt: number;
+  status: 'PENDING' | 'PROCESSED' | 'FAILED';
+}
+
