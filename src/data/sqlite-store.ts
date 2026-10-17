@@ -102,226 +102,228 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase | null> {
   }
 }
 
+export const FERMENT_SQL_DDL = `
+  PRAGMA journal_mode = WAL;
+  PRAGMA foreign_keys = ON;
+
+  CREATE TABLE IF NOT EXISTS app_settings (
+    key TEXT PRIMARY KEY NOT NULL,
+    value TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS batches (
+    id TEXT PRIMARY KEY NOT NULL,
+    batch_number TEXT UNIQUE NOT NULL,
+    category TEXT NOT NULL CHECK(category IN ('CHEESE', 'HARD_CHEESE', 'SOFT_CHEESE', 'FRESH_CURD', 'BUTTER_GHEE', 'FERMENTED_MILK', 'WHEY_PRODUCT', 'VEG_FERMENT', 'KIMCHI', 'KOMBUCHA', 'VINEGAR')),
+    style_name TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('PREPARING', 'COAGULATING', 'PRESSING', 'BRINING', 'AGING', 'COMPLETED', 'DISCARDED')),
+    notes TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS cheese_batch_details (
+    batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+    milk_type TEXT NOT NULL,
+    milk_treatment TEXT NOT NULL,
+    milk_volume_liters REAL NOT NULL,
+    cacl2_added_grams REAL DEFAULT 0.0,
+    rennet_type TEXT NOT NULL,
+    rennet_imcu_per_ml REAL NOT NULL,
+    rennet_volume_ml REAL NOT NULL,
+    flocculation_seconds INTEGER,
+    flocculation_multiplier REAL,
+    target_cut_seconds INTEGER,
+    curd_size_target TEXT,
+    cooking_target_temp_c REAL,
+    cooking_duration_minutes INTEGER,
+    whey_washed_liters REAL DEFAULT 0.0
+  );
+
+  CREATE TABLE IF NOT EXISTS pressing_stages (
+    id TEXT PRIMARY KEY NOT NULL,
+    batch_id TEXT NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+    stage_order INTEGER NOT NULL,
+    target_pressure_kg_cm2 REAL NOT NULL,
+    weight_applied_kg REAL NOT NULL,
+    duration_minutes INTEGER NOT NULL,
+    turned_and_flipped INTEGER NOT NULL DEFAULT 0,
+    completed_at INTEGER
+  );
+
+  CREATE TABLE IF NOT EXISTS brining_logs (
+    batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+    brine_salinity_pct REAL NOT NULL,
+    brine_ph REAL NOT NULL,
+    cacl2_in_brine_pct REAL NOT NULL,
+    started_at INTEGER NOT NULL,
+    planned_duration_hours REAL NOT NULL,
+    turned_in_brine INTEGER NOT NULL DEFAULT 0,
+    completed_at INTEGER
+  );
+
+  CREATE TABLE IF NOT EXISTS cave_cheese_wheels (
+    id TEXT PRIMARY KEY NOT NULL,
+    batch_id TEXT NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+    wheel_tag TEXT UNIQUE NOT NULL,
+    location_in_cave TEXT NOT NULL,
+    initial_weight_grams REAL NOT NULL,
+    current_weight_grams REAL NOT NULL,
+    rind_type TEXT NOT NULL,
+    target_aging_days INTEGER NOT NULL,
+    last_turned_at INTEGER,
+    last_washed_at INTEGER,
+    last_brushed_at INTEGER,
+    pierced_for_blue_at INTEGER,
+    shrinkage_pct REAL DEFAULT 0.0
+  );
+
+  CREATE TABLE IF NOT EXISTS cave_action_logs (
+    id TEXT PRIMARY KEY NOT NULL,
+    wheel_id TEXT NOT NULL REFERENCES cave_cheese_wheels(id) ON DELETE CASCADE,
+    action_type TEXT NOT NULL,
+    logged_at INTEGER NOT NULL,
+    weight_grams REAL,
+    shrinkage_pct REAL,
+    notes TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS wheel_weight_logs (
+    id TEXT PRIMARY KEY NOT NULL,
+    wheel_id TEXT NOT NULL REFERENCES cave_cheese_wheels(id) ON DELETE CASCADE,
+    weight_grams REAL NOT NULL,
+    shrinkage_pct REAL NOT NULL,
+    logged_at INTEGER NOT NULL,
+    notes TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS cave_environment_logs (
+    id TEXT PRIMARY KEY NOT NULL,
+    timestamp INTEGER NOT NULL,
+    temperature_c REAL NOT NULL,
+    humidity_rh_pct REAL NOT NULL,
+    dew_point_c REAL NOT NULL,
+    sensor_source TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS curd_batch_details (
+    batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+    acidification_method TEXT NOT NULL,
+    milk_volume_liters REAL NOT NULL,
+    measured_ph REAL,
+    heating_temp_c REAL NOT NULL,
+    drain_duration_minutes INTEGER NOT NULL,
+    pressed_weight_kg REAL,
+    final_curd_weight_grams REAL
+  );
+
+  CREATE TABLE IF NOT EXISTS butter_churn_details (
+    batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+    cream_fat_pct REAL NOT NULL,
+    cream_volume_liters REAL NOT NULL,
+    cream_temperature_c REAL NOT NULL,
+    cream_type TEXT NOT NULL,
+    churn_duration_minutes INTEGER,
+    wash_cycles_count INTEGER NOT NULL DEFAULT 3,
+    butter_yield_grams REAL,
+    buttermilk_yield_ml REAL,
+    ghee_yield_grams REAL
+  );
+
+  CREATE TABLE IF NOT EXISTS fermented_milk_details (
+    batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+    culture_type TEXT NOT NULL,
+    incubation_temp_c REAL NOT NULL,
+    incubation_duration_hours REAL NOT NULL,
+    target_ph REAL DEFAULT 4.5,
+    strained_greek_yield_grams REAL
+  );
+
+  CREATE TABLE IF NOT EXISTS whey_product_details (
+    batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+    source_batch_id TEXT,
+    whey_type TEXT NOT NULL,
+    whey_volume_liters REAL NOT NULL,
+    whole_milk_added_liters REAL DEFAULT 0.0,
+    cream_added_liters REAL DEFAULT 0.0,
+    heating_temp_c REAL NOT NULL,
+    product_type TEXT NOT NULL,
+    final_yield_grams REAL
+  );
+
+  CREATE TABLE IF NOT EXISTS pending_ops (
+    id TEXT PRIMARY KEY NOT NULL,
+    op_type TEXT NOT NULL,
+    payload TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT 'PENDING'
+  );
+
+  CREATE TABLE IF NOT EXISTS veg_ferment_details (
+    batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+    vegetables_weight_grams REAL NOT NULL,
+    water_weight_grams REAL NOT NULL,
+    total_batch_weight_grams REAL NOT NULL,
+    salt_target_pct REAL NOT NULL,
+    salt_added_grams REAL NOT NULL,
+    salting_method TEXT NOT NULL,
+    initial_ph REAL,
+    current_ph REAL,
+    botulinum_safe INTEGER DEFAULT 0
+  );
+
+  CREATE TABLE IF NOT EXISTS symbiotic_beverage_details (
+    batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+    tea_type TEXT,
+    tea_grams REAL,
+    sugar_grams REAL,
+    water_liters REAL,
+    starter_liquid_ml REAL,
+    scoby_tag TEXT,
+    phase TEXT NOT NULL,
+    estimated_abv_pct REAL,
+    estimated_co2_volumes REAL,
+    target_acetic_acid_pct REAL
+  );
+
+  CREATE TABLE IF NOT EXISTS pantry_inventory (
+    id TEXT PRIMARY KEY NOT NULL,
+    item_name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    quantity_available REAL NOT NULL,
+    unit TEXT NOT NULL,
+    imcu_or_concentration TEXT,
+    expiry_date INTEGER,
+    cost_per_unit_pln REAL
+  );
+
+  CREATE TABLE IF NOT EXISTS sensory_evaluations (
+    id TEXT PRIMARY KEY NOT NULL,
+    batch_id TEXT NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+    evaluated_at INTEGER NOT NULL,
+    acidity INTEGER,
+    salinity INTEGER,
+    firmness INTEGER,
+    creaminess INTEGER,
+    pungency INTEGER,
+    nuttiness INTEGER,
+    tasting_notes TEXT
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_batches_category ON batches(category, status);
+  CREATE INDEX IF NOT EXISTS idx_pressing_stages_batch ON pressing_stages(batch_id);
+  CREATE INDEX IF NOT EXISTS idx_cave_wheels_batch ON cave_cheese_wheels(batch_id);
+  CREATE INDEX IF NOT EXISTS idx_cave_actions_wheel ON cave_action_logs(wheel_id);
+  CREATE INDEX IF NOT EXISTS idx_wheel_weights_wheel ON wheel_weight_logs(wheel_id);
+  CREATE INDEX IF NOT EXISTS idx_pantry_category ON pantry_inventory(category);
+  CREATE INDEX IF NOT EXISTS idx_sensory_batch ON sensory_evaluations(batch_id);
+  CREATE INDEX IF NOT EXISTS idx_pending_ops_status ON pending_ops(status);
+`;
+
 export async function initDatabase(): Promise<void> {
   const db = await getDb();
   if (db) {
     try {
-      await db.execAsync(`
-        PRAGMA journal_mode = WAL;
-        PRAGMA foreign_keys = ON;
-
-        CREATE TABLE IF NOT EXISTS app_settings (
-          key TEXT PRIMARY KEY NOT NULL,
-          value TEXT NOT NULL
-        );
-
-        CREATE TABLE IF NOT EXISTS batches (
-          id TEXT PRIMARY KEY NOT NULL,
-          batch_number TEXT UNIQUE NOT NULL,
-          category TEXT NOT NULL CHECK(category IN ('CHEESE', 'HARD_CHEESE', 'SOFT_CHEESE', 'FRESH_CURD', 'BUTTER_GHEE', 'FERMENTED_MILK', 'WHEY_PRODUCT', 'VEG_FERMENT', 'KIMCHI', 'KOMBUCHA', 'VINEGAR')),
-          style_name TEXT NOT NULL,
-          created_at INTEGER NOT NULL,
-          status TEXT NOT NULL CHECK(status IN ('PREPARING', 'COAGULATING', 'PRESSING', 'BRINING', 'AGING', 'COMPLETED', 'DISCARDED')),
-          notes TEXT
-        );
-
-        CREATE TABLE IF NOT EXISTS cheese_batch_details (
-          batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
-          milk_type TEXT NOT NULL,
-          milk_treatment TEXT NOT NULL,
-          milk_volume_liters REAL NOT NULL,
-          cacl2_added_grams REAL DEFAULT 0.0,
-          rennet_type TEXT NOT NULL,
-          rennet_imcu_per_ml REAL NOT NULL,
-          rennet_volume_ml REAL NOT NULL,
-          flocculation_seconds INTEGER,
-          flocculation_multiplier REAL,
-          target_cut_seconds INTEGER,
-          curd_size_target TEXT,
-          cooking_target_temp_c REAL,
-          cooking_duration_minutes INTEGER,
-          whey_washed_liters REAL DEFAULT 0.0
-        );
-
-        CREATE TABLE IF NOT EXISTS pressing_stages (
-          id TEXT PRIMARY KEY NOT NULL,
-          batch_id TEXT NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
-          stage_order INTEGER NOT NULL,
-          target_pressure_kg_cm2 REAL NOT NULL,
-          weight_applied_kg REAL NOT NULL,
-          duration_minutes INTEGER NOT NULL,
-          turned_and_flipped INTEGER NOT NULL DEFAULT 0,
-          completed_at INTEGER
-        );
-
-        CREATE TABLE IF NOT EXISTS brining_logs (
-          batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
-          brine_salinity_pct REAL NOT NULL,
-          brine_ph REAL NOT NULL,
-          cacl2_in_brine_pct REAL NOT NULL,
-          started_at INTEGER NOT NULL,
-          planned_duration_hours REAL NOT NULL,
-          turned_in_brine INTEGER NOT NULL DEFAULT 0,
-          completed_at INTEGER
-        );
-
-        CREATE TABLE IF NOT EXISTS cave_cheese_wheels (
-          id TEXT PRIMARY KEY NOT NULL,
-          batch_id TEXT NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
-          wheel_tag TEXT UNIQUE NOT NULL,
-          location_in_cave TEXT NOT NULL,
-          initial_weight_grams REAL NOT NULL,
-          current_weight_grams REAL NOT NULL,
-          rind_type TEXT NOT NULL,
-          target_aging_days INTEGER NOT NULL,
-          last_turned_at INTEGER,
-          last_washed_at INTEGER,
-          last_brushed_at INTEGER,
-          pierced_for_blue_at INTEGER,
-          shrinkage_pct REAL DEFAULT 0.0
-        );
-
-        CREATE TABLE IF NOT EXISTS cave_action_logs (
-          id TEXT PRIMARY KEY NOT NULL,
-          wheel_id TEXT NOT NULL REFERENCES cave_cheese_wheels(id) ON DELETE CASCADE,
-          action_type TEXT NOT NULL,
-          logged_at INTEGER NOT NULL,
-          weight_grams REAL,
-          shrinkage_pct REAL,
-          notes TEXT
-        );
-
-        CREATE TABLE IF NOT EXISTS wheel_weight_logs (
-          id TEXT PRIMARY KEY NOT NULL,
-          wheel_id TEXT NOT NULL REFERENCES cave_cheese_wheels(id) ON DELETE CASCADE,
-          weight_grams REAL NOT NULL,
-          shrinkage_pct REAL NOT NULL,
-          logged_at INTEGER NOT NULL,
-          notes TEXT
-        );
-
-        CREATE TABLE IF NOT EXISTS cave_environment_logs (
-          id TEXT PRIMARY KEY NOT NULL,
-          timestamp INTEGER NOT NULL,
-          temperature_c REAL NOT NULL,
-          humidity_rh_pct REAL NOT NULL,
-          dew_point_c REAL NOT NULL,
-          sensor_source TEXT NOT NULL
-        );
-
-        CREATE TABLE IF NOT EXISTS curd_batch_details (
-          batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
-          acidification_method TEXT NOT NULL,
-          milk_volume_liters REAL NOT NULL,
-          measured_ph REAL,
-          heating_temp_c REAL NOT NULL,
-          drain_duration_minutes INTEGER NOT NULL,
-          pressed_weight_kg REAL,
-          final_curd_weight_grams REAL
-        );
-
-        CREATE TABLE IF NOT EXISTS butter_churn_details (
-          batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
-          cream_fat_pct REAL NOT NULL,
-          cream_volume_liters REAL NOT NULL,
-          cream_temperature_c REAL NOT NULL,
-          cream_type TEXT NOT NULL,
-          churn_duration_minutes INTEGER,
-          wash_cycles_count INTEGER NOT NULL DEFAULT 3,
-          butter_yield_grams REAL,
-          buttermilk_yield_ml REAL,
-          ghee_yield_grams REAL
-        );
-
-        CREATE TABLE IF NOT EXISTS fermented_milk_details (
-          batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
-          culture_type TEXT NOT NULL,
-          incubation_temp_c REAL NOT NULL,
-          incubation_duration_hours REAL NOT NULL,
-          target_ph REAL DEFAULT 4.5,
-          strained_greek_yield_grams REAL
-        );
-
-        CREATE TABLE IF NOT EXISTS whey_product_details (
-          batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
-          source_batch_id TEXT,
-          whey_type TEXT NOT NULL,
-          whey_volume_liters REAL NOT NULL,
-          whole_milk_added_liters REAL DEFAULT 0.0,
-          cream_added_liters REAL DEFAULT 0.0,
-          heating_temp_c REAL NOT NULL,
-          product_type TEXT NOT NULL,
-          final_yield_grams REAL
-        );
-
-        CREATE TABLE IF NOT EXISTS pending_ops (
-          id TEXT PRIMARY KEY NOT NULL,
-          op_type TEXT NOT NULL,
-          payload TEXT NOT NULL,
-          created_at INTEGER NOT NULL,
-          status TEXT NOT NULL DEFAULT 'PENDING'
-        );
-
-        CREATE TABLE IF NOT EXISTS veg_ferment_details (
-          batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
-          vegetables_weight_grams REAL NOT NULL,
-          water_weight_grams REAL NOT NULL,
-          total_batch_weight_grams REAL NOT NULL,
-          salt_target_pct REAL NOT NULL,
-          salt_added_grams REAL NOT NULL,
-          salting_method TEXT NOT NULL,
-          initial_ph REAL,
-          current_ph REAL,
-          botulinum_safe INTEGER DEFAULT 0
-        );
-
-        CREATE TABLE IF NOT EXISTS symbiotic_beverage_details (
-          batch_id TEXT PRIMARY KEY NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
-          tea_type TEXT,
-          tea_grams REAL,
-          sugar_grams REAL,
-          water_liters REAL,
-          starter_liquid_ml REAL,
-          scoby_tag TEXT,
-          phase TEXT NOT NULL,
-          estimated_abv_pct REAL,
-          estimated_co2_volumes REAL,
-          target_acetic_acid_pct REAL
-        );
-
-        CREATE TABLE IF NOT EXISTS pantry_inventory (
-          id TEXT PRIMARY KEY NOT NULL,
-          item_name TEXT NOT NULL,
-          category TEXT NOT NULL,
-          quantity_available REAL NOT NULL,
-          unit TEXT NOT NULL,
-          imcu_or_concentration TEXT,
-          expiry_date INTEGER,
-          cost_per_unit_pln REAL
-        );
-
-        CREATE TABLE IF NOT EXISTS sensory_evaluations (
-          id TEXT PRIMARY KEY NOT NULL,
-          batch_id TEXT NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
-          evaluated_at INTEGER NOT NULL,
-          acidity INTEGER,
-          salinity INTEGER,
-          firmness INTEGER,
-          creaminess INTEGER,
-          pungency INTEGER,
-          nuttiness INTEGER,
-          tasting_notes TEXT
-        );
-
-        CREATE INDEX IF NOT EXISTS idx_batches_category ON batches(category, status);
-        CREATE INDEX IF NOT EXISTS idx_pressing_stages_batch ON pressing_stages(batch_id);
-        CREATE INDEX IF NOT EXISTS idx_cave_wheels_batch ON cave_cheese_wheels(batch_id);
-        CREATE INDEX IF NOT EXISTS idx_cave_actions_wheel ON cave_action_logs(wheel_id);
-        CREATE INDEX IF NOT EXISTS idx_wheel_weights_wheel ON wheel_weight_logs(wheel_id);
-        CREATE INDEX IF NOT EXISTS idx_pantry_category ON pantry_inventory(category);
-        CREATE INDEX IF NOT EXISTS idx_sensory_batch ON sensory_evaluations(batch_id);
-        CREATE INDEX IF NOT EXISTS idx_pending_ops_status ON pending_ops(status);
-      `);
+      await db.execAsync(FERMENT_SQL_DDL);
     } catch {
       // Ignore DDL errors in fallback environments
     }
