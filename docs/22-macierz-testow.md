@@ -23,7 +23,7 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `EKRAN` | `/(tabs)/dairy` | `app/(tabs)/dairy.tsx` | ✅ | tests/core/fermentation-diagnostics.test.ts, tests/corpus.test.ts |
 | `EKRAN` | `/(tabs)/index` | `app/(tabs)/index.tsx` | ✅ | tests/audit-fixes.test.tsx, tests/matrix-routes.test.tsx |
 | `EKRAN` | `/(tabs)/pantry-knowledge` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-routes.test.tsx |
-| `TEKST` | `Dojrzewalnia` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Dojrzewalnia` | `app/(tabs)/cave.tsx` | ✅ | tests/lib/pdf-sheet-generator.test.ts, tests/matrix-translations.test.ts |
 | `TEKST` | `Dozór mikroklimatu jaskini, affinage i kartoteka krążków` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Dodaj krążek sera` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Nowy Krążek` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
@@ -128,7 +128,7 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Mleko Owcze` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Mleko Bawole` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Podpuszczka` | `app/(tabs)/index.tsx` | ✅ | tests/core/inventory.test.ts, tests/matrix-translations.test.ts |
-| `TEKST` | `Chlorek Wapnia` | `app/(tabs)/index.tsx` | ✅ | tests/domain-coverage.test.ts, tests/matrix-translations.test.ts |
+| `TEKST` | `Chlorek Wapnia` | `app/(tabs)/index.tsx` | ✅ | tests/domain-coverage.test.ts, tests/lib/backup.test.ts |
 | `TEKST` | `Utworzono z kalkulatora głównego.` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Numer partii:` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Odpisano ze spiżarni:` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
