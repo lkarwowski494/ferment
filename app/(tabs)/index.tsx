@@ -177,6 +177,11 @@ import { BlackGarlicCard } from '../../src/components/calculator/BlackGarlicCard
 import { MeadCard } from '../../src/components/calculator/MeadCard';
 import { GingerBugCard } from '../../src/components/calculator/GingerBugCard';
 import { NukadokoCard } from '../../src/components/calculator/NukadokoCard';
+import { BotulinumGuardCard } from '../../src/components/calculator/BotulinumGuardCard';
+import { KimchiCard } from '../../src/components/calculator/KimchiCard';
+import { Q10AndHeadspaceCard } from '../../src/components/calculator/Q10AndHeadspaceCard';
+import { CrispnessBotanicalCard } from '../../src/components/calculator/CrispnessBotanicalCard';
+import { KojiAmazakeCard } from '../../src/components/calculator/KojiAmazakeCard';
 
 
 
@@ -2600,491 +2605,68 @@ export default function CalculatorScreen() {
 
             {isProExpanded && (
               <View style={styles.proAccordionBody}>
-                {/* Botulinum Guard */}
-                <View style={[styles.proCard, !botulinumSafety.isSafe && styles.cardDanger]}>
-                  <Text style={styles.proCardTitle}>🛡️ {t('Botulinum Guard (Bariera pH 4.60)')}</Text>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Zmierzone pH:')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(measuredPh)}
-                      onChangeText={(v) => setMeasuredPh(parseFloat(v) || 7)}
-                    />
-                  </View>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Godzin od nastawienia:')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(fermentHours)}
-                      onChangeText={(v) => setFermentHours(parseFloat(v) || 0)}
-                    />
-                  </View>
-                  <View style={styles.safetyBox}>
-                    <Text style={[styles.safetyStatus, !botulinumSafety.isSafe && styles.safetyDanger]}>
-                      {botulinumSafety.message}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* LAB Acidification Kinetics */}
-                <View style={[styles.proCard, labKineticsCalc.status === 'CRITICAL_HAZARD' && styles.cardDanger]}>
-                  <Text style={styles.proCardTitle}>📈 {t('Kinetyka Kwasowa LAB (Monitor Zakwaszania)')}</Text>
-                  <Text style={styles.proCardDesc}>
-                    {t('Oczekiwane pH po')} {fermentHours}h: <Text style={styles.boldText}>{labKineticsCalc.expectedPh}</Text> | {t('Zmierzone:')} <Text style={styles.boldText}>{measuredPh}</Text>
-                  </Text>
-                  <View style={styles.safetyBox}>
-                    <Text style={[styles.safetyStatus, labKineticsCalc.status !== 'OPTIMAL' && styles.safetyDanger]}>
-                      {labKineticsCalc.message}
-                    </Text>
-                    <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                      💡 {labKineticsCalc.recommendedAction}
-                    </Text>
-                  </View>
-                </View>
+                {/* Botulinum Guard & LAB Acidification */}
+                <BotulinumGuardCard
+                  measuredPh={measuredPh}
+                  setMeasuredPh={setMeasuredPh}
+                  fermentHours={fermentHours}
+                  setFermentHours={setFermentHours}
+                  botulinumSafety={botulinumSafety}
+                  labKineticsCalc={labKineticsCalc}
+                />
 
                 {/* Kimchi Assistant */}
-                <View style={styles.proCard}>
-                  <Text style={styles.proCardTitle}>🥬 {t('Asystent Tradycyjnego Kimchi')}</Text>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.inlineLabel}>{t('Masa kapusty pekińskiej (g):')}</Text>
-                    <TextInput
-                      style={styles.numInput}
-                      keyboardType="numeric"
-                      value={String(cabbageGrams)}
-                      onChangeText={(v) => setCabbageGrams(parseFloat(v) || 0)}
-                    />
-                  </View>
-                  <View style={styles.kimchiBox}>
-                    <Text style={styles.kimchiLine}>
-                      • {t('Sól na sucho do więdnięcia (8.5%):')}{' '}
-                      <Text style={styles.boldText}>{kimchiPrep.saltWeightGrams} g</Text>
-                    </Text>
-                    <Text style={styles.kimchiLine}>
-                      • {t('Mąka ryżowa do kleiku:')} {kimchiPrep.paste.riceFlourGrams} g
-                    </Text>
-                    <Text style={styles.kimchiLine}>
-                      • {t('Woda do kleiku:')} {kimchiPrep.paste.waterForPorridgeMl} ml
-                    </Text>
-                    <Text style={styles.kimchiLine}>
-                      • {t('Papryka Gochugaru:')} {kimchiPrep.paste.gochugaruGrams} g
-                    </Text>
-                    <Text style={styles.kimchiLine}>
-                      • {t('Czosnek i Imbir:')} {kimchiPrep.paste.garlicGrams}g / {kimchiPrep.paste.gingerGrams}g
-                    </Text>
-                  </View>
-                </View>
+                <KimchiCard
+                  cabbageGrams={cabbageGrams}
+                  setCabbageGrams={setCabbageGrams}
+                  kimchiPrep={kimchiPrep}
+                />
 
-                {/* Q10 Fermentation Kinetics */}
-                {q10VegCalc && (
-                  <View style={[styles.proCard, (q10VegCalc.zone === 'HEAT_STRESS_SPOILAGE' || q10VegCalc.zone === 'DORMANT_SLUGGISH') && styles.cardDanger]}>
-                    <Text style={styles.proCardTitle}>🌡️ {t('Kompensacja Temperatury Q10 (Kinetyka Pokojowa)')}</Text>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Temperatura otoczenia (°C):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(ambientTempC)}
-                        onChangeText={(v) => setAmbientTempC(parseFloat(v) || 20)}
-                      />
-                    </View>
-                    <View style={styles.safetyBox}>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Mnożnik kinetyki:')} <Text style={styles.boldText}>{q10VegCalc.velocityMultiplier}x</Text> {t('(względem 20°C)')}
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Skorygowany czas fermentacji:')} <Text style={styles.boldText}>{q10VegCalc.adjustedDays} {t('dni')}</Text> ({q10VegCalc.adjustedHours} {t('godz.')})
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Szacowana bariera pH 4.60 po:')} <Text style={styles.boldText}>{q10VegCalc.botulinumSafeHourEstimated} {t('godz.')}</Text>
-                      </Text>
-                      <Text style={[styles.safetyStatus, (q10VegCalc.zone === 'HEAT_STRESS_SPOILAGE' || q10VegCalc.zone === 'DORMANT_SLUGGISH') && styles.safetyDanger, { marginTop: 4 }]}>
-                        {t('Strefa termiczna:')} {q10VegCalc.zoneLabel}
-                      </Text>
-                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                        💡 {q10VegCalc.flavorProfileImpact}
-                      </Text>
-                    </View>
-                  </View>
-                )}
+                {/* Q10 Kinetics & Crock Headspace */}
+                <Q10AndHeadspaceCard
+                  ambientTempC={ambientTempC}
+                  setAmbientTempC={setAmbientTempC}
+                  q10VegCalc={q10VegCalc}
+                  jarCapacityMl={jarCapacityMl}
+                  setJarCapacityMl={setJarCapacityMl}
+                  stoneWeightGrams={stoneWeightGrams}
+                  setStoneWeightGrams={setStoneWeightGrams}
+                  crockHeadspaceCalc={crockHeadspaceCalc}
+                />
 
-                {/* Crock & Jar Headspace Guard */}
-                {crockHeadspaceCalc && (
-                  <View style={[styles.proCard, crockHeadspaceCalc.status !== 'OPTIMAL' && styles.cardDanger]}>
-                    <Text style={styles.proCardTitle}>🏺 {t('Pojemność Słoja & Wolna Przestrzeń (Headspace Guard)')}</Text>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Pojemność słoja (ml):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(jarCapacityMl)}
-                        onChangeText={(v) => setJarCapacityMl(parseFloat(v) || 1000)}
-                      />
-                    </View>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Masa docisku (kamień/szkło g):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(stoneWeightGrams)}
-                        onChangeText={(v) => setStoneWeightGrams(parseFloat(v) || 0)}
-                      />
-                    </View>
-                    <View style={styles.safetyBox}>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Objętość wsadu z dociskiem:')} <Text style={styles.boldText}>{crockHeadspaceCalc.totalSubstanceVolumeMl} ml</Text>
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Pozostała wolna przestrzeń:')} <Text style={styles.boldText}>{crockHeadspaceCalc.remainingHeadspaceMl} ml</Text> ({crockHeadspaceCalc.headspacePercentage}%)
-                      </Text>
-                      <Text style={[styles.safetyStatus, crockHeadspaceCalc.status !== 'OPTIMAL' && styles.safetyDanger, { marginTop: 4 }]}>
-                        {crockHeadspaceCalc.summaryAlert}
-                      </Text>
-                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                        💡 {crockHeadspaceCalc.recommendations[0]}
-                      </Text>
-                    </View>
-                  </View>
-                )}
+                {/* Botanical Crispness */}
+                <CrispnessBotanicalCard
+                  selectedBotanical={selectedBotanical}
+                  setSelectedBotanical={setSelectedBotanical}
+                  botanicalGrams={botanicalGrams}
+                  setBotanicalGrams={setBotanicalGrams}
+                  garlicGramsInput={garlicGramsInput}
+                  setGarlicGramsInput={setGarlicGramsInput}
+                  garlicPrepInput={garlicPrepInput}
+                  setGarlicPrepInput={setGarlicPrepInput}
+                  vegCrispnessCalc={vegCrispnessCalc}
+                />
 
-                {/* Botanical Extraction & Crispness Engine */}
-                {vegCrispnessCalc && (
-                  <View style={[styles.proCard, vegCrispnessCalc.crispnessVerdict === 'INADEQUATE_RISK_OF_MUSHY' && styles.cardDanger]}>
-                    <Text style={styles.proCardTitle}>🌿 {t('Ekstrakcja Botaniczna & Ochrona Chrupkości')}</Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Denaturacja pektynaz garbnikami roślinnymi (dąb, wiśnia, chrzan) i kinetyka allicyny')}
-                    </Text>
-
-                    {/* Botanical source pills */}
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {[
-                        { id: 'OAK_LEAF' as const, label: t('Liść dębu (45mg/g)') },
-                        { id: 'SOUR_CHERRY_LEAF' as const, label: t('Liść wiśni (30mg/g)') },
-                        { id: 'BLACKCURRANT_LEAF' as const, label: t('Porzeczka (25mg/g)') },
-                        { id: 'HORSERADISH_ROOT' as const, label: t('Chrzan korzeń (12mg/g)') },
-                        { id: 'HORSERADISH_LEAF' as const, label: t('Chrzan liść (15mg/g)') },
-                        { id: 'BAY_LEAF' as const, label: t('Liść laurowy (20mg/g)') },
-                        { id: 'GRAPE_LEAF' as const, label: t('Liść winorośli (35mg/g)') },
-                        { id: 'BLACK_TEA_LEAF' as const, label: t('Czarna herbata (80mg/g)') },
-                      ].map((bot) => (
-                        <TouchableOpacity
-                          key={bot.id}
-                          style={[styles.presetPill, selectedBotanical === bot.id && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setSelectedBotanical(bot.id);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, selectedBotanical === bot.id && styles.presetPillTextActive]}>
-                            {bot.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Masa dodatku botanicznego (g):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(botanicalGrams)}
-                        onChangeText={(v) => setBotanicalGrams(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Czosnek do wsadu (g):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(garlicGramsInput)}
-                        onChangeText={(v) => setGarlicGramsInput(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    {/* Garlic prep selector */}
-                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Przygotowanie czosnku:')}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {[
-                        { id: 'BRUISED_CRUSHED' as const, label: t('Zgnieciony nożem (85% allicyny)') },
-                        { id: 'WHOLE_PEELED' as const, label: t('Całe ząbki obrane (20% allicyny)') },
-                        { id: 'MINCED_GRATED' as const, label: t('Posiekany / starty (100% allicyny)') },
-                        { id: 'WHOLE_UNPEELED' as const, label: t('W łupinie (5% allicyny)') },
-                      ].map((gp) => (
-                        <TouchableOpacity
-                          key={gp.id}
-                          style={[styles.presetPill, garlicPrepInput === gp.id && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setGarlicPrepInput(gp.id);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, garlicPrepInput === gp.id && styles.presetPillTextActive]}>
-                            {gp.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-
-                    <View style={styles.safetyBox}>
-                      <Text style={[
-                        styles.safetyStatus,
-                        vegCrispnessCalc.crispnessVerdict === 'INADEQUATE_RISK_OF_MUSHY'
-                          ? styles.safetyDanger
-                          : vegCrispnessCalc.crispnessVerdict === 'OVER_ASTRINGENT'
-                          ? { color: '#B45309' }
-                          : { color: '#15803D' }
-                      ]}>
-                        • {t('Ochrona chrupkości:')} {vegCrispnessCalc.verdictLabelPl} ({vegCrispnessCalc.crispnessProtectionRatioPct}%)
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Podaż garbników:')} <Text style={styles.boldText}>{vegCrispnessCalc.totalTanninsMg} mg</Text> ({vegCrispnessCalc.tanninConcentrationMgPerKg} mg/kg {t('wsadu')}, {t('cel')} &ge; {vegCrispnessCalc.targetMinimumTanninsMg} mg)
-                      </Text>
-
-                      {vegCrispnessCalc.garlicAllicinOutputMg !== undefined && (
-                        <Text style={styles.proCardDesc}>
-                          • {t('Aktywna allicyna:')} <Text style={styles.boldText}>{vegCrispnessCalc.garlicAllicinOutputMg} mg</Text>
-                        </Text>
-                      )}
-
-                      {vegCrispnessCalc.garlicImpactNotes && (
-                        <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                          🧄 {vegCrispnessCalc.garlicImpactNotes}
-                        </Text>
-                      )}
-
-                      {vegCrispnessCalc.dominantActiveCompounds.length > 0 && (
-                        <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                          🔬 {t('Związki aktywne:')} {vegCrispnessCalc.dominantActiveCompounds.join(', ')}
-                        </Text>
-                      )}
-
-                      {vegCrispnessCalc.craftRecommendations.map((rec, idx) => (
-                        <Text key={idx} style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                          💡 {rec}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
-
-                {/* Koji, Shio Koji & Amazake Hydrolysis */}
-                {kojiCalc && (
-                  <View style={styles.proCard}>
-                    <Text style={styles.proCardTitle}>
-                      🌾 {t('Enzymatyka Koji, Shio Koji & Amazake')}
-                    </Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Hydroliza enzymatyczna Aspergillus oryzae: shio koji, amazake i miso z kontrolą okna termicznego')}
-                    </Text>
-
-                    {/* Mode selector */}
-                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Tryb Koji:')}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {[
-                        { id: 'SHIO_KOJI' as const, label: t('Shio Koji (Słona pasta)') },
-                        { id: 'AMAZAKE' as const, label: t('Amazake (Słodki napój ryżowy)') },
-                        { id: 'MISO' as const, label: t('Miso (Pasta sojowa)') },
-                      ].map((km) => (
-                        <TouchableOpacity
-                          key={km.id}
-                          style={[styles.presetPill, kojiMode === km.id && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setKojiMode(km.id);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, kojiMode === km.id && styles.presetPillTextActive]}>
-                            {km.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Masa koji (g):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(kojiMassGrams)}
-                        onChangeText={(v) => setKojiMassGrams(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    {kojiMode === 'SHIO_KOJI' && (
-                      <>
-                        <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Stan koji:')}</Text>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                          {[
-                            { id: 'DRIED' as const, label: t('Suszone') },
-                            { id: 'FRESH' as const, label: t('Świeże (nama)') },
-                          ].map((ks) => (
-                            <TouchableOpacity
-                              key={ks.id}
-                              style={[styles.presetPill, kojiState === ks.id && styles.presetPillActive]}
-                              onPress={() => {
-                                triggerHapticFeedback();
-                                setKojiState(ks.id);
-                              }}
-                            >
-                              <Text style={[styles.presetPillText, kojiState === ks.id && styles.presetPillTextActive]}>
-                                {ks.label}
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                        </ScrollView>
-
-                        <View style={styles.rowBetween}>
-                          <Text style={styles.inlineLabel}>{t('Temperatura hydrolizy (°C):')}</Text>
-                          <TextInput
-                            style={styles.numInput}
-                            keyboardType="numeric"
-                            value={String(kojiTempC)}
-                            onChangeText={(v) => setKojiTempC(parseFloat(v) || 0)}
-                          />
-                        </View>
-
-                        {kojiCalc.type === 'SHIO_KOJI' && (
-                          <View style={styles.brineResultBox}>
-                            <Text style={styles.proCardDesc}>
-                              • {t('Wymagana woda:')} <Text style={styles.boldText}>{kojiCalc.data.waterGrams} g</Text> | {t('Wymagana sól:')} <Text style={styles.boldText}>{kojiCalc.data.saltGrams} g</Text>
-                            </Text>
-                            <Text style={styles.proCardDesc}>
-                              • {t('Masa całkowita wsadu:')} <Text style={styles.boldText}>{kojiCalc.data.totalBatchMassGrams} g</Text> ({t('Zasolenie efektywne:')} <Text style={styles.boldText}>{kojiCalc.data.effectiveSalinityPercent}%</Text>)
-                            </Text>
-                            <Text style={styles.proCardDesc}>
-                              • {t('Czas fermentacji:')} <Text style={styles.boldText}>{kojiCalc.data.fermentationDurationHours}h</Text> ({kojiCalc.data.fermentationMethodPl})
-                            </Text>
-                            <Text style={styles.proCardDesc}>
-                              • {t('Codzienne mieszanie:')} <Text style={styles.boldText}>{kojiCalc.data.dailyStirringRequired ? t('Wymagane (napowietrzanie)') : t('Zbędne (sous-vide)')}</Text>
-                            </Text>
-                            <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                              🥩 {t('Dawka do kruszenia mięsa:')} <Text style={styles.boldText}>~{kojiCalc.data.meatTenderizingDoseGrams(500)} g</Text> {t('na 500g mięsa / tofu (10%)')}
-                            </Text>
-                            {kojiCalc.data.alertsPl.map((alert, idx) => (
-                              <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
-                                ⚠️ {alert}
-                              </Text>
-                            ))}
-                          </View>
-                        )}
-                      </>
-                    )}
-
-                    {kojiMode === 'AMAZAKE' && (
-                      <>
-                        <View style={styles.rowBetween}>
-                          <Text style={styles.inlineLabel}>{t('Masa ugotowanego ryżu (g):')}</Text>
-                          <TextInput
-                            style={styles.numInput}
-                            keyboardType="numeric"
-                            value={String(amazakeCookedRiceGrams)}
-                            onChangeText={(v) => setAmazakeCookedRiceGrams(parseFloat(v) || 0)}
-                          />
-                        </View>
-
-                        <View style={styles.rowBetween}>
-                          <Text style={styles.inlineLabel}>{t('Temperatura hydrolizy (°C):')}</Text>
-                          <TextInput
-                            style={styles.numInput}
-                            keyboardType="numeric"
-                            value={String(amazakeTempC)}
-                            onChangeText={(v) => setAmazakeTempC(parseFloat(v) || 0)}
-                          />
-                        </View>
-
-                        {kojiCalc.type === 'AMAZAKE' && (
-                          <View style={styles.brineResultBox}>
-                            <Text style={[
-                              styles.safetyStatus,
-                              kojiCalc.data.safetyStatus !== 'OPTIMAL' ? styles.safetyDanger : { color: '#15803D' }
-                            ]}>
-                              • {t('Status bezpieczeństwa termicznego:')} {kojiCalc.data.safetyStatus}
-                            </Text>
-                            <Text style={styles.proCardDesc}>
-                              • {t('Wymagana woda:')} <Text style={styles.boldText}>{kojiCalc.data.waterGrams} g</Text> ({t('Masa całkowita wsadu:')} {kojiCalc.data.totalMassGrams} g)
-                            </Text>
-                            <Text style={styles.proCardDesc}>
-                              • {t('Szacowana słodycz Brix:')} <Text style={styles.boldText}>{kojiCalc.data.expectedBrixSweetness} °Bx</Text> | {t('Czas fermentacji:')} {kojiCalc.data.incubationHours}h
-                            </Text>
-                            {kojiCalc.data.alertsPl.map((alert, idx) => (
-                              <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
-                                ⚠️ {alert}
-                              </Text>
-                            ))}
-                            {kojiCalc.data.instructionsPl.map((inst, idx) => (
-                              <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 3 }}>
-                                💡 {inst}
-                              </Text>
-                            ))}
-                          </View>
-                        )}
-                      </>
-                    )}
-
-                    {kojiMode === 'MISO' && (
-                      <>
-                        <View style={styles.rowBetween}>
-                          <Text style={styles.inlineLabel}>{t('Masa gotowanej soi (g):')}</Text>
-                          <TextInput
-                            style={styles.numInput}
-                            keyboardType="numeric"
-                            value={String(misoSoyGrams)}
-                            onChangeText={(v) => setMisoSoyGrams(parseFloat(v) || 0)}
-                          />
-                        </View>
-
-                        <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Typ miso:')}</Text>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                          {[
-                            { id: 'SHIRO_MISO' as const, label: t('Shiro Miso (Jasne, słodkie, 1.5 mies.)') },
-                            { id: 'AKAMISO' as const, label: t('Akamiso (Ciemne, wytrawne, 12 mies.)') },
-                          ].map((mt) => (
-                            <TouchableOpacity
-                              key={mt.id}
-                              style={[styles.presetPill, misoTypeInput === mt.id && styles.presetPillActive]}
-                              onPress={() => {
-                                triggerHapticFeedback();
-                                setMisoTypeInput(mt.id);
-                              }}
-                            >
-                              <Text style={[styles.presetPillText, misoTypeInput === mt.id && styles.presetPillTextActive]}>
-                                {mt.label}
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                        </ScrollView>
-
-                        {kojiCalc.type === 'MISO' && (
-                          <View style={styles.brineResultBox}>
-                            <Text style={[
-                              styles.safetyStatus,
-                              kojiCalc.data.safetyStatus !== 'SAFE' ? styles.safetyDanger : { color: '#15803D' }
-                            ]}>
-                              • {t('Status bezpieczeństwa:')} {kojiCalc.data.safetyStatus}
-                            </Text>
-                            <Text style={styles.proCardDesc}>
-                              • {t('Wymagana sól:')} <Text style={styles.boldText}>{kojiCalc.data.saltGrams} g</Text> ({t('Zasolenie efektywne:')} <Text style={styles.boldText}>{kojiCalc.data.saltPercent}%</Text>)
-                            </Text>
-                            <Text style={styles.proCardDesc}>
-                              • {t('Zalecany ciężar docisku:')} <Text style={styles.boldText}>{kojiCalc.data.pressWeightGrams} g</Text> (otoshiguta + kamień)
-                            </Text>
-                            <Text style={styles.proCardDesc}>
-                              • {t('Czas fermentacji:')} <Text style={styles.boldText}>~{kojiCalc.data.fermentationDurationMonths} {t('miesięcy')}</Text>
-                            </Text>
-                            {kojiCalc.data.alertsPl.map((alert, idx) => (
-                              <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
-                                ⚠️ {alert}
-                              </Text>
-                            ))}
-                          </View>
-                        )}
-                      </>
-                    )}
-                  </View>
-                )}
+                {/* Koji, Shio Koji & Amazake */}
+                <KojiAmazakeCard
+                  kojiMode={kojiMode}
+                  setKojiMode={setKojiMode}
+                  kojiMassGrams={kojiMassGrams}
+                  setKojiMassGrams={setKojiMassGrams}
+                  kojiState={kojiState}
+                  setKojiState={setKojiState}
+                  kojiTempC={kojiTempC}
+                  setKojiTempC={setKojiTempC}
+                  amazakeCookedRiceGrams={amazakeCookedRiceGrams}
+                  setAmazakeCookedRiceGrams={setAmazakeCookedRiceGrams}
+                  amazakeTempC={amazakeTempC}
+                  setAmazakeTempC={setAmazakeTempC}
+                  misoSoyGrams={misoSoyGrams}
+                  setMisoSoyGrams={setMisoSoyGrams}
+                  misoTypeInput={misoTypeInput}
+                  setMisoTypeInput={setMisoTypeInput}
+                  kojiCalc={kojiCalc}
+                />
 
                 {/* Japońskie Łoże Otrębowe Nukadoko */}
                 <NukadokoCard
