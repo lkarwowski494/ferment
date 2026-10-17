@@ -172,6 +172,11 @@ import {
   calculateGingerBeerBatch,
   BottleType as GingerBottleType,
 } from '../../src/core/ginger-bug';
+import { TempehCard } from '../../src/components/calculator/TempehCard';
+import { BlackGarlicCard } from '../../src/components/calculator/BlackGarlicCard';
+import { MeadCard } from '../../src/components/calculator/MeadCard';
+import { GingerBugCard } from '../../src/components/calculator/GingerBugCard';
+import { NukadokoCard } from '../../src/components/calculator/NukadokoCard';
 
 
 
@@ -3082,381 +3087,50 @@ export default function CalculatorScreen() {
                 )}
 
                 {/* Japońskie Łoże Otrębowe Nukadoko */}
-                {nukadokoCalc && (
-                  <View style={styles.proCard}>
-                    <Text style={styles.proCardTitle}>
-                      🥢 {t('Japońskie Łoże Otrębowe Nukadoko')}
-                    </Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Tradycyjna fermentacja w prażonych otrębach ryżowych: zakładanie (sutezuke), aeracja Te-ire i czasy kiszenia')}
-                    </Text>
-
-                    {/* Sub-tab selector */}
-                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Krok procesu:')}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {[
-                        { id: 'SETUP' as const, label: t('Zakładanie łoża (Sutezuke)') },
-                        { id: 'MAINTENANCE' as const, label: t('Pielęgnacja & Aeracja (Te-ire)') },
-                        { id: 'VEG_TIME' as const, label: t('Czas kiszenia warzyw') },
-                      ].map((tb) => (
-                        <TouchableOpacity
-                          key={tb.id}
-                          style={[styles.presetPill, nukadokoTab === tb.id && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setNukadokoTab(tb.id);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, nukadokoTab === tb.id && styles.presetPillTextActive]}>
-                            {tb.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-
-                    {nukadokoTab === 'SETUP' && nukadokoCalc.tab === 'SETUP' && (
-                      <>
-                        <View style={styles.rowBetween}>
-                          <Text style={styles.inlineLabel}>{t('Masa prażonych otrębów (g):')}</Text>
-                          <TextInput
-                            style={styles.numInput}
-                            keyboardType="numeric"
-                            value={String(nukaBranGrams)}
-                            onChangeText={(v) => setNukaBranGrams(parseFloat(v) || 0)}
-                          />
-                        </View>
-
-                        <View style={styles.brineResultBox}>
-                          <Text style={styles.proCardDesc}>
-                            • {t('Wymagana woda:')} <Text style={styles.boldText}>{nukadokoCalc.data.waterGrams} g</Text> | {t('Wymagana sól kamienna:')} <Text style={styles.boldText}>{nukadokoCalc.data.saltGrams} g</Text>
-                          </Text>
-                          <Text style={styles.proCardDesc}>
-                            • {t('Masa całkowita łoża:')} <Text style={styles.boldText}>{nukadokoCalc.data.totalBedMassGrams} g</Text> ({t('Docelowe zasolenie:')} <Text style={styles.boldText}>{nukadokoCalc.data.effectiveSalinityPct}%</Text>)
-                          </Text>
-                          <Text style={styles.proCardDesc}>
-                            • {t('Aromatyki:')} Konbu {nukadokoCalc.data.aromaticsGrams.konbuGrams}g, Chili {nukadokoCalc.data.aromaticsGrams.driedChiliGrams}g, Imbir {nukadokoCalc.data.aromaticsGrams.gingerSlicesGrams}g
-                          </Text>
-                          <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                            ⏳ {t('Czas rozruchu ze sutezuke:')} <Text style={styles.boldText}>{nukadokoCalc.data.sutezukeDurationDays} {t('dni')}</Text>
-                          </Text>
-                          {nukadokoCalc.data.sutezukeInstructionsPl.map((inst, idx) => (
-                            <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 3 }}>
-                              💡 {inst}
-                            </Text>
-                          ))}
-                        </View>
-                      </>
-                    )}
-
-                    {nukadokoTab === 'MAINTENANCE' && nukadokoCalc.tab === 'MAINTENANCE' && (
-                      <>
-                        <View style={styles.rowBetween}>
-                          <Text style={styles.inlineLabel}>{t('Aktualna masa łoża (g):')}</Text>
-                          <TextInput
-                            style={styles.numInput}
-                            keyboardType="numeric"
-                            value={String(nukaBedMassGrams)}
-                            onChangeText={(v) => setNukaBedMassGrams(parseFloat(v) || 0)}
-                          />
-                        </View>
-
-                        <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Wilgotność łoża:')}</Text>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                          {[
-                            { id: 'OPTIMAL_SAND' as const, label: t('Optymalna (wilgotny piasek)') },
-                            { id: 'SLIGHTLY_WET' as const, label: t('Lekko mokre') },
-                            { id: 'VERY_SLUSHY' as const, label: t('Bardzo błotniste (kałuża)') },
-                          ].map((ms) => (
-                            <TouchableOpacity
-                              key={ms.id}
-                              style={[styles.presetPill, nukaMoistureStatus === ms.id && styles.presetPillActive]}
-                              onPress={() => {
-                                triggerHapticFeedback();
-                                setNukaMoistureStatus(ms.id);
-                              }}
-                            >
-                              <Text style={[styles.presetPillText, nukaMoistureStatus === ms.id && styles.presetPillTextActive]}>
-                                {ms.label}
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                        </ScrollView>
-
-                        <View style={styles.brineResultBox}>
-                          <Text style={[
-                            styles.safetyStatus,
-                            nukadokoCalc.data.status !== 'HEALTHY' ? styles.safetyDanger : { color: '#15803D' }
-                          ]}>
-                            • {t('Status zdrowotny łoża:')} {nukadokoCalc.data.status}
-                          </Text>
-                          <Text style={styles.proCardDesc}>
-                            • {t('Częstotliwość mieszania ręką (Te-ire):')} <Text style={styles.boldText}>{nukadokoCalc.data.teireFrequencyDaily}x {t('dziennie')}</Text>
-                          </Text>
-                          <Text style={[styles.recipeDetailText, { marginTop: 2 }]}>
-                            ✋ {nukadokoCalc.data.teireInstructionPl}
-                          </Text>
-                          {(nukadokoCalc.data.dryBranTopupGrams > 0 || nukadokoCalc.data.saltTopupGrams > 0) && (
-                            <Text style={[styles.proCardDesc, { marginTop: 6 }]}>
-                              • {t('Wymagane dosypanie:')} <Text style={styles.boldText}>{nukadokoCalc.data.dryBranTopupGrams} g</Text> {t('prażonych otrębów')} + <Text style={styles.boldText}>{nukadokoCalc.data.saltTopupGrams} g</Text> {t('soli')}
-                            </Text>
-                          )}
-                          {nukadokoCalc.data.alertsPl.map((alert, idx) => (
-                            <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
-                              ⚠️ {alert}
-                            </Text>
-                          ))}
-                        </View>
-                      </>
-                    )}
-
-                    {nukadokoTab === 'VEG_TIME' && nukadokoCalc.tab === 'VEG_TIME' && (
-                      <>
-                        <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Wybierz warzywo do zakopania:')}</Text>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                          {[
-                            { id: 'CUCUMBER' as const, label: t('Ogórek') },
-                            { id: 'EGGPLANT' as const, label: t('Bakłażan') },
-                            { id: 'DAIKON_RADISH' as const, label: t('Daikon (Rzodkiew)') },
-                            { id: 'CARROT' as const, label: t('Marchew') },
-                            { id: 'AVOCADO_BOILED_EGG' as const, label: t('Awokado / Jajko') },
-                          ].map((vg) => (
-                            <TouchableOpacity
-                              key={vg.id}
-                              style={[styles.presetPill, nukaSelectedVeg === vg.id && styles.presetPillActive]}
-                              onPress={() => {
-                                triggerHapticFeedback();
-                                setNukaSelectedVeg(vg.id);
-                              }}
-                            >
-                              <Text style={[styles.presetPillText, nukaSelectedVeg === vg.id && styles.presetPillTextActive]}>
-                                {vg.label}
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                        </ScrollView>
-
-                        <View style={styles.brineResultBox}>
-                          <Text style={styles.proCardDesc}>
-                            • {t('Czas kiszenia:')} <Text style={styles.boldText}>{nukadokoCalc.data.durationHoursMin}–{nukadokoCalc.data.durationHoursMax} {t('godzin')}</Text> ({t('w temp.')} {ambientTempC}°C)
-                          </Text>
-                          <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                            🥒 {nukadokoCalc.data.prepAdvicePl}
-                          </Text>
-                        </View>
-                      </>
-                    )}
-                  </View>
-                )}
+                <NukadokoCard
+                  nukadokoTab={nukadokoTab}
+                  setNukadokoTab={setNukadokoTab}
+                  nukaBranGrams={nukaBranGrams}
+                  setNukaBranGrams={setNukaBranGrams}
+                  nukaBedMassGrams={nukaBedMassGrams}
+                  setNukaBedMassGrams={setNukaBedMassGrams}
+                  nukaSalinityPct={nukaSalinityPct}
+                  setNukaSalinityPct={setNukaSalinityPct}
+                  nukaMoistureStatus={nukaMoistureStatus}
+                  setNukaMoistureStatus={setNukaMoistureStatus}
+                  nukaSelectedVeg={nukaSelectedVeg}
+                  setNukaSelectedVeg={setNukaSelectedVeg}
+                  ambientTempC={ambientTempC}
+                  nukadokoCalc={nukadokoCalc}
+                />
 
                 {/* Kinetyka Mycelium Tempehu & Ochrona Przed Przegrzaniem */}
-                {tempehCalc && (
-                  <View style={styles.proCard}>
-                    <Text style={styles.proCardTitle}>
-                      🌱 {t('Kinetyka Mycelium Tempehu (Rhizopus)')}
-                    </Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Stało-fazowa fermentacja strączków: bariera kwasowa Bacillus cereus, faza egzotermiczna i perforacja torebek')}
-                    </Text>
-
-                    {/* Legume type selector */}
-                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Rodzaj nasion strączkowych:')}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {[
-                        { id: 'SOYBEAN' as const, label: t('Soja (Tradycyjna)') },
-                        { id: 'CHICKPEA' as const, label: t('Ciecierzyca') },
-                        { id: 'LENTIL' as const, label: t('Soczewica') },
-                        { id: 'BLACK_BEAN' as const, label: t('Czarna fasola') },
-                      ].map((lg) => (
-                        <TouchableOpacity
-                          key={lg.id}
-                          style={[styles.presetPill, tempehLegumeType === lg.id && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setTempehLegumeType(lg.id);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, tempehLegumeType === lg.id && styles.presetPillTextActive]}>
-                            {lg.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Masa suchych nasion (g):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(tempehDryGrams)}
-                        onChangeText={(v) => setTempehDryGrams(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Ocet 5% do moczenia/gotowania (ml):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(tempehVinegarMl)}
-                        onChangeText={(v) => setTempehVinegarMl(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Godzina inkubacji (0-36h):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(tempehHours)}
-                        onChangeText={(v) => setTempehHours(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Temperatura rdzenia wsadu (°C):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(tempehCoreTempC)}
-                        onChangeText={(v) => setTempehCoreTempC(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.brineResultBox}>
-                      <Text style={[
-                        styles.safetyStatus,
-                        !tempehCalc.isSoakAcidSafe || tempehCalc.thermalStatus === 'CRITICAL_DEATH'
-                          ? styles.safetyDanger
-                          : tempehCalc.thermalStatus === 'OVERHEATING_WARNING'
-                          ? { color: '#B45309' }
-                          : { color: '#15803D' }
-                      ]}>
-                        • {tempehCalc.phaseLabelPl}
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Masa po namoczeniu/ugotowaniu:')} <Text style={styles.boldText}>{tempehCalc.hydratedLegumeWeightGrams} g</Text> | {t('Doza startera Ragi:')} <Text style={styles.boldText}>{tempehCalc.recommendedStarterGrams} g</Text>
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Nastawa inkubatora:')} <Text style={styles.boldText}>{tempehCalc.recommendedIncubatorTempC}°C</Text> {tempehCalc.isExothermicBurstActive ? `(${t('Wyłącz/obniż grzanie!')})` : ''}
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Otwory perforacyjne w torebce:')} <Text style={styles.boldText}>~{tempehCalc.perforationHolesRecommended}</Text> ({t('nakłucia igłą co 1.5 cm')})
-                      </Text>
-
-                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                        🛡️ {t('Bariera kwasowa:')} {tempehCalc.isSoakAcidSafe ? t('Zabezpieczona (pH < 4.80)') : t('ZAGROŻONA (dolej octu!)')} ({t('min. zalecane:')} {tempehCalc.soakVinegarRecommendedMl} ml)
-                      </Text>
-
-                      {tempehCalc.alertsPl.map((alert, idx) => (
-                        <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
-                          ⚠️ {alert}
-                        </Text>
-                      ))}
-
-                      {tempehCalc.recommendationsPl.map((rec, idx) => (
-                        <Text key={idx} style={[styles.recipeDetailText, { marginTop: 3 }]}>
-                          💡 {rec}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
+                <TempehCard
+                  legumeType={tempehLegumeType}
+                  setLegumeType={setTempehLegumeType}
+                  dryGrams={tempehDryGrams}
+                  setDryGrams={setTempehDryGrams}
+                  vinegarMl={tempehVinegarMl}
+                  setVinegarMl={setTempehVinegarMl}
+                  incubationHours={tempehHours}
+                  setIncubationHours={setTempehHours}
+                  coreTempC={tempehCoreTempC}
+                  setCoreTempC={setTempehCoreTempC}
+                  tempehCalc={tempehCalc}
+                />
 
                 {/* Czarny Czosnek (Black Garlic & Reakcja Maillarda) */}
-                {blackGarlicCalc && (
-                  <View style={styles.proCard}>
-                    <Text style={styles.proCardTitle}>
-                      🧄 {t('Czarny Czosnek (Black Garlic & Wolna Reakcja Maillarda)')}
-                    </Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Termiczna transformacja allicyny w przeciwutleniającą S-allilocysteinę (SAC) i karmelizację melanoidynową bez pirolizy')}
-                    </Text>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Masa surowego czosnku (g):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(bgRawGrams)}
-                        onChangeText={(v) => setBgRawGrams(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Aktualny dzień cyklu (1-50):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(bgCurrentDay)}
-                        onChangeText={(v) => setBgCurrentDay(parseFloat(v) || 1)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Temperatura komory (°C):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(bgChamberTempC)}
-                        onChangeText={(v) => setBgChamberTempC(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Wilgotność względna (% RH):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(bgChamberRhPct)}
-                        onChangeText={(v) => setBgChamberRhPct(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.brineResultBox}>
-                      <Text style={[
-                        styles.safetyStatus,
-                        blackGarlicCalc.alerts.some((a) => a.severity === 'CRITICAL')
-                          ? styles.safetyDanger
-                          : blackGarlicCalc.alerts.some((a) => a.severity === 'WARNING')
-                          ? { color: '#B45309' }
-                          : { color: '#15803D' }
-                      ]}>
-                        • {blackGarlicCalc.currentPhase.namePl} ({blackGarlicCalc.progressPct}%)
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Szacowana waga:')} <Text style={styles.boldText}>{blackGarlicCalc.estimatedCurrentWeightGrams} g</Text> ({t('ubytek wody:')} {blackGarlicCalc.estimatedWeightLossPct}%) | {t('Pozostało:')} <Text style={styles.boldText}>{blackGarlicCalc.remainingDays} {t('dni')}</Text>
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Przyrost antyoksydantu SAC:')} <Text style={styles.boldText}>{blackGarlicCalc.sacMultiplier}x</Text> | {t('Cukry fruktozowe:')} <Text style={styles.boldText}>~{blackGarlicCalc.expectedSugarBrix}°Bx</Text>
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Tekstura ząbków:')} <Text style={styles.boldText}>{blackGarlicCalc.textureEstimatePl}</Text>
-                      </Text>
-
-                      <Text style={[styles.recipeDetailText, { marginTop: 4 }]}>
-                        🍯 {t('Profil bukietu:')} {blackGarlicCalc.flavorProfilePl}
-                      </Text>
-
-                      {blackGarlicCalc.alerts.map((al, idx) => (
-                        <Text key={idx} style={{ fontSize: 11, color: al.severity === 'CRITICAL' ? '#B91C1C' : '#B45309', marginTop: 4 }}>
-                          ⚠️ {al.messagePl}
-                        </Text>
-                      ))}
-
-                      {blackGarlicCalc.recommendedActionsPl.map((act, idx) => (
-                        <Text key={idx} style={[styles.recipeDetailText, { marginTop: 3 }]}>
-                          💡 {act}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
+                <BlackGarlicCard
+                  rawGrams={bgRawGrams}
+                  setRawGrams={setBgRawGrams}
+                  currentDay={bgCurrentDay}
+                  setCurrentDay={setBgCurrentDay}
+                  chamberTempC={bgChamberTempC}
+                  setChamberTempC={setBgChamberTempC}
+                  chamberRhPct={bgChamberRhPct}
+                  setChamberRhPct={setBgChamberRhPct}
+                  blackGarlicCalc={blackGarlicCalc}
+                />
               </View>
             )}
           </View>
@@ -4304,246 +3978,32 @@ export default function CalculatorScreen() {
                 )}
 
                 {/* Tradycyjne Miodosytnictwo & Ekstrakt Brzeczki */}
-                {meadCalc && (
-                  <View style={styles.proCard}>
-                    <Text style={styles.proCardTitle}>
-                      🍯 {t('Tradycyjne Miodosytnictwo (Półtorak/Trójniak)')}
-                    </Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Polska klasyfikacja miodów pitnych: bilans miodu i wody, szok osmotyczny, partionowanie i protokół TOSNA 3.0')}
-                    </Text>
-
-                    {/* Grade selector */}
-                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Klasa miodu pitnego:')}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {(['POLTORAK', 'DWOJNIAK', 'TROJNIAK', 'CZWORNIAK'] as PolishMeadGrade[]).map((mg) => (
-                        <TouchableOpacity
-                          key={mg}
-                          style={[styles.presetPill, meadGrade === mg && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setMeadGrade(mg);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, meadGrade === mg && styles.presetPillTextActive]}>
-                            {MEAD_GRADE_CONFIGS[mg].namePl.split(' (')[0]}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Docelowa objętość brzeczki (L):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(meadTargetVolumeL)}
-                        onChangeText={(v) => setMeadTargetVolumeL(parseFloat(v) || 1)}
-                      />
-                    </View>
-
-                    {/* Preparation method */}
-                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>{t('Metoda przygotowania brzeczki:')}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-                      {[
-                        { id: 'NIESYCONY' as const, label: t('Niesycony (Na zimno, aromatyczny)') },
-                        { id: 'SYCONY' as const, label: t('Sycony (Gotowany z szumowaniem)') },
-                      ].map((pr) => (
-                        <TouchableOpacity
-                          key={pr.id}
-                          style={[styles.presetPill, meadPrepType === pr.id && styles.presetPillActive]}
-                          onPress={() => {
-                            triggerHapticFeedback();
-                            setMeadPrepType(pr.id);
-                          }}
-                        >
-                          <Text style={[styles.presetPillText, meadPrepType === pr.id && styles.presetPillTextActive]}>
-                            {pr.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-
-                    <View style={styles.brineResultBox}>
-                      <Text style={[styles.safetyStatus, { color: '#15803D' }]}>
-                        • {meadCalc.gradeNamePl} — {MEAD_GRADE_CONFIGS[meadGrade].honeyToWaterRatio}
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Miód pszczeli:')} <Text style={styles.boldText}>{meadCalc.honeyLiters} L</Text> ({meadCalc.honeyWeightKg} kg) | {t('Woda niechlorowana:')} <Text style={styles.boldText}>{meadCalc.waterLiters} L</Text>
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Ekstrakt brzeczki:')} <Text style={styles.boldText}>{meadCalc.initialBallingDegrees} °Blg</Text> (SG {meadCalc.initialSpecificGravity}) &rarr; {t('Docelowy alkohol:')} <Text style={styles.boldText}>~{meadCalc.expectedAbvPct}% ABV</Text>
-                      </Text>
-
-                      <Text style={styles.proCardDesc}>
-                        • {t('Okres leżakowania:')} <Text style={styles.boldText}>{meadCalc.expectedAgingYears.min}–{meadCalc.expectedAgingYears.max} {t('lat')}</Text>
-                      </Text>
-
-                      {meadCalc.isStepFeedingMandatory && (
-                        <View style={{ marginTop: 6, padding: 6, backgroundColor: '#FEF3C7', borderRadius: 6 }}>
-                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#B45309' }}>
-                            ⚠️ {t('Wymagane partionowanie miodu (Step-Feeding):')}
-                          </Text>
-                          <Text style={{ fontSize: 11, color: '#92400E', marginTop: 2 }}>
-                            {t('Podziel')} {meadCalc.honeyLiters} L {t('miodu na')} {meadCalc.stepFeedingDosesLiters.length} {t('dawki:')} {meadCalc.stepFeedingDosesLiters.map((d, i) => `${i + 1}. doza: ${d}L`).join(', ')}
-                          </Text>
-                        </View>
-                      )}
-
-                      <Text style={[styles.recipeDetailText, { marginTop: 6 }]}>
-                        🍯 {meadCalc.preparationAdvicePl}
-                      </Text>
-
-                      {/* TOSNA 3.0 Nutrient schedule */}
-                      <View style={{ marginTop: 8, paddingTop: 6, borderTopWidth: 1, borderTopColor: '#E2E8F0' }}>
-                        <Text style={[styles.proCardTitle, { fontSize: 12 }]}>
-                          🧪 {t('Protokół Odżywczy TOSNA 3.0 (Fermaid O):')} {meadCalc.tosnaNutrientGramsTotal} g {t('łącznie')}
-                        </Text>
-                        {meadCalc.tosnaAdditionsSchedulePl.map((sch, idx) => (
-                          <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 2 }}>
-                            • {sch}
-                          </Text>
-                        ))}
-                      </View>
-
-                      {meadCalc.alertsPl.map((alert, idx) => (
-                        <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
-                          ⚠️ {alert}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
+                <MeadCard
+                  meadGrade={meadGrade}
+                  setMeadGrade={setMeadGrade}
+                  targetVolumeL={meadTargetVolumeL}
+                  setTargetVolumeL={setMeadTargetVolumeL}
+                  prepType={meadPrepType}
+                  setPrepType={setMeadPrepType}
+                  meadCalc={meadCalc}
+                />
 
                 {/* Dziki Starter Imbirowy & Piwo Imbirowe */}
-                {gingerBugStarterCalc && gingerBeerBatchCalc && (
-                  <View style={styles.proCard}>
-                    <Text style={styles.proCardTitle}>
-                      🫚 {t('Dziki Starter Imbirowy (Ginger Bug & Piwo Imbirowe)')}
-                    </Text>
-                    <Text style={styles.proCardDesc}>
-                      {t('Dzikie drożdże i bakterie kwasu mlekowego z korzenia imbiru, proporcje nastawu oraz kontrola ciśnienia CO2 (Bottle Burst Guard)')}
-                    </Text>
-
-                    {/* Starter status section */}
-                    <Text style={[styles.inputLabelMini, { marginTop: 6 }]}>🌱 {t('Kondycja startera (Słoik-Matka):')}</Text>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Wiek startera (dni):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(gbStarterDays)}
-                        onChangeText={(v) => setGbStarterDays(parseFloat(v) || 1)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Dni od ostatniego karmienia:')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(gbDaysSinceFeed)}
-                        onChangeText={(v) => setGbDaysSinceFeed(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Widoczne bąbelki i musowanie:')}</Text>
-                      <TouchableOpacity
-                        style={[styles.presetPill, gbHasBubbles ? styles.presetPillActive : null]}
-                        onPress={() => {
-                          triggerHapticFeedback();
-                          setGbHasBubbles(!gbHasBubbles);
-                        }}
-                      >
-                        <Text style={[styles.presetPillText, gbHasBubbles ? styles.presetPillTextActive : null]}>
-                          {gbHasBubbles ? t('TAK (Aktywny)') : t('NIE (Brak piany)')}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-
-                    <View style={[styles.safetyBox, { marginTop: 6 }]}>
-                      <Text style={[
-                        styles.safetyStatus,
-                        gingerBugStarterCalc.isReadyForBrewing ? { color: '#15803D' } : { color: '#B45309' }
-                      ]}>
-                        • {gingerBugStarterCalc.statusLabelPl} ({t('Witalność:')} {gingerBugStarterCalc.starterHealthScore}/100)
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Następne karmienie:')} <Text style={styles.boldText}>{gingerBugStarterCalc.nextFeedGingerGrams} g {t('startego imbiru ze skórką')}</Text> + <Text style={styles.boldText}>{gingerBugStarterCalc.nextFeedSugarGrams} g {t('cukru')}</Text> + <Text style={styles.boldText}>{gingerBugStarterCalc.nextFeedWaterMl} ml {t('wody')}</Text>
-                      </Text>
-                      {gingerBugStarterCalc.recommendationsPl.map((rec, idx) => (
-                        <Text key={idx} style={[styles.recipeDetailText, { marginTop: 3 }]}>
-                          💡 {rec}
-                        </Text>
-                      ))}
-                    </View>
-
-                    {/* Batch brewing section */}
-                    <Text style={[styles.inputLabelMini, { marginTop: 10 }]}>🍾 {t('Nastaw Partii Piwa Imbirowego:')}</Text>
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Objętość partii (L):')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(gbBatchVolumeL)}
-                        onChangeText={(v) => setGbBatchVolumeL(parseFloat(v) || 1)}
-                      />
-                    </View>
-
-                    <View style={styles.rowBetween}>
-                      <Text style={styles.inlineLabel}>{t('Godziny refermentacji w butelce:')}</Text>
-                      <TextInput
-                        style={styles.numInput}
-                        keyboardType="numeric"
-                        value={String(gbHoursInBottle)}
-                        onChangeText={(v) => setGbHoursInBottle(parseFloat(v) || 0)}
-                      />
-                    </View>
-
-                    <View style={styles.brineResultBox}>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Aktywny odcedzony starter:')} <Text style={styles.boldText}>{gingerBeerBatchCalc.requiredStarterVolumeMl} ml</Text> (10% {t('nastawu')})
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Cukier do nastawu:')} <Text style={styles.boldText}>{gingerBeerBatchCalc.totalSugarGrams} g</Text> | {t('Świeży imbir na wywar:')} <Text style={styles.boldText}>{gingerBeerBatchCalc.freshGingerDecoctionGrams} g</Text>
-                      </Text>
-                      <Text style={styles.proCardDesc}>
-                        • {t('Sok ze świeżej cytryny:')} <Text style={styles.boldText}>{gingerBeerBatchCalc.lemonJuiceMl} ml</Text> ({t('dla pH 3.8')})
-                      </Text>
-
-                      <View style={{ marginTop: 6, paddingTop: 6, borderTopWidth: 1, borderTopColor: '#E2E8F0' }}>
-                        <Text style={[
-                          styles.safetyStatus,
-                          gingerBeerBatchCalc.burstRiskSeverity === 'CRITICAL'
-                            ? styles.safetyDanger
-                            : gingerBeerBatchCalc.burstRiskSeverity === 'WARNING'
-                            ? { color: '#B45309' }
-                            : { color: '#15803D' }
-                        ]}>
-                          • {t('Nasycenie CO2:')} {gingerBeerBatchCalc.estimatedCo2Volumes} vol ({gingerBeerBatchCalc.carbonationStage})
-                        </Text>
-                        <Text style={styles.proCardDesc}>
-                          • {t('Do optymalnego nagazowania:')} <Text style={styles.boldText}>~{gingerBeerBatchCalc.estimatedHoursToOptimalCo2} {t('godzin')}</Text> ({t('w')} {ambientTempC}°C)
-                        </Text>
-                      </View>
-
-                      {gingerBeerBatchCalc.alertsPl.map((al, idx) => (
-                        <Text key={idx} style={{ fontSize: 11, color: '#B91C1C', marginTop: 4 }}>
-                          ⚠️ {al}
-                        </Text>
-                      ))}
-
-                      {gingerBeerBatchCalc.stepsPl.map((step, idx) => (
-                        <Text key={idx} style={{ fontSize: 11, color: '#334155', marginTop: 3 }}>
-                          {idx + 1}. {step}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
+                <GingerBugCard
+                  starterDays={gbStarterDays}
+                  setStarterDays={setGbStarterDays}
+                  daysSinceFeed={gbDaysSinceFeed}
+                  setDaysSinceFeed={setGbDaysSinceFeed}
+                  hasBubbles={gbHasBubbles}
+                  setHasBubbles={setGbHasBubbles}
+                  batchVolumeL={gbBatchVolumeL}
+                  setBatchVolumeL={setGbBatchVolumeL}
+                  hoursInBottle={gbHoursInBottle}
+                  setHoursInBottle={setGbHoursInBottle}
+                  ambientTempC={ambientTempC}
+                  starterCalc={gingerBugStarterCalc}
+                  batchCalc={gingerBeerBatchCalc}
+                />
               </View>
             )}
           </View>
