@@ -22,6 +22,14 @@
 
 ---
 
+## 📜 Standardy i Role (ADR 0001)
+Projekt realizowany jest w oparciu o 10 Zasad Uniwersalnych oraz procedurę Odkrycia Ról z *Biblioteki zasad i ról* (Google Drive):
+- **Dokument decyzji:** [`docs/decisions/0001_universal_rules_and_roles.md`](file:///c:/Users/lukas/Documents/antigravity/calm-planck/docs/decisions/0001_universal_rules_and_roles.md)
+- **Aktywne moduły:** Moduł: Aplikacje (oprogramowanie), Moduł: Research i treści merytoryczne, 3 reguły ogólne (jedno źródło prawdy z generatorami, „udokumentowane” ≠ „zaimplementowane”, warianty obok kanonu).
+- **Aktywne role:** Programista, Badacz merytoryczny, Analityk produktu, Tłumacz, Audytor / Tester Jakości, Sekretarz dokumentacji.
+
+---
+
 ## 🔬 Nowe Moduły Rzemieślnicze (Zaadaptowane z projektów Napar, Piekarz, Słoik i Oczko)
 
 Zgodnie z audytem technologicznym ekosystemu Apps4Brew, do projektu włączono 9 wyspecjalizowanych silników dziedzinowych:
