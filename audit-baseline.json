@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-10-18T00:36:00+02:00",
+  "commitSha": "1de5f8c",
+  "branch": "fix/qa-audit-remediation",
+  "metrics": {
+    "testSuitesCount": 83,
+    "testsCount": 494,
+    "failingTestsCount": 0,
+    "skippedTestsCount": 0,
+    "testDurationSeconds": 9.68,
+    "matrixElementsTotal": 1026,
+    "matrixElementsCovered": 1026,
+    "matrixCoveragePercent": 100.0,
+    "i18nCodeKeys": 752,
+    "i18nEnKeys": 1053,
+    "i18nCoveragePercent": 100.0,
+    "productionDependenciesCount": 22,
+    "circularDependenciesCount": 0,
+    "timezonesTestedCount": 7,
+    "strykerBreakThreshold": 75,
+    "coverageThresholdRatchet": {
+      "core": {
+        "statements": 93,
+        "branches": 83,
+        "functions": 96,
+        "lines": 95
+      },
+      "lib": {
+        "statements": 70,
+        "branches": 55,
+        "functions": 80,
+        "lines": 72
+      }
+    }
+  },
+  "openDefects": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0
+  }
+}

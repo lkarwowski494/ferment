@@ -6,6 +6,8 @@ import {
   listBackups,
   getCorruptStateRecovery,
   clearCorruptState,
+  isAutoBackup,
+  isSafetyBackup,
   _resetInMemoryBackups,
 } from '../../src/lib/backup';
 import { getSqliteStore } from '../../src/data/sqlite-store';
@@ -112,5 +114,97 @@ describe('FERMENT Dual 10-Rotation Backup & Disaster Recovery Engine (BR-TEST-02
     const res = await restoreFromBackupJson(JSON.stringify(futurePayload));
     expect(res.success).toBe(false);
     expect(res.message).toContain('nowszej wersji aplikacji');
+  });
+
+  it('correctly classifies auto, safety, and other backup file names (QA-03)', () => {
+    expect(isAutoBackup('ferment-kopia-2026-10-18-12-00-00.json')).toBe(true);
+    expect(isAutoBackup('ferment_backup_2026.json')).toBe(true);
+    expect(isAutoBackup('ferment-przed-importem-2026.json')).toBe(false);
+
+    expect(isSafetyBackup('ferment-przed-importem-2026-10-18.json')).toBe(true);
+    expect(isSafetyBackup('ferment-przed-czyszczeniem-2026-10-18.json')).toBe(true);
+    expect(isSafetyBackup('safety_backup_snapshot.json')).toBe(true);
+    expect(isSafetyBackup('ferment-kopia-1.json')).toBe(false);
+    expect(isSafetyBackup('arbitrary-file.json')).toBe(false);
+  });
+
+  it('handles completely malformed JSON and captures it in corrupt state recovery (QA-03)', async () => {
+    await clearCorruptState();
+    const brokenJson = 'NOT_EVEN_JSON_AT_ALL {[';
+    const res = await restoreFromBackupJson(brokenJson);
+
+    expect(res.success).toBe(false);
+    expect(res.message).toContain('Błąd przywracania kopii');
+
+    const corrupt = await getCorruptStateRecovery();
+    expect(corrupt).not.toBeNull();
+    expect(corrupt?.reason).toBe('Niepoprawny format JSON');
+    expect(corrupt?.recovery).toBe(brokenJson);
+
+    await clearCorruptState();
+    const afterClear = await getCorruptStateRecovery();
+    expect(afterClear).toBeNull();
+  });
+
+  it('restores all entities: wheels, pantry items, and weigh logs (QA-03)', async () => {
+    const fullPayload = {
+      schema_version: 1,
+      app: 'FERMENT' as const,
+      exported_at: new Date().toISOString(),
+      batches: [],
+      cave_wheels: [
+        {
+          id: 'wheel-restore-1',
+          batchId: 'batch-1',
+          wheelTag: 'TAG-RES-1',
+          locationInCave: 'Shelf A',
+          initialWeightGrams: 1500,
+          currentWeightGrams: 1400,
+          rindType: 'NATURAL' as const,
+          targetAgingDays: 90,
+          shrinkagePct: 6.6,
+        },
+      ],
+      pantry_items: [
+        {
+          id: 'pantry-restore-1',
+          itemName: 'Chlorek Wapnia CaCl2',
+          category: 'ADDITIVE' as const,
+          quantityAvailable: 100,
+          unit: 'ml',
+        },
+      ],
+      weigh_logs: [
+        {
+          id: 'log-restore-1',
+          wheelId: 'wheel-restore-1',
+          loggedAt: 1700000000000,
+          weightGrams: 1450,
+          relativeHumidityPct: 85,
+          ambientTemperatureC: 12,
+        },
+      ],
+      app_settings: {
+        app_lang: 'pl' as const,
+        unit_system: 'metric' as const,
+        trial_start_timestamp: 1000,
+        purchased_receipt_tier: 'none' as const,
+        updated_at: '2026-10-18',
+      },
+    };
+
+    const res = await restoreFromBackupJson(JSON.stringify(fullPayload));
+    expect(res.success).toBe(true);
+
+    const wheels = await store.getCaveWheels();
+    expect(wheels.some(w => w.id === 'wheel-restore-1')).toBe(true);
+
+    const items = await store.getPantryItems();
+    expect(items.some(p => p.id === 'pantry-restore-1')).toBe(true);
+  });
+
+  it('creates safety backup with przed-czyszczeniem prefix (QA-03)', async () => {
+    const file = await createSafetyBackup('przed-czyszczeniem');
+    expect(file).toContain('ferment-przed-czyszczeniem-');
   });
 });
