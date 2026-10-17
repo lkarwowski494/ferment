@@ -26,8 +26,8 @@
     "check:cycles": "node scripts/check-cycles.mjs",
     "test:mutation": "stryker run",
     "verify:pr": "npm run typecheck && npm run check:i18n && npm run test:domain && npm run test:pbt && npm run test:a11y && npm run test:security",
-    "verify:release": "npm run verify:pr && npm run test:db && npm run test:storekit && npm run test:resilience && npm run verify:native && npm run matrix:check",
-    "verify": "npm run typecheck && npm run check:i18n && npm run check:corpus && npm run check:licenses && npm run check:cycles && npm run check:maestro && npm run verify:native && npm run matrix:check && npm test"
+    "verify": "npm run typecheck && npm run check:i18n && npm run check:corpus && npm run check:licenses && npm run check:cycles && npm run check:maestro && npm run verify:native && npm run matrix:check && npm test",
+    "postinstall": "node scripts/patch-expo-modules-jsi.mjs"
   },
   "dependencies": {
     "@types/qrcode": "^1.5.6",
