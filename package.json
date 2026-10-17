@@ -7,6 +7,15 @@
   "scripts": {
     "start": "expo start",
     "test": "jest",
+    "test:fast": "jest --onlyChanged --passWithNoTests",
+    "test:domain": "jest tests/core tests/guards",
+    "test:pbt": "jest tests/matrix-invariants.prop.test.ts",
+    "test:db": "jest tests/data/sqlite-real.test.ts tests/data/sqlite-store.test.ts",
+    "test:a11y": "jest tests/matrix-a11y.test.tsx tests/close-button-guard.test.tsx tests/swipe-delete.test.tsx",
+    "test:security": "jest tests/interaction-guards.test.ts tests/guards/sql-guards.test.ts",
+    "test:storekit": "jest tests/access/app-access.test.ts tests/storekit/storekit-machine.test.ts tests/storekit/store-guidelines.test.ts",
+    "test:resilience": "jest tests/lib/resilient-timer-background.test.ts tests/concurrency/double-tap.test.tsx",
+    "test:perf": "jest tests/perf/performance-budgets.test.ts",
     "typecheck": "tsc --noEmit",
     "check:i18n": "node scripts/check-i18n.mjs",
     "check:corpus": "node scripts/check-corpus.mjs",
@@ -16,6 +25,8 @@
     "check:maestro": "node scripts/check-maestro.mjs",
     "check:cycles": "node scripts/check-cycles.mjs",
     "test:mutation": "stryker run",
+    "verify:pr": "npm run typecheck && npm run check:i18n && npm run test:domain && npm run test:pbt && npm run test:a11y && npm run test:security",
+    "verify:release": "npm run verify:pr && npm run test:db && npm run test:storekit && npm run test:resilience && npm run verify:native && npm run matrix:check",
     "verify": "npm run typecheck && npm run check:i18n && npm run check:corpus && npm run check:licenses && npm run check:cycles && npm run check:maestro && npm run verify:native && npm run matrix:check && npm test"
   },
   "dependencies": {
@@ -48,6 +59,7 @@
     "@stryker-mutator/core": "^10.0.0",
     "@stryker-mutator/jest-runner": "^10.0.0",
     "@types/jest": "^29.5.14",
+    "@types/node": "^26.6.5",
     "@types/react": "~19.2.10",
     "@types/react-test-renderer": "^19.3.0",
     "babel-preset-expo": "~57.0.0",

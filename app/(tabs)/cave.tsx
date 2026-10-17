@@ -4,7 +4,7 @@
 // Ergonomia: 'Hands in whey' >= 48pt, 1px tactile borders, tabular-nums
 // ============================================================================
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -72,53 +72,82 @@ export default function CaveScreen() {
     return true;
   });
 
+  const [isMutating, setIsMutating] = useState<boolean>(false);
+  const isMutatingRef = useRef<boolean>(false);
+
   // Krążki wymagające obrotu na dziś (P6)
   const wheelsNeedingTurnToday = wheels.filter((w) => {
     if (!w.lastTurnedAt) return true;
-    return Date.now() - w.lastTurnedAt > 24 * 3600 * 1000;
+    const elapsed = Date.now() - w.lastTurnedAt;
+    if (elapsed < 0) return false; // Clock skew protection
+    return elapsed > 24 * 3600 * 1000;
   });
 
   // Szybka akcja obrotu z natychmiastowym zapisem i opcją Undo (P10)
   const handleTurnWheel = async (wheel: CaveCheeseWheel) => {
-    triggerHapticFeedback();
-    const prevTurn = wheel.lastTurnedAt;
-    const now = Date.now();
-    const result = recordAffinageAction(wheel, 'TURN', undefined, undefined, now);
+    if (isMutatingRef.current) return;
+    isMutatingRef.current = true;
+    setIsMutating(true);
+    try {
+      triggerHapticFeedback();
+      const prevTurn = wheel.lastTurnedAt;
+      const now = Date.now();
+      const result = recordAffinageAction(wheel, 'TURN', undefined, undefined, now);
 
-    await saveCaveWheel(result.updatedWheel);
-    await logCaveAction(result.actionLog);
-    setUndoAction({ wheel, prevTime: prevTurn });
-    await loadWheels();
+      await saveCaveWheel(result.updatedWheel);
+      await logCaveAction(result.actionLog);
+      setUndoAction({ wheel, prevTime: prevTurn });
+      await loadWheels();
+    } finally {
+      isMutatingRef.current = false;
+      setIsMutating(false);
+    }
   };
 
   const handleUndoTurn = async () => {
-    if (!undoAction) return;
-    triggerHapticFeedback();
-    const reverted: CaveCheeseWheel = {
-      ...undoAction.wheel,
-      lastTurnedAt: undoAction.prevTime,
-    };
-    await saveCaveWheel(reverted);
-    setUndoAction(null);
-    await loadWheels();
+    if (!undoAction || isMutatingRef.current) return;
+    isMutatingRef.current = true;
+    setIsMutating(true);
+    try {
+      triggerHapticFeedback();
+      const reverted: CaveCheeseWheel = {
+        ...undoAction.wheel,
+        lastTurnedAt: undoAction.prevTime,
+      };
+      await saveCaveWheel(reverted);
+      setUndoAction(null);
+      await loadWheels();
+    } finally {
+      isMutatingRef.current = false;
+      setIsMutating(false);
+    }
   };
 
   const handleAddNewWheel = async () => {
-    triggerHapticFeedback();
-    const newWheel: CaveCheeseWheel = {
-      id: `wheel-${Date.now()}`,
-      batchId: `batch-${Date.now()}`,
-      wheelTag: newWheelTag.trim() || `SER-${Date.now().toString().slice(-4)}`,
-      locationInCave: 'Półka A1',
-      initialWeightGrams: newWheelWeight,
-      currentWeightGrams: newWheelWeight,
-      rindType: newRindType,
-      targetAgingDays: newWheelDays,
-      shrinkagePct: 0,
-    };
-    await saveCaveWheel(newWheel);
-    setIsAddModalOpen(false);
-    await loadWheels();
+    if (isMutatingRef.current) return;
+    isMutatingRef.current = true;
+    setIsMutating(true);
+    try {
+      triggerHapticFeedback();
+      const uniqueSuffix = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      const newWheel: CaveCheeseWheel = {
+        id: `wheel-${uniqueSuffix}`,
+        batchId: `batch-${uniqueSuffix}`,
+        wheelTag: newWheelTag.trim() || `SER-${uniqueSuffix.slice(-6)}`,
+        locationInCave: 'Półka A1',
+        initialWeightGrams: newWheelWeight,
+        currentWeightGrams: newWheelWeight,
+        rindType: newRindType,
+        targetAgingDays: newWheelDays,
+        shrinkagePct: 0,
+      };
+      await saveCaveWheel(newWheel);
+      setIsAddModalOpen(false);
+      await loadWheels();
+    } finally {
+      isMutatingRef.current = false;
+      setIsMutating(false);
+    }
   };
 
   return (

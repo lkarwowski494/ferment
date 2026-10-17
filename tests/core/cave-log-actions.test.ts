@@ -1,5 +1,5 @@
 // ============================================================================
-// Apps4Brew Studio — Tests for Cave Log Actions & Shrinkage Tracker
+// Apps4Brew Studio — Tests for Cave Log Actions & Shrinkage Tracker (GAP-LOG-03)
 // ============================================================================
 
 import {
@@ -8,7 +8,7 @@ import {
 } from '../../src/core/cave-log-actions';
 import { CaveCheeseWheel } from '../../src/data/db';
 
-describe('Cave Log Actions & Shrinkage Engine', () => {
+describe('Cave Log Actions & Shrinkage Engine (RD-CAVE-01..03)', () => {
   const mockWheel: CaveCheeseWheel = {
     id: 'wheel_1',
     batchId: 'batch_1',
@@ -32,6 +32,15 @@ describe('Cave Log Actions & Shrinkage Engine', () => {
     expect(res.actionLog.notes).toBe('Obrót poranny');
   });
 
+  it('updates timestamp on WASH_BRINE and DRY_BRUSH actions', () => {
+    const timestamp = 1700000000000;
+    const washRes = recordAffinageAction(mockWheel, 'WASH_BRINE', undefined, 'Mycie solanką 3%', timestamp);
+    expect(washRes.updatedWheel.lastWashedAt).toBe(timestamp);
+
+    const brushRes = recordAffinageAction(mockWheel, 'DRY_BRUSH', undefined, 'Szczotkowanie pleśni', timestamp + 1000);
+    expect(brushRes.updatedWheel.lastBrushedAt).toBe(timestamp + 1000);
+  });
+
   it('calculates shrinkage delta and updates weight on WEIGH action', () => {
     const res = recordAffinageAction(mockWheel, 'WEIGH', 920);
 
@@ -41,12 +50,30 @@ describe('Cave Log Actions & Shrinkage Engine', () => {
     expect(res.actionLog.weightGrams).toBe(920);
   });
 
+  it('handles weight gain (moisture absorption) without negative shrinkagePct', () => {
+    // Wheel absorbs moisture or brine wash
+    const res = recordAffinageAction(mockWheel, 'WEIGH', 1050);
+
+    expect(res.updatedWheel.currentWeightGrams).toBe(1050);
+    expect(res.updatedWheel.shrinkagePct).toBe(0); // Clamped to min 0
+    expect(res.actionLog.weightGrams).toBe(1050);
+  });
+
   it('triggers alert if total shrinkage exceeds 20%', () => {
     const res = recordAffinageAction(mockWheel, 'WEIGH', 780);
 
     expect(res.updatedWheel.shrinkagePct).toBe(22.0);
     expect(res.alert).toBeDefined();
     expect(res.alert).toContain('20%');
+  });
+
+  it('handles empty logs in analyzeShrinkageTrajectory gracefully', () => {
+    const analysis = analyzeShrinkageTrajectory(1000, [], Date.now() - 5 * 86400000);
+    expect(analysis.totalShrinkagePct).toBe(0);
+    expect(analysis.averageDailyRatePct).toBe(0);
+    expect(analysis.isDesiccationRisk).toBe(false);
+    expect(analysis.isRetentionRisk).toBe(false);
+    expect(analysis.assessment).toContain('Brak zarejestrowanych ważeń');
   });
 
   it('analyzes shrinkage trajectory and detects rapid desiccation', () => {
@@ -61,5 +88,18 @@ describe('Cave Log Actions & Shrinkage Engine', () => {
     expect(analysis.averageDailyRatePct).toBeCloseTo(1.0, 1);
     expect(analysis.isDesiccationRisk).toBe(true);
     expect(analysis.assessment).toContain('Alarm przesuszenia');
+  });
+
+  it('detects moisture retention risk when cheese does not dry after 14 days', () => {
+    const created = Date.now() - 20 * 24 * 3600 * 1000; // 20 days ago
+    const logs = [
+      { loggedAt: created + 10 * 24 * 3600 * 1000, weightGrams: 995 },
+      { loggedAt: created + 20 * 24 * 3600 * 1000, weightGrams: 990 }, // only 1% in 20 days = 0.05%/day
+    ];
+
+    const analysis = analyzeShrinkageTrajectory(1000, logs, created);
+    expect(analysis.totalShrinkagePct).toBe(1.0);
+    expect(analysis.isRetentionRisk).toBe(true);
+    expect(analysis.assessment).toContain('Słabe odparowanie wody');
   });
 });

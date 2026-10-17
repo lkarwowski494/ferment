@@ -12,7 +12,7 @@ import {
   SearchField,
   Screen,
 } from '../src/components/ui';
-import { Text, View } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 
 describe('Accessibility & Small Screen 320pt Matrix (NFR-A11Y-001..008)', () => {
   it('A11Y-001: All studio interactive components provide touch target >= 44pt', () => {
@@ -37,11 +37,12 @@ describe('Accessibility & Small Screen 320pt Matrix (NFR-A11Y-001..008)', () => 
     const buttons = root.findAll((node: any) => node.props.accessibilityRole === 'button');
     expect(buttons.length).toBeGreaterThan(0);
     for (const btn of buttons) {
-      const style = btn.props.style;
-      const flatStyle = Array.isArray(style) ? Object.assign({}, ...style) : style || {};
-      const minHeight = flatStyle.minHeight ?? flatStyle.height ?? 44;
-      const minWidth = flatStyle.minWidth ?? flatStyle.width ?? 44;
+      const flatStyle = StyleSheet.flatten(btn.props.style) || {};
+      const minHeight = flatStyle.minHeight ?? flatStyle.height;
+      const minWidth = flatStyle.minWidth ?? flatStyle.width;
+      expect(minHeight).toBeDefined();
       expect(minHeight).toBeGreaterThanOrEqual(44);
+      expect(minWidth).toBeDefined();
       expect(minWidth).toBeGreaterThanOrEqual(44);
     }
   });

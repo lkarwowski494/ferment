@@ -13,6 +13,7 @@ import {
   TextInput,
   Switch,
   Alert,
+  AppState,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { t } from '../../src/lib/i18n';
@@ -400,21 +401,34 @@ export default function CalculatorScreen() {
   const [gbHoursInBottle, setGbHoursInBottle] = useState<number>(24);
   const [gbBottleType, setGbBottleType] = useState<GingerBottleType>('SWING_TOP_HEAVY_GLASS');
 
-  // Active Flocculation Timer
+  // Active Flocculation Timer (Background-resilient via absolute timestamp & AppState sync)
+  const [timerStartMs, setTimerStartMs] = useState<number | null>(null);
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
-    if (isTimerRunning) {
-      interval = setInterval(() => {
-        setTimerSeconds((prev) => prev + 1);
-      }, 1000);
+    if (isTimerRunning && timerStartMs !== null) {
+      const syncElapsed = () => {
+        const elapsed = Math.max(0, Math.floor((Date.now() - timerStartMs) / 1000));
+        setTimerSeconds(elapsed);
+      };
+
+      syncElapsed();
+      interval = setInterval(syncElapsed, 1000);
+
+      const sub = AppState.addEventListener('change', (nextState) => {
+        if (nextState === 'active') {
+          syncElapsed();
+        }
+      });
+
+      return () => {
+        if (interval) clearInterval(interval);
+        sub.remove();
+      };
     }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isTimerRunning]);
+  }, [isTimerRunning, timerStartMs]);
 
   const toggleKeepAwake = (val: boolean) => {
     setIsKeepAwake(val);
@@ -428,8 +442,10 @@ export default function CalculatorScreen() {
 
   const handleStartTimer = () => {
     triggerHapticFeedback();
-    setIsTimerRunning(true);
+    const now = Date.now();
+    setTimerStartMs(now);
     setTimerSeconds(0);
+    setIsTimerRunning(true);
     if (!isKeepAwake) {
       toggleKeepAwake(true);
     }
@@ -438,8 +454,11 @@ export default function CalculatorScreen() {
   const handleStopTimer = () => {
     triggerHapticFeedback();
     setIsTimerRunning(false);
+    const finalElapsed = timerStartMs ? Math.max(0, Math.floor((Date.now() - timerStartMs) / 1000)) : timerSeconds;
+    setTimerSeconds(finalElapsed);
+    setTimerStartMs(null);
     playTimerCompletionAlert();
-    setFlocSecInput(timerSeconds);
+    setFlocSecInput(finalElapsed);
   };
 
   const handleSelectRecipe = (recipe: CanonicalRecipe) => {
