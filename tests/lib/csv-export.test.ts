@@ -8,8 +8,16 @@ import {
   generateCaveWheelsCsv,
   generateSensoryLogsCsv,
   generatePantryCsv,
+  shareCsvExport,
 } from '../../src/lib/csv-export';
 import { Batch, CaveCheeseWheel, SensoryEvaluation, PantryItem } from '../../src/data/db';
+import * as Sharing from 'expo-sharing';
+
+jest.mock('expo-file-system', () => ({
+  documentDirectory: 'file:///mock/documents/',
+  EncodingType: { UTF8: 'utf8' },
+  writeAsStringAsync: jest.fn().mockResolvedValue(undefined),
+}));
 
 describe('FERMENT RFC 4180 CSV Production Log Export', () => {
   it('escapes fields according to RFC 4180 standard', () => {
@@ -120,5 +128,32 @@ describe('FERMENT RFC 4180 CSV Production Log Export', () => {
     expect(lines).toHaveLength(2);
     expect(lines[0]).toContain('Nazwa Składnika');
     expect(lines[1]).toContain('Sól Kamienna Kłodawska,SALT,1500,g,,0.005');
+  });
+
+  describe('shareCsvExport (QA-04)', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('appends .csv if not present and attempts to write and share file', async () => {
+      (Sharing.isAvailableAsync as jest.Mock).mockResolvedValue(true);
+      const uri = await shareCsvExport('partie-testowe', 'ID,Nazwa\n1,Gouda');
+      expect(uri).toContain('partie-testowe.csv');
+      expect(Sharing.shareAsync).toHaveBeenCalledWith(
+        uri,
+        expect.objectContaining({
+          mimeType: 'text/csv',
+          dialogTitle: 'Eksportuj partie-testowe',
+        })
+      );
+    });
+
+    it('keeps existing .csv extension and handles sharing unavailable', async () => {
+      (Sharing.isAvailableAsync as jest.Mock).mockResolvedValue(false);
+      const uri = await shareCsvExport('partie.csv', 'ID,Nazwa\n1,Gouda');
+      expect(uri).toContain('partie.csv');
+      expect(uri).not.toContain('.csv.csv');
+      expect(Sharing.shareAsync).not.toHaveBeenCalled();
+    });
   });
 });

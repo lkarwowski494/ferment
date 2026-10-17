@@ -8,6 +8,7 @@ const ALLOWED_WARN_PATTERNS = [
   /Animated: `useNativeDriver`/,
   /has been extracted from react-native core/,
   /The above error occurred in the <.*> component/,
+  /Method .* imported from "expo-file-system" is deprecated/,
 ];
 
 console.error = (...args) => {
