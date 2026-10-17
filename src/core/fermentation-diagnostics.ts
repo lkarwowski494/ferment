@@ -10,7 +10,7 @@ export type DefectSafetyVerdict =
   | 'REPAIRABLE_RISK'   // Active risk requiring step-by-step technological rescue
   | 'BIOHAZARD_DISCARD'; // Unsafe / contaminated (mycotoxins, botulinum, putrefaction)
 
-export type DefectCategory = 'CHEESE' | 'VEG_FERMENT' | 'KOMBUCHA' | 'VINEGAR';
+export type DefectCategory = 'CHEESE' | 'VEG_FERMENT' | 'KOMBUCHA' | 'VINEGAR' | 'DAIRY_KITCHEN';
 
 export interface FermentationDefect {
   id: string;
@@ -109,6 +109,170 @@ export const FERMENTATION_DEFECTS: FermentationDefect[] = [
     preventiveMeasures: [
       'Monitoruj VPD piwniczki i utrzymuj je w granicach 0.12–0.24 kPa.',
       'Unikaj bezpośredniego nawiewu wentylatora na krążki serowe.',
+    ],
+  },
+  {
+    id: 'CH_RIND_MELTING',
+    name: 'Śluzowacenie i Topnienie Skórki w Solance (Rind Slime)',
+    category: 'CHEESE',
+    symptomKeywords: ['śluz', 'mydło', 'topnienie', 'solanka', 'wapń', 'cacl2', 'zmywanie'],
+    visualDescription: 'Skórka po kąpieli w solance jest śliska, mydlasta i zmywa się pod palcami jak mokre mydło.',
+    aromaDescription: 'Normalny zapach serwatkowy lub lekko drożdżowy.',
+    textureDescription: 'Powierzchnia rozmiękła, galaretowata warstwa wierzchnia.',
+    rootCauseMicrobiology: 'Wypłukanie jonów Ca2+ z powierzchni kazeiny na skutek braku chlorku wapnia w roztworze solanki lub zbyt wysokiego pH wody (>5.6).',
+    safetyVerdict: 'REPAIRABLE_RISK',
+    stepByStepRemedy: [
+      '1. Wyjmij ser z solanki i delikatnie osusz czystą chustą bawełnianą.',
+      '2. Uzupełnij solankę o 0.2% chlorku wapnia (CaCl2) i zakwasz kwasem mlekowym do pH 5.2–5.4.',
+      '3. Obsyp krążek cienką warstwą suchej soli i pozostaw na 24h w chłodnym przewiewnym miejscu do utworzenia stabilnej skórki.',
+    ],
+    preventiveMeasures: [
+      'Zawsze dodawaj 0.1–0.2% CaCl2 do świeżo przygotowanej solanki.',
+      'Utrzymuj pH solanki na poziomie 5.2–5.4 (zgodnie z pH sera po prasowaniu).',
+    ],
+  },
+  {
+    id: 'CH_MUCOR_MOLD',
+    name: 'Sierść Kota / Pleśnie Dzikie Mucor na Skórce',
+    category: 'CHEESE',
+    symptomKeywords: ['mucor', 'sierść kota', 'włosy', 'czarna pleśń', 'szara pleśń', 'wilgoć'],
+    visualDescription: 'Wysokie (1–2 cm), szare lub czarniawe kosmyki pleśni przypominające sierść kota rozwijające się na bokach i wierzchu krążka.',
+    aromaDescription: 'Mocny, stęchły, piwniczny zapach ziemisty.',
+    textureDescription: 'Puszyste, łatwo ścieralne kłaczki grzybni.',
+    rootCauseMicrobiology: 'Rozwój grzybów strzępkowych Mucor miehei lub Rhizopus na skutek nadmiernej wilgotności w dojrzewalni (RH > 95%) i braku cyrkulacji powietrza.',
+    safetyVerdict: 'REPAIRABLE_RISK',
+    stepByStepRemedy: [
+      '1. Energicznie zeszczotkuj całą grzybnię suchą szczotką serowarską z twardego włosia.',
+      '2. Przemyj krążek 20% solanką z dodatkiem 5% octu jabłkowego.',
+      '3. Obniż wilgotność w piwniczce do 84–86% RH i zapewnij delikatny ruch powietrza.',
+    ],
+    preventiveMeasures: [
+      'Nie dopuszczaj do kondensacji kropelkowej na suficie i ścianach piwniczki.',
+      'Dezynfekuj deski serowarskie wrzątkiem przed każdym nowym krążkiem.',
+    ],
+  },
+
+  // --------------------------------------------------------------------------
+  // DAIRY KITCHEN DEFECTS (Twarogi, Masło, Jogurt)
+  // --------------------------------------------------------------------------
+  {
+    id: 'BUTTER_HYDROLYTIC_RANCIDITY',
+    name: 'Zjełczenie Hydrolityczne Masła (Piekący Posmak)',
+    category: 'DAIRY_KITCHEN',
+    symptomKeywords: ['masło', 'zjełczałe', 'mydło', 'piekący', 'lipaza', 'surowe mleko'],
+    visualDescription: 'Wygląd zewnętrzny bez większych zmian, czasami ciemniejsza żółta warstewka na powierzchni.',
+    aromaDescription: 'Ostry, gryzący zapach zjełczałego tłuszczu i kwasu masłowego.',
+    textureDescription: 'Tekstura prawidłowa lub lekko miękka.',
+    rootCauseMicrobiology: 'Uwalnianie wolnych kwasów tłuszczowych (kwas masłowy, kapronowy) pod wpływem natywnych lipaz mleka surowego lub enzymów bakteryjnych.',
+    safetyVerdict: 'BIOHAZARD_DISCARD',
+    stepByStepRemedy: [
+      '1. Masło o silnym zapachu zjełczenia nie nadaje się do spożycia na surowo.',
+      '2. Przy lekkim zjełczeniu można je przetopić na ghee (wysoka temperatura 105°C odparuje lotne kwasy tłuszczowe).',
+      '3. W przypadku intensywnego pieczenia w gardle wyrzuć osełkę.',
+    ],
+    preventiveMeasures: [
+      'Zawsze pasteryzuj śmietankę na masło w 72–75°C przez 15 sekund, aby unieczynnić enzymy lipolityczne.',
+      'Przechowuj masło w szczelnym pojemniku bez dostępu światła w temperaturze <4°C.',
+    ],
+  },
+  {
+    id: 'BUTTER_OXIDATIVE_RANCIDITY',
+    name: 'Zjełczenie Oksydacyjne Masła (Metaliczny Posmak Łojowy)',
+    category: 'DAIRY_KITCHEN',
+    symptomKeywords: ['metaliczny', 'łój', 'utlenianie', 'światło', 'tłuszcz', 'masło'],
+    visualDescription: 'Przejrzysta, zżółknięta warstwa na powierzchni osełki wystawionej na światło.',
+    aromaDescription: 'Zapach tektury, świecy łojowej lub zjełczałego oleju.',
+    textureDescription: 'Normalna.',
+    rootCauseMicrobiology: 'Autooksydacja nienasyconych kwasów tłuszczowych pod wpływem tlenu, promieniowania UV i śladowych jonów miedzi/żelaza z naczyń.',
+    safetyVerdict: 'REPAIRABLE_RISK',
+    stepByStepRemedy: [
+      '1. Odkrój i wyrzuć utlenioną wierzchnią warstwę masła (ok. 5 mm).',
+      '2. Wnętrze zabezpieczone przed światłem jest bezpieczne i zachowuje czysty smak.',
+      '3. Przełóż masło do ceramicznej maselniczki wodnej lub zawiń w folię aluminiową/papier pergaminowy.',
+    ],
+    preventiveMeasures: [
+      'Nigdy nie zostawiaj masła w przezroczystym szkle w nasłonecznionym miejscu.',
+      'Używaj naczyń ze stali kwasoodpornej (inox), unikaj mosiądzu i miedzi.',
+    ],
+  },
+  {
+    id: 'CURD_OVERHEATED_CHALKY',
+    name: 'Przegrzany Twaróg Klinkowy (Kredowy i Suchy)',
+    category: 'DAIRY_KITCHEN',
+    symptomKeywords: ['twaróg', 'suchy', 'kredowy', 'twardy', 'grysik', 'przegrzany'],
+    visualDescription: 'Ziarenka twarogu są sztywne, drobne, przypominają ugotowany grysik ryżowy.',
+    aromaDescription: 'Czysty kwasowy zapach świeżego twarogu.',
+    textureDescription: 'Krucha, sucha, nie daje się rozsmarować na pieczywie bez pękania.',
+    rootCauseMicrobiology: 'Przekroczenie temperatury 42–44°C podczas dogrzewania skrzepu twarogowego, co wywołało zbyt gwałtowny skurcz kazeiny i utratę wody wiązanej.',
+    safetyVerdict: 'SAFE_EDIBLE',
+    stepByStepRemedy: [
+      '1. Twaróg jest w 100% bezpieczny i pożywny.',
+      '2. Zblenduj go z dodatkiem 15–20% śmietanki 18% lub jogurtu naturalnego — uzyskasz gładką pastę twarogową.',
+      '3. Znakomicie nadaje się do farszu na pierogi ruskie lub pieczenia sernika.',
+    ],
+    preventiveMeasures: [
+      'Kontroluj temperaturę termometrem szpilkowym — dogrzewaj skrzep maksymalnie do 38–40°C.',
+      'Dogrzewaj powoli, delikatnie poruszając masę od dołu garnka.',
+    ],
+  },
+  {
+    id: 'CURD_BITTER_PSYCHROTROPHS',
+    name: 'Gorzknienie Twarogu i Mleka Kwaszonego (Bakterie Psychrotrofowe)',
+    category: 'DAIRY_KITCHEN',
+    symptomKeywords: ['gorzki twaróg', 'psychrotrofy', 'pseudomonas', 'stare mleko', 'gorycz'],
+    visualDescription: 'Brak widocznych anomalii, skrzep może być nieco luźniejszy.',
+    aromaDescription: 'Lekko stęchły lub mdły zapach.',
+    textureDescription: 'Mazista, lekko śluzowata.',
+    rootCauseMicrobiology: 'Namnożenie bakterii chłodolubnych (Pseudomonas fluorescens) w mleku przechowywanym przez kilka dni w lodówce przed ukwaszeniem; produkują one termostabilne proteazy rozkładające białko na gorzkie peptydy.',
+    safetyVerdict: 'BIOHAZARD_DISCARD',
+    stepByStepRemedy: [
+      '1. Gorzki twaróg wywołany proteolizą psychrotrofową nie nadaje się do jedzenia.',
+      '2. Wyrzuć partię — obróbka termiczna nie usuwa gorzkich peptydów ani enzymów bakteryjnych.',
+      '3. Następnym razem użyj świeżego mleka udojonego maksymalnie 24–36 godzin wcześniej.',
+    ],
+    preventiveMeasures: [
+      'Kwaszenie mleka rozpoczynaj jak najszybciej po udoju lub zakupie.',
+      'Zadbaj o szybki start kultur mezofilnych w temperaturze 22–24°C.',
+    ],
+  },
+  {
+    id: 'YOGURT_SYNERESIS_WHEYING_OFF',
+    name: 'Podejście Wodą w Jogurcie (Synereza Serwatki)',
+    category: 'DAIRY_KITCHEN',
+    symptomKeywords: ['jogurt', 'woda', 'serwatka', 'synereza', 'płyn', 'odsączanie'],
+    visualDescription: 'Na powierzchni zwartego jogurtu gromadzi się 1–2 cm przezroczysto-żółtawej serwatki.',
+    aromaDescription: 'Przyjemny, świeży, czysty aromat jogurtowy.',
+    textureDescription: 'Skrzep pod serwatką jest gęsty i aksamitny.',
+    rootCauseMicrobiology: 'Naturalny skurcz skrzepu termofilnego pod wpływem kwasowości, wstrząśnięcia słoikiem podczas inkubacji lub braku wstępnej pasteryzacji denaturującej serwatkę.',
+    safetyVerdict: 'SAFE_EDIBLE',
+    stepByStepRemedy: [
+      '1. Zjawisko w 100% naturalne i zdrowe — nie wylewaj serwatki!',
+      '2. Wymieszaj jogurt łyżeczką, aby przywrócić jednolitą kremową strukturę.',
+      '3. Jeśli wolisz supergęsty jogurt grecki, zlej zawartość na sitko z gazą na 60 minut.',
+    ],
+    preventiveMeasures: [
+      'Przed zaszczepieniem jogurtu podgrzej mleko do 85–90°C i utrzymaj przez 5–10 minut.',
+      'Nie ruszaj słoików w jogurtownicy podczas pierwszych 6 godzin inkubacji.',
+    ],
+  },
+  {
+    id: 'YOGURT_ROPINESS',
+    name: 'Śluzowatość Ciągnąca w Jogurcie / Kefirze (Egzopolisacharydy)',
+    category: 'DAIRY_KITCHEN',
+    symptomKeywords: ['śluz', 'ciągnący', 'glut', 'jogurt', 'kefir', 'ropiness', 'eps'],
+    visualDescription: 'Jogurt przy nabieraniu łyżką ciągnie się jak gęsty syrop lub białko jaja kurzego.',
+    aromaDescription: 'Prawidłowy, łagodny aromat fermentowanego mleka.',
+    textureDescription: 'Lepka, ciągliwa, śluzowata konsystencja.',
+    rootCauseMicrobiology: 'Nadprodukcja egzopolisacharydów (EPS) przez bakterie mlekowe na skutek inkubacji w zbyt niskiej temperaturze (<38°C dla jogurtu) lub dominacji specyficznych szczepów.',
+    safetyVerdict: 'SAFE_EDIBLE',
+    stepByStepRemedy: [
+      '1. Produkt jest w 100% bezpieczny i probiotyczny — polisacharydy to naturalny błonnik osłonowy.',
+      '2. Jeśli konsystencja przeszkadza sensorycznie, użyj jogurtu do koktajli owocowych lub ciast.',
+      '3. Przy kolejnej partii utrzymuj stabilną temperaturę inkubacji 42–44°C.',
+    ],
+    preventiveMeasures: [
+      'Używaj sprawdzonych kultur jogurtowych ze standaryzowaną produkcją EPS.',
+      'Pilnuj optymalnej temperatury inkubatora termofilnego.',
     ],
   },
 

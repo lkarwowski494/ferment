@@ -69,4 +69,40 @@ describe('Fermentation Diagnostics & Remediation Decision Tree ("Doktor Fermenta
     expect(sulfur).toBeDefined();
     expect(sulfur?.stepByStepRemedy.some((step) => step.includes('miedz'))).toBe(true);
   });
+
+  it('diagnoses dairy kitchen defects: rind melting, mucor, rancid butter, and overheated curd', () => {
+    // 1. Rind melting in brine
+    const rindResults = diagnoseFermentDefect('mydło', 'CHEESE');
+    expect(rindResults.length).toBeGreaterThanOrEqual(1);
+    const rindMelting = rindResults.find((d) => d.id === 'CH_RIND_MELTING');
+    expect(rindMelting).toBeDefined();
+    expect(rindMelting?.safetyVerdict).toBe('REPAIRABLE_RISK');
+    expect(rindMelting?.stepByStepRemedy.some((s) => s.includes('CaCl2'))).toBe(true);
+
+    // 2. Mucor mold
+    const mucor = getDefectById('CH_MUCOR_MOLD');
+    expect(mucor).toBeDefined();
+    expect(mucor?.symptomKeywords).toContain('sierść kota');
+    expect(mucor?.safetyVerdict).toBe('REPAIRABLE_RISK');
+
+    // 3. Dairy kitchen category check
+    const dairyDefects = getDefectsByCategory('DAIRY_KITCHEN');
+    expect(dairyDefects.length).toBe(6);
+
+    // 4. Overheated curd
+    const curd = getDefectById('CURD_OVERHEATED_CHALKY');
+    expect(curd).toBeDefined();
+    expect(curd?.safetyVerdict).toBe('SAFE_EDIBLE');
+
+    // 5. Rancid butter
+    const butter = getDefectById('BUTTER_HYDROLYTIC_RANCIDITY');
+    expect(butter).toBeDefined();
+    expect(butter?.safetyVerdict).toBe('BIOHAZARD_DISCARD');
+
+    // 6. Yogurt syneresis
+    const yogurt = getDefectById('YOGURT_SYNERESIS_WHEYING_OFF');
+    expect(yogurt).toBeDefined();
+    expect(yogurt?.safetyVerdict).toBe('SAFE_EDIBLE');
+  });
 });
+

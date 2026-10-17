@@ -166,7 +166,7 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Pomyślnie zweryfikowano sumę kontrolną integralności.` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `UI` | `Błąd Importu` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `UI` | `Nieprawidłowe dane receptury.` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Ser` | `app/(tabs)/index.tsx` | ✅ | tests/components/ui-components.test.tsx, tests/matrix-a11y.test.tsx |
+| `TEKST` | `Ser` | `app/(tabs)/index.tsx` | ✅ | tests/components/ui-components.test.tsx, tests/data/knowledge-base.test.ts |
 | `TEKST` | `Krowi` | `app/(tabs)/index.tsx` | ✅ | tests/core/inventory.test.ts, tests/matrix-translations.test.ts |
 | `TEKST` | `Kozi` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Owcza` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
