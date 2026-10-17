@@ -1,0 +1,618 @@
+{
+  "version": "1.0-cheese",
+  "description": "Apps4Brew Studio Scientific Truth Oracle for Cheese & Dairy Crafting",
+  "psychrometryCases": [
+    {
+      "temperatureC": 8.0,
+      "humidityRhPct": 70.0,
+      "expectedDewPointC": 2.9,
+      "expectedEsKPa": 1.073,
+      "expectedEaKPa": 0.751,
+      "expectedVpdKPa": 0.322
+    },
+    {
+      "temperatureC": 8.0,
+      "humidityRhPct": 75.0,
+      "expectedDewPointC": 3.8,
+      "expectedEsKPa": 1.073,
+      "expectedEaKPa": 0.805,
+      "expectedVpdKPa": 0.268
+    },
+    {
+      "temperatureC": 8.0,
+      "humidityRhPct": 80.0,
+      "expectedDewPointC": 4.8,
+      "expectedEsKPa": 1.073,
+      "expectedEaKPa": 0.858,
+      "expectedVpdKPa": 0.215
+    },
+    {
+      "temperatureC": 8.0,
+      "humidityRhPct": 85.0,
+      "expectedDewPointC": 5.6,
+      "expectedEsKPa": 1.073,
+      "expectedEaKPa": 0.912,
+      "expectedVpdKPa": 0.161
+    },
+    {
+      "temperatureC": 8.0,
+      "humidityRhPct": 88.0,
+      "expectedDewPointC": 6.1,
+      "expectedEsKPa": 1.073,
+      "expectedEaKPa": 0.944,
+      "expectedVpdKPa": 0.129
+    },
+    {
+      "temperatureC": 8.0,
+      "humidityRhPct": 92.0,
+      "expectedDewPointC": 6.8,
+      "expectedEsKPa": 1.073,
+      "expectedEaKPa": 0.987,
+      "expectedVpdKPa": 0.086
+    },
+    {
+      "temperatureC": 8.0,
+      "humidityRhPct": 95.0,
+      "expectedDewPointC": 7.2,
+      "expectedEsKPa": 1.073,
+      "expectedEaKPa": 1.019,
+      "expectedVpdKPa": 0.054
+    },
+    {
+      "temperatureC": 8.0,
+      "humidityRhPct": 98.0,
+      "expectedDewPointC": 7.7,
+      "expectedEsKPa": 1.073,
+      "expectedEaKPa": 1.051,
+      "expectedVpdKPa": 0.021
+    },
+    {
+      "temperatureC": 10.0,
+      "humidityRhPct": 70.0,
+      "expectedDewPointC": 4.8,
+      "expectedEsKPa": 1.228,
+      "expectedEaKPa": 0.86,
+      "expectedVpdKPa": 0.368
+    },
+    {
+      "temperatureC": 10.0,
+      "humidityRhPct": 75.0,
+      "expectedDewPointC": 5.8,
+      "expectedEsKPa": 1.228,
+      "expectedEaKPa": 0.921,
+      "expectedVpdKPa": 0.307
+    },
+    {
+      "temperatureC": 10.0,
+      "humidityRhPct": 80.0,
+      "expectedDewPointC": 6.7,
+      "expectedEsKPa": 1.228,
+      "expectedEaKPa": 0.982,
+      "expectedVpdKPa": 0.246
+    },
+    {
+      "temperatureC": 10.0,
+      "humidityRhPct": 85.0,
+      "expectedDewPointC": 7.6,
+      "expectedEsKPa": 1.228,
+      "expectedEaKPa": 1.044,
+      "expectedVpdKPa": 0.184
+    },
+    {
+      "temperatureC": 10.0,
+      "humidityRhPct": 88.0,
+      "expectedDewPointC": 8.1,
+      "expectedEsKPa": 1.228,
+      "expectedEaKPa": 1.081,
+      "expectedVpdKPa": 0.147
+    },
+    {
+      "temperatureC": 10.0,
+      "humidityRhPct": 92.0,
+      "expectedDewPointC": 8.8,
+      "expectedEsKPa": 1.228,
+      "expectedEaKPa": 1.13,
+      "expectedVpdKPa": 0.098
+    },
+    {
+      "temperatureC": 10.0,
+      "humidityRhPct": 95.0,
+      "expectedDewPointC": 9.2,
+      "expectedEsKPa": 1.228,
+      "expectedEaKPa": 1.167,
+      "expectedVpdKPa": 0.061
+    },
+    {
+      "temperatureC": 10.0,
+      "humidityRhPct": 98.0,
+      "expectedDewPointC": 9.7,
+      "expectedEsKPa": 1.228,
+      "expectedEaKPa": 1.203,
+      "expectedVpdKPa": 0.025
+    },
+    {
+      "temperatureC": 11.5,
+      "humidityRhPct": 70.0,
+      "expectedDewPointC": 6.2,
+      "expectedEsKPa": 1.357,
+      "expectedEaKPa": 0.95,
+      "expectedVpdKPa": 0.407
+    },
+    {
+      "temperatureC": 11.5,
+      "humidityRhPct": 75.0,
+      "expectedDewPointC": 7.2,
+      "expectedEsKPa": 1.357,
+      "expectedEaKPa": 1.018,
+      "expectedVpdKPa": 0.339
+    },
+    {
+      "temperatureC": 11.5,
+      "humidityRhPct": 80.0,
+      "expectedDewPointC": 8.2,
+      "expectedEsKPa": 1.357,
+      "expectedEaKPa": 1.086,
+      "expectedVpdKPa": 0.271
+    },
+    {
+      "temperatureC": 11.5,
+      "humidityRhPct": 85.0,
+      "expectedDewPointC": 9.1,
+      "expectedEsKPa": 1.357,
+      "expectedEaKPa": 1.153,
+      "expectedVpdKPa": 0.204
+    },
+    {
+      "temperatureC": 11.5,
+      "humidityRhPct": 88.0,
+      "expectedDewPointC": 9.6,
+      "expectedEsKPa": 1.357,
+      "expectedEaKPa": 1.194,
+      "expectedVpdKPa": 0.163
+    },
+    {
+      "temperatureC": 11.5,
+      "humidityRhPct": 92.0,
+      "expectedDewPointC": 10.2,
+      "expectedEsKPa": 1.357,
+      "expectedEaKPa": 1.248,
+      "expectedVpdKPa": 0.109
+    },
+    {
+      "temperatureC": 11.5,
+      "humidityRhPct": 95.0,
+      "expectedDewPointC": 10.7,
+      "expectedEsKPa": 1.357,
+      "expectedEaKPa": 1.289,
+      "expectedVpdKPa": 0.068
+    },
+    {
+      "temperatureC": 11.5,
+      "humidityRhPct": 98.0,
+      "expectedDewPointC": 11.2,
+      "expectedEsKPa": 1.357,
+      "expectedEaKPa": 1.33,
+      "expectedVpdKPa": 0.027
+    },
+    {
+      "temperatureC": 12.0,
+      "humidityRhPct": 70.0,
+      "expectedDewPointC": 6.7,
+      "expectedEsKPa": 1.403,
+      "expectedEaKPa": 0.982,
+      "expectedVpdKPa": 0.421
+    },
+    {
+      "temperatureC": 12.0,
+      "humidityRhPct": 75.0,
+      "expectedDewPointC": 7.7,
+      "expectedEsKPa": 1.403,
+      "expectedEaKPa": 1.052,
+      "expectedVpdKPa": 0.351
+    },
+    {
+      "temperatureC": 12.0,
+      "humidityRhPct": 80.0,
+      "expectedDewPointC": 8.7,
+      "expectedEsKPa": 1.403,
+      "expectedEaKPa": 1.122,
+      "expectedVpdKPa": 0.281
+    },
+    {
+      "temperatureC": 12.0,
+      "humidityRhPct": 85.0,
+      "expectedDewPointC": 9.6,
+      "expectedEsKPa": 1.403,
+      "expectedEaKPa": 1.192,
+      "expectedVpdKPa": 0.21
+    },
+    {
+      "temperatureC": 12.0,
+      "humidityRhPct": 88.0,
+      "expectedDewPointC": 10.1,
+      "expectedEsKPa": 1.403,
+      "expectedEaKPa": 1.234,
+      "expectedVpdKPa": 0.168
+    },
+    {
+      "temperatureC": 12.0,
+      "humidityRhPct": 92.0,
+      "expectedDewPointC": 10.7,
+      "expectedEsKPa": 1.403,
+      "expectedEaKPa": 1.29,
+      "expectedVpdKPa": 0.112
+    },
+    {
+      "temperatureC": 12.0,
+      "humidityRhPct": 95.0,
+      "expectedDewPointC": 11.2,
+      "expectedEsKPa": 1.403,
+      "expectedEaKPa": 1.332,
+      "expectedVpdKPa": 0.07
+    },
+    {
+      "temperatureC": 12.0,
+      "humidityRhPct": 98.0,
+      "expectedDewPointC": 11.7,
+      "expectedEsKPa": 1.403,
+      "expectedEaKPa": 1.374,
+      "expectedVpdKPa": 0.028
+    },
+    {
+      "temperatureC": 13.5,
+      "humidityRhPct": 70.0,
+      "expectedDewPointC": 8.1,
+      "expectedEsKPa": 1.547,
+      "expectedEaKPa": 1.083,
+      "expectedVpdKPa": 0.464
+    },
+    {
+      "temperatureC": 13.5,
+      "humidityRhPct": 75.0,
+      "expectedDewPointC": 9.2,
+      "expectedEsKPa": 1.547,
+      "expectedEaKPa": 1.161,
+      "expectedVpdKPa": 0.387
+    },
+    {
+      "temperatureC": 13.5,
+      "humidityRhPct": 80.0,
+      "expectedDewPointC": 10.1,
+      "expectedEsKPa": 1.547,
+      "expectedEaKPa": 1.238,
+      "expectedVpdKPa": 0.309
+    },
+    {
+      "temperatureC": 13.5,
+      "humidityRhPct": 85.0,
+      "expectedDewPointC": 11.0,
+      "expectedEsKPa": 1.547,
+      "expectedEaKPa": 1.315,
+      "expectedVpdKPa": 0.232
+    },
+    {
+      "temperatureC": 13.5,
+      "humidityRhPct": 88.0,
+      "expectedDewPointC": 11.6,
+      "expectedEsKPa": 1.547,
+      "expectedEaKPa": 1.362,
+      "expectedVpdKPa": 0.186
+    },
+    {
+      "temperatureC": 13.5,
+      "humidityRhPct": 92.0,
+      "expectedDewPointC": 12.2,
+      "expectedEsKPa": 1.547,
+      "expectedEaKPa": 1.424,
+      "expectedVpdKPa": 0.124
+    },
+    {
+      "temperatureC": 13.5,
+      "humidityRhPct": 95.0,
+      "expectedDewPointC": 12.7,
+      "expectedEsKPa": 1.547,
+      "expectedEaKPa": 1.47,
+      "expectedVpdKPa": 0.077
+    },
+    {
+      "temperatureC": 13.5,
+      "humidityRhPct": 98.0,
+      "expectedDewPointC": 13.2,
+      "expectedEsKPa": 1.547,
+      "expectedEaKPa": 1.516,
+      "expectedVpdKPa": 0.031
+    },
+    {
+      "temperatureC": 15.0,
+      "humidityRhPct": 70.0,
+      "expectedDewPointC": 9.6,
+      "expectedEsKPa": 1.705,
+      "expectedEaKPa": 1.194,
+      "expectedVpdKPa": 0.512
+    },
+    {
+      "temperatureC": 15.0,
+      "humidityRhPct": 75.0,
+      "expectedDewPointC": 10.6,
+      "expectedEsKPa": 1.705,
+      "expectedEaKPa": 1.279,
+      "expectedVpdKPa": 0.426
+    },
+    {
+      "temperatureC": 15.0,
+      "humidityRhPct": 80.0,
+      "expectedDewPointC": 11.6,
+      "expectedEsKPa": 1.705,
+      "expectedEaKPa": 1.364,
+      "expectedVpdKPa": 0.341
+    },
+    {
+      "temperatureC": 15.0,
+      "humidityRhPct": 85.0,
+      "expectedDewPointC": 12.5,
+      "expectedEsKPa": 1.705,
+      "expectedEaKPa": 1.449,
+      "expectedVpdKPa": 0.256
+    },
+    {
+      "temperatureC": 15.0,
+      "humidityRhPct": 88.0,
+      "expectedDewPointC": 13.0,
+      "expectedEsKPa": 1.705,
+      "expectedEaKPa": 1.501,
+      "expectedVpdKPa": 0.205
+    },
+    {
+      "temperatureC": 15.0,
+      "humidityRhPct": 92.0,
+      "expectedDewPointC": 13.7,
+      "expectedEsKPa": 1.705,
+      "expectedEaKPa": 1.569,
+      "expectedVpdKPa": 0.136
+    },
+    {
+      "temperatureC": 15.0,
+      "humidityRhPct": 95.0,
+      "expectedDewPointC": 14.2,
+      "expectedEsKPa": 1.705,
+      "expectedEaKPa": 1.62,
+      "expectedVpdKPa": 0.085
+    },
+    {
+      "temperatureC": 15.0,
+      "humidityRhPct": 98.0,
+      "expectedDewPointC": 14.7,
+      "expectedEsKPa": 1.705,
+      "expectedEaKPa": 1.671,
+      "expectedVpdKPa": 0.034
+    },
+    {
+      "temperatureC": 18.0,
+      "humidityRhPct": 70.0,
+      "expectedDewPointC": 12.4,
+      "expectedEsKPa": 2.064,
+      "expectedEaKPa": 1.445,
+      "expectedVpdKPa": 0.619
+    },
+    {
+      "temperatureC": 18.0,
+      "humidityRhPct": 75.0,
+      "expectedDewPointC": 13.5,
+      "expectedEsKPa": 2.064,
+      "expectedEaKPa": 1.548,
+      "expectedVpdKPa": 0.516
+    },
+    {
+      "temperatureC": 18.0,
+      "humidityRhPct": 80.0,
+      "expectedDewPointC": 14.5,
+      "expectedEsKPa": 2.064,
+      "expectedEaKPa": 1.651,
+      "expectedVpdKPa": 0.413
+    },
+    {
+      "temperatureC": 18.0,
+      "humidityRhPct": 85.0,
+      "expectedDewPointC": 15.4,
+      "expectedEsKPa": 2.064,
+      "expectedEaKPa": 1.754,
+      "expectedVpdKPa": 0.31
+    },
+    {
+      "temperatureC": 18.0,
+      "humidityRhPct": 88.0,
+      "expectedDewPointC": 16.0,
+      "expectedEsKPa": 2.064,
+      "expectedEaKPa": 1.816,
+      "expectedVpdKPa": 0.248
+    },
+    {
+      "temperatureC": 18.0,
+      "humidityRhPct": 92.0,
+      "expectedDewPointC": 16.7,
+      "expectedEsKPa": 2.064,
+      "expectedEaKPa": 1.899,
+      "expectedVpdKPa": 0.165
+    },
+    {
+      "temperatureC": 18.0,
+      "humidityRhPct": 95.0,
+      "expectedDewPointC": 17.2,
+      "expectedEsKPa": 2.064,
+      "expectedEaKPa": 1.961,
+      "expectedVpdKPa": 0.103
+    },
+    {
+      "temperatureC": 18.0,
+      "humidityRhPct": 98.0,
+      "expectedDewPointC": 17.7,
+      "expectedEsKPa": 2.064,
+      "expectedEaKPa": 2.023,
+      "expectedVpdKPa": 0.041
+    }
+  ],
+  "pressCases": [
+    {
+      "armTotalLengthCm": 60,
+      "moldDistanceCm": 20,
+      "armSelfWeightKg": 2.0,
+      "weightHungKg": 5.0,
+      "moldDiameterCm": 14,
+      "expectedRatio": 3.0,
+      "expectedTareForceKg": 3.0,
+      "expectedWeightForceKg": 15.0,
+      "expectedTotalForceKg": 18.0,
+      "expectedAreaCm2": 153.9,
+      "expectedPressurePsi": 1.66
+    },
+    {
+      "armTotalLengthCm": 80,
+      "moldDistanceCm": 20,
+      "armSelfWeightKg": 3.0,
+      "weightHungKg": 8.0,
+      "moldDiameterCm": 16,
+      "expectedRatio": 4.0,
+      "expectedTareForceKg": 6.0,
+      "expectedWeightForceKg": 32.0,
+      "expectedTotalForceKg": 38.0,
+      "expectedAreaCm2": 201.1,
+      "expectedPressurePsi": 2.69
+    },
+    {
+      "armTotalLengthCm": 50,
+      "moldDistanceCm": 15,
+      "armSelfWeightKg": 1.5,
+      "weightHungKg": 3.5,
+      "moldDiameterCm": 12,
+      "expectedRatio": 3.33,
+      "expectedTareForceKg": 2.5,
+      "expectedWeightForceKg": 11.66,
+      "expectedTotalForceKg": 14.16,
+      "expectedAreaCm2": 113.1,
+      "expectedPressurePsi": 1.78
+    },
+    {
+      "armTotalLengthCm": 100,
+      "moldDistanceCm": 25,
+      "armSelfWeightKg": 4.0,
+      "weightHungKg": 10.0,
+      "moldDiameterCm": 20,
+      "expectedRatio": 4.0,
+      "expectedTareForceKg": 8.0,
+      "expectedWeightForceKg": 40.0,
+      "expectedTotalForceKg": 48.0,
+      "expectedAreaCm2": 314.2,
+      "expectedPressurePsi": 2.18
+    },
+    {
+      "armTotalLengthCm": 40,
+      "moldDistanceCm": 20,
+      "armSelfWeightKg": 1.0,
+      "weightHungKg": 0.0,
+      "moldDiameterCm": 10,
+      "expectedRatio": 2.0,
+      "expectedTareForceKg": 1.0,
+      "expectedWeightForceKg": 0.0,
+      "expectedTotalForceKg": 1.0,
+      "expectedAreaCm2": 78.5,
+      "expectedPressurePsi": 0.18
+    },
+    {
+      "armTotalLengthCm": 75,
+      "moldDistanceCm": 25,
+      "armSelfWeightKg": 2.5,
+      "weightHungKg": 6.0,
+      "moldDiameterCm": 15,
+      "expectedRatio": 3.0,
+      "expectedTareForceKg": 3.75,
+      "expectedWeightForceKg": 18.0,
+      "expectedTotalForceKg": 21.75,
+      "expectedAreaCm2": 176.7,
+      "expectedPressurePsi": 1.75
+    }
+  ],
+  "brineCases": [
+    {
+      "waterLiters": 5.0,
+      "initialPh": 7.5,
+      "targetPh": 5.2,
+      "acidPct": 80.0,
+      "salinityPct": 20.0,
+      "expectedSaltKg": 1.25,
+      "expectedAcidMl": 11.0,
+      "expectedCacl2Grams": 10.0
+    },
+    {
+      "waterLiters": 10.0,
+      "initialPh": 7.2,
+      "targetPh": 5.2,
+      "acidPct": 80.0,
+      "salinityPct": 18.0,
+      "expectedSaltKg": 2.2,
+      "expectedAcidMl": 19.1,
+      "expectedCacl2Grams": 20.0
+    },
+    {
+      "waterLiters": 3.0,
+      "initialPh": 7.8,
+      "targetPh": 5.0,
+      "acidPct": 80.0,
+      "salinityPct": 22.0,
+      "expectedSaltKg": 0.85,
+      "expectedAcidMl": 8.0,
+      "expectedCacl2Grams": 6.0
+    },
+    {
+      "waterLiters": 8.0,
+      "initialPh": 5.0,
+      "targetPh": 5.2,
+      "acidPct": 80.0,
+      "salinityPct": 20.0,
+      "expectedSaltKg": 2.0,
+      "expectedAcidMl": 0.0,
+      "expectedCacl2Grams": 16.0
+    },
+    {
+      "waterLiters": 2.0,
+      "initialPh": 8.0,
+      "targetPh": 5.3,
+      "acidPct": 50.0,
+      "salinityPct": 15.0,
+      "expectedSaltKg": 0.35,
+      "expectedAcidMl": 8.3,
+      "expectedCacl2Grams": 4.0
+    }
+  ],
+  "rennetCases": [
+    {
+      "milkLiters": 10.0,
+      "targetImcu": 30.0,
+      "rennetStrength": 200.0,
+      "expectedVolumeMl": 1.5
+    },
+    {
+      "milkLiters": 20.0,
+      "targetImcu": 35.0,
+      "rennetStrength": 220.0,
+      "expectedVolumeMl": 3.18
+    },
+    {
+      "milkLiters": 5.0,
+      "targetImcu": 25.0,
+      "rennetStrength": 150.0,
+      "expectedVolumeMl": 0.83
+    },
+    {
+      "milkLiters": 50.0,
+      "targetImcu": 40.0,
+      "rennetStrength": 260.0,
+      "expectedVolumeMl": 7.69
+    },
+    {
+      "milkLiters": 100.0,
+      "targetImcu": 30.0,
+      "rennetStrength": 200.0,
+      "expectedVolumeMl": 15.0
+    }
+  ]
+}

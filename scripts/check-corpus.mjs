@@ -9,6 +9,7 @@ const pyCmd = process.platform === 'win32' ? 'python' : 'python3 -I';
 
 const scripts = [
   'scripts/gen-ferment-corpus.py',
+  'scripts/gen-dairy-corpus.py',
   'scripts/gen-theme-contrast-corpus.py',
   'scripts/gen-dst-corpus.py',
 ];
@@ -27,6 +28,7 @@ for (const script of scripts) {
 // Verify that corpus fixtures exist and are non-empty
 const fixtures = [
   'tests/fixtures/ferment-corpus.json',
+  'tests/fixtures/dairy-corpus.json',
   'tests/fixtures/theme-contrast-corpus.json',
   'tests/fixtures/dst-corpus.json',
 ];
