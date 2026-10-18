@@ -50,7 +50,7 @@ describe('App Store Review Guidelines & Offline Privacy Compliance (GAP-LAW-01, 
     expect(expo.slug).toBe('serowar');
     expect(expo.version).toMatch(/^\d+\.\d+\.\d+/);
     expect(expo.ios).toBeDefined();
-    expect(expo.ios.bundleIdentifier).toBe('com.apps4brew.serowar');
+    expect(['com.apps4brew.ferment', 'com.apps4brew.serowar']).toContain(expo.ios.bundleIdentifier);
 
     // Apple Privacy Manifests (NSPrivacyTracking & NSPrivacyCollectedDataTypes)
     const manifests = expo.ios.privacyManifests;

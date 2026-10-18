@@ -23,7 +23,7 @@ env:
   FORCE_COLOR: '1'
   APP_SCHEME: 'SEROWAR'
   APP_DIR: 'SEROWAR'
-  BUNDLE_ID: 'com.apps4brew.serowar'
+  BUNDLE_ID: 'com.apps4brew.ferment'
   BUILD_BASE: '1000'
 
 jobs:

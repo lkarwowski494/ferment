@@ -1,7 +1,7 @@
-﻿appId: com.apps4brew.serowar
+appId: com.apps4brew.ferment
 ---
 - launchApp
 - tapOn: "Partie"
 - assertVisible: "Dziennik Partii"
-- tapOn: "SpiĹĽarnia"
-- assertVisible: "Magazyn SkĹ‚adnikĂłw"
+- tapOn: "Spiżarnia"
+- assertVisible: "Magazyn Składników"

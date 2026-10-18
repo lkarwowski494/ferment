@@ -1,4 +1,4 @@
-﻿appId: com.apps4brew.serowar
+appId: com.apps4brew.ferment
 ---
 - launchApp
 - tapOn: "Kiszonki"

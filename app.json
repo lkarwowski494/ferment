@@ -16,10 +16,11 @@
     "ios": {
       "supportsTablet": false,
       "requireFullScreen": true,
-      "bundleIdentifier": "com.apps4brew.serowar",
+      "bundleIdentifier": "com.apps4brew.ferment",
       "appleTeamId": "8NQ9GHY8GF",
       "buildNumber": "1",
       "infoPlist": {
+        "CFBundleDisplayName": "SEROWAR",
         "UIFileSharingEnabled": true,
         "LSSupportsOpeningDocumentsInPlace": true,
         "ITSAppUsesNonExemptEncryption": false,
@@ -74,7 +75,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Ferment wymaga dostępu do aparatu, aby natychmiast zeskanować kod QR receptury lub partii sera/kiszonki w 100% offline.",
+          "cameraPermission": "SEROWAR wymaga dostępu do aparatu, aby natychmiast zeskanować kod QR receptury lub partii sera w 100% offline.",
           "microphonePermission": false,
           "recordAudioAndroid": false
         }

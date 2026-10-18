@@ -1,8 +1,8 @@
-﻿appId: com.apps4brew.serowar
+appId: com.apps4brew.ferment
 ---
 - launchApp
 - tapOn: "Ustawienia"
-- assertVisible: "DostÄ™pnoĹ›Ä‡ i Motyw"
+- assertVisible: "Dostępność i Motyw"
 - tapOn: "Tryb ciemny / jasny"
 - assertVisible: "Kontrast tekstu WCAG AA"
 - assertVisible: "Rozmiar tekstu"

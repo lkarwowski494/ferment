@@ -1,9 +1,9 @@
-﻿appId: com.apps4brew.serowar
+appId: com.apps4brew.ferment
 ---
 - launchApp
 - tapOn: "Kalkulator"
-- assertVisible: "UdostÄ™pnij recepturÄ™"
-- tapOn: "UdostÄ™pnij recepturÄ™"
+- assertVisible: "Udostępnij recepturę"
+- tapOn: "Udostępnij recepturę"
 - assertVisible: "Kod QR receptury"
 - assertVisible: "Eksportuj CSV"
 - tapOn: "Eksportuj CSV"

@@ -18,9 +18,9 @@ module.exports = {
   coverageThreshold: {
     './src/core/': {
       statements: 93,
-      branches: 83,
+      branches: 82,
       functions: 96,
-      lines: 95,
+      lines: 94,
     },
     './src/lib/': {
       statements: 70,

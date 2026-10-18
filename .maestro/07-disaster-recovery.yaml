@@ -1,11 +1,11 @@
-﻿appId: com.apps4brew.serowar
+appId: com.apps4brew.ferment
 ---
 - launchApp
 - tapOn: "Ustawienia"
 - assertVisible: "Kopie zapasowe"
 - tapOn: "Kopie zapasowe"
-- assertVisible: "UtwĂłrz kopiÄ™ zapasowÄ…"
-- tapOn: "UtwĂłrz kopiÄ™ zapasowÄ…"
-- assertVisible: "Kopia utworzona pomyĹ›lnie"
+- assertVisible: "Utwórz kopię zapasową"
+- tapOn: "Utwórz kopię zapasową"
+- assertVisible: "Kopia utworzona pomyślnie"
 - assertVisible: "Odzyskiwanie po awarii"
-- assertVisible: "PrzywrĂłÄ‡ stan"
+- assertVisible: "Przywróć stan"
