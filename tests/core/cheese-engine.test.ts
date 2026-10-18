@@ -10,7 +10,7 @@ import {
   calculateCurdCookingMinTime,
 } from '../../src/core/cheese-engine';
 
-describe('FERMENT Cheese Engine (RD-01…RD-25)', () => {
+describe('SEROWAR Cheese Engine (RD-01…RD-25)', () => {
   it('RD-01: calculates rennet dose in IMCU with test vector (20L, 35 IMCU/L, 200 IMCU/ml)', () => {
     const res = calculateRennetDose(20, 35, 200);
     expect(res.volumeMl).toBe(3.5);

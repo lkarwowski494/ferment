@@ -16,7 +16,7 @@ interface Apps4BrewPassModalProps {
   visible: boolean;
   onClose: () => void;
   onSubscribe?: (tier: 'monthly' | 'yearly' | 'lifetime') => Promise<void>;
-  onRestore?: () => Promise<any>;
+  onRestore?: () => Promise<{ restored: boolean; tier?: SubscriptionTier } | void>;
 }
 
 export const Apps4BrewPassModal: React.FC<Apps4BrewPassModalProps> = ({

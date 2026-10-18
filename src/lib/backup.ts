@@ -37,12 +37,21 @@ export interface CorruptRecoveryInfo {
 export const MAX_ROTATION_BACKUPS = 10;
 const BACKUP_DIR_NAME = 'backups';
 
-const fsAny = FileSystem as any;
+interface FileSystemDocHolder {
+  documentDirectory?: string | null;
+  Paths?: {
+    document?: {
+      uri?: string | null;
+    };
+  };
+}
+
+const fsDoc = FileSystem as unknown as FileSystemDocHolder;
 
 function getDocDir(): string | null {
-  if (fsAny && fsAny.documentDirectory) return fsAny.documentDirectory;
-  if (fsAny && fsAny.Paths && fsAny.Paths.document && fsAny.Paths.document.uri) {
-    return fsAny.Paths.document.uri;
+  if (fsDoc && fsDoc.documentDirectory) return fsDoc.documentDirectory;
+  if (fsDoc && fsDoc.Paths && fsDoc.Paths.document && fsDoc.Paths.document.uri) {
+    return fsDoc.Paths.document.uri;
   }
   return null;
 }
@@ -189,8 +198,9 @@ export async function createSafetyBackup(reason: 'przed-importem' | 'przed-czysz
       rotateInMemoryBackups('safety');
       return fileName;
     }
-  } catch (err: any) {
-    throw new Error(`[BR-TEST-022] Błąd tworzenia kopii bezpieczeństwa przed operacją (${reason}): ${err?.message || err}`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error(`[BR-TEST-022] Błąd tworzenia kopii bezpieczeństwa przed operacją (${reason}): ${msg}`);
   }
 }
 
@@ -316,9 +326,10 @@ export async function restoreFromBackupJson(jsonString: string): Promise<{ succe
     let parsed: FermentBackupData;
     try {
       parsed = JSON.parse(jsonString) as FermentBackupData;
-    } catch (parseErr: any) {
+    } catch (parseErr) {
+      const msg = parseErr instanceof Error ? parseErr.message : String(parseErr);
       await saveCorruptState(jsonString, 'Niepoprawny format JSON');
-      throw new Error(`Niepoprawny format JSON kopii: ${parseErr?.message}`);
+      throw new Error(`Niepoprawny format JSON kopii: ${msg}`);
     }
 
     if (parsed.app !== 'FERMENT' || !parsed.schema_version) {
@@ -371,10 +382,11 @@ export async function restoreFromBackupJson(jsonString: string): Promise<{ succe
       success: true,
       message: 'Kopia zapasowa przywrócona pomyślnie. Utworzono punkt bezpieczeństwa.',
     };
-  } catch (error: any) {
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Nieznany błąd';
     return {
       success: false,
-      message: `Błąd przywracania kopii: ${error?.message || 'Nieznany błąd'}`,
+      message: `Błąd przywracania kopii: ${msg}`,
     };
   }
 }
@@ -398,11 +410,18 @@ export async function listBackups(): Promise<BackupFileInfo[]> {
         ? 'safety'
         : 'other';
 
+      const modTime = info.exists && 'modificationTime' in info && typeof info.modificationTime === 'number'
+        ? info.modificationTime
+        : undefined;
+      const sizeBytes = info.exists && 'size' in info && typeof info.size === 'number'
+        ? info.size
+        : 0;
+
       list.push({
         fileName: f,
         filePath: path,
-        createdAt: info.exists && 'modificationTime' in info ? new Date((info as any).modificationTime * 1000).toISOString() : new Date().toISOString(),
-        sizeBytes: info.exists && 'size' in info ? (info as any).size || 0 : 0,
+        createdAt: modTime !== undefined ? new Date(modTime * 1000).toISOString() : new Date().toISOString(),
+        sizeBytes,
         pool,
       });
     }

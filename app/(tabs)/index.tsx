@@ -31,14 +31,6 @@ import {
   calculateCurdCookingMinTime,
 } from '../../src/core/cheese-engine';
 import {
-  calculateTotalBatchSalinity,
-  verifyBotulinumSafety,
-  calculateKimchiPrep,
-  calculateKombucha1F,
-  calculateKombucha2FPressure,
-  calculateVinegarConversion,
-} from '../../src/core/ferment-engine';
-import {
   enableProcessKeepAwake,
   disableProcessKeepAwake,
   playTimerCompletionAlert,
@@ -47,7 +39,6 @@ import {
 import * as Clipboard from 'expo-clipboard';
 import {
   CANONICAL_RECIPES,
-  getCanonicalRecipe,
   getRecipesByCategory,
   CanonicalRecipe,
 } from '../../src/core/canonical-recipes';
@@ -61,47 +52,28 @@ import {
 } from '../../src/core/whey-utilization';
 import {
   calculateSaltToBoostBrine,
-  calculateBrineTopupWithVolume,
 } from '../../src/core/brine-topup';
 import {
   encodeRecipeToShareUri,
   decodeRecipeFromShareUri,
 } from '../../src/core/recipe-share';
 import {
-  calculateCylindricalMoldVolume,
   calculateCurdAndMoldFitting,
-  STANDARD_MOLD_TEMPLATES,
 } from '../../src/core/mold-sizing';
 import {
   calculateDutchLeverPress,
   generatePressingCascadeProgram,
 } from '../../src/core/press-cascade';
 import {
-  evaluateLabFermentation,
-  calculateVinegarTitration,
-} from '../../src/core/fermentation-kinetics';
-import {
   calculateBrineAcidification,
 } from '../../src/core/brine-acidification';
-import {
-  calculateKombucha2FBlending,
-  KombuchaBottleType,
-} from '../../src/core/kombucha-blending';
 import {
   calculateCurdWashWater,
   calculateCurdMillingSalting,
   calculateWheelCoating,
 } from '../../src/core/curd-washing-and-salting';
-import { calculateFermentationQ10 } from '../../src/core/fermentation-q10';
-import { calculateCrockHeadspace } from '../../src/core/crock-headspace';
-import { analyzeRefractometerBrix } from '../../src/core/refractometer-alcohol';
 import { calculateCheeseComposition } from '../../src/core/cheese-composition-engine';
-import { analyzeCultureHotel, LiveCultureType } from '../../src/core/culture-hotel-engine';
 import { calculateBrineDiffusion } from '../../src/core/brine-diffusion';
-import {
-  calculateContinuousBrewPlan,
-  TeaBaseType,
-} from '../../src/core/continuous-brew';
 import {
   calculateWheyLevainPlan,
   WheyLevainType,
@@ -109,69 +81,16 @@ import {
 import {
   calculateCurdSyneresis,
   CheeseStyleSyneresis,
-  CHEESE_SYNERESIS_CONFIGS,
 } from '../../src/core/curd-syneresis';
-import {
-  calculateVegCrispnessProtection,
-  BOTANICAL_DATABASE,
-  BotanicalSourceId,
-  GarlicPrepMethod,
-} from '../../src/core/botanical-extraction';
-import {
-  calculatePasteurizationPlan,
-  PASTEURIZATION_TARGETS,
-  PasteurizationTargetCategory,
-} from '../../src/core/pasteurization-units';
 import {
   calculateMilkSpeciesKinetics,
   MilkSpeciesId,
-  MILK_SPECIES_DATABASE,
 } from '../../src/core/milk-species-profile';
-import {
-  calculateVinegarStandardization,
-  calculateVinegarStoichiometry,
-  calculateVesselAeration,
-} from '../../src/core/vinegar-standardization';
 import {
   calculateBrineDensitometry,
   BRINE_TARGET_PROFILES,
   BrineTargetProfileKey,
 } from '../../src/core/brine-densitometry';
-import {
-  calculateShioKoji,
-  calculateAmazake,
-  calculateMisoFormulation,
-  KojiMoistureState,
-} from '../../src/core/koji-fermentation';
-import {
-  calculateKefir1F,
-  calculateKefir2F,
-  KefirMediumType,
-} from '../../src/core/kefir-grains';
-import {
-  calculateNukadokoSetup,
-  calculateNukadokoMaintenance,
-  getPicklingTimeForVeg,
-  NukazukeVegType,
-} from '../../src/core/nukazuke-engine';
-import {
-  calculateTempehKinetics,
-  LegumeType,
-} from '../../src/core/tempeh-kinetics';
-import {
-  calculateMeadBatch,
-  PolishMeadGrade,
-  MeadPreparationType,
-  MEAD_GRADE_CONFIGS,
-} from '../../src/core/mead-kinetics';
-import {
-  calculateBlackGarlic,
-} from '../../src/core/black-garlic';
-import {
-  evaluateGingerBugStarter,
-  calculateGingerBeerBatch,
-  BottleType as GingerBottleType,
-} from '../../src/core/ginger-bug';
 import { styles } from '../../src/components/calculator/calculator.styles';
 import { CanonicalRecipesCard } from '../../src/components/calculator/CanonicalRecipesCard';
 import { ReverseSchedulerCard } from '../../src/components/calculator/ReverseSchedulerCard';
@@ -211,29 +130,7 @@ export default function CalculatorScreen() {
   const [cookEndTemp, setCookEndTemp] = useState<number>(38);
   const [cookDurationMin, setCookDurationMin] = useState<number>(15);
 
-  // --- VEG & KIMCHI STATE ---
-  const [vegGrams, setVegGrams] = useState<number>(1500);
-  const [waterGrams, setWaterGrams] = useState<number>(1000);
-  const [targetSalinity, setTargetSalinity] = useState<number>(2.2);
-  const [measuredPh, setMeasuredPh] = useState<number>(4.2);
-  const [fermentHours, setFermentHours] = useState<number>(48);
-  const [cabbageGrams, setCabbageGrams] = useState<number>(2000);
-
-  // --- KOMBUCHA & VINEGAR STATE ---
-  const [kombuchaWaterLiters, setKombuchaWaterLiters] = useState<number>(3);
-  const [residualSugar, setResidualSugar] = useState<number>(12);
-  const [daysIn2F, setDaysIn2F] = useState<number>(3);
-  const [vinegarBrix, setVinegarBrix] = useState<number>(12);
-
-  // --- KOMBUCHA CONTINUOUS BREW STATE ---
-  const [cbVesselLiters, setCbVesselLiters] = useState<number>(10);
-  const [cbDrawLiters, setCbDrawLiters] = useState<number>(2.5);
-  const [cbTempCelsius, setCbTempCelsius] = useState<number>(24);
-  const [cbTeaBase, setCbTeaBase] = useState<TeaBaseType>('BLACK');
-  const [cbCyclesSincePurge, setCbCyclesSincePurge] = useState<number>(3);
-  const [cbPreDrawPh, setCbPreDrawPh] = useState<number>(3.0);
-
-  // --- SISTER MODULE STATES (napar, piekarz, słoik, oczko) ---
+  // --- CANONICAL RECIPES & SCHEDULER ---
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
   const [isSchedulerOpen, setIsSchedulerOpen] = useState<boolean>(false);
   const [targetFinishHour, setTargetFinishHour] = useState<number>(22);
@@ -250,20 +147,10 @@ export default function CalculatorScreen() {
   const [moldDistCm, setMoldDistCm] = useState<number>(20);
   const [armWeightKg, setArmWeightKg] = useState<number>(2.0);
 
-  // --- VINEGAR TITRATION STATE ---
-  const [vinegarSampleMl, setVinegarSampleMl] = useState<number>(1);
-  const [naohTiterMl, setNaohTiterMl] = useState<number>(8.5);
-
   // --- BRINE ACIDIFICATION & BUFFER ---
   const [brineWaterPh, setBrineWaterPh] = useState<number>(7.5);
   const [targetBrinePh, setTargetBrinePh] = useState<number>(5.2);
   const [lacticAcidConc, setLacticAcidConc] = useState<number>(80);
-
-  // --- KOMBUCHA 2F BLENDING & BOTTLE DYNAMICS ---
-  const [selectedJuiceId, setSelectedJuiceId] = useState<string>('apple');
-  const [juiceVolumeMl, setJuiceVolumeMl] = useState<number>(150);
-  const [kombuchaBottleType, setKombuchaBottleType] = useState<KombuchaBottleType>('HEAVY_SWING_TOP_AMBER');
-  const [kombuchaTemp, setKombuchaTemp] = useState<number>(22);
 
   // --- CURD WASHING, CHEDDAR SALTING & COATING ---
   const [washWheyDrainedLiters, setWashWheyDrainedLiters] = useState<number>(3.0);
@@ -274,17 +161,6 @@ export default function CalculatorScreen() {
   const [coatingType, setCoatingType] = useState<'CHEESE_WAX' | 'POLYVINYL_BREATHABLE'>('CHEESE_WAX');
   const [coatingWheelHeightCm, setCoatingWheelHeightCm] = useState<number>(8.0);
   const [coatingLayers, setCoatingLayers] = useState<number>(2);
-
-  // --- Q10 FERMENTATION TEMPERATURE STATE ---
-  const [ambientTempC, setAmbientTempC] = useState<number>(21);
-
-  // --- CROCK & JAR HEADSPACE STATE ---
-  const [jarCapacityMl, setJarCapacityMl] = useState<number>(1000);
-  const [stoneWeightGrams, setStoneWeightGrams] = useState<number>(150);
-
-  // --- OPTICAL REFRACTOMETER ALCOHOL STATE ---
-  const [originalBrixInput, setOriginalBrixInput] = useState<number>(12);
-  const [currentBrixInput, setCurrentBrixInput] = useState<number>(5.5);
 
   // --- CHEESE COMPOSITION (CODEX ALIMENTARIUS) ---
   const [cheeseMoisturePct, setCheeseMoisturePct] = useState<number>(42.0);
@@ -307,13 +183,6 @@ export default function CalculatorScreen() {
   const [wheyCurrentPh, setWheyCurrentPh] = useState<number>(3.8);
   const [wheyGeneration, setWheyGeneration] = useState<number>(3);
 
-  // --- LIVE CULTURE HOTEL & MOTHER COLONY ---
-  const [hotelCultureType, setHotelCultureType] = useState<LiveCultureType>('KOMBUCHA_SCOBY_HOTEL');
-  const [hotelDaysSinceFed, setHotelDaysSinceFed] = useState<number>(14);
-  const [hotelVolumeMl, setHotelVolumeMl] = useState<number>(2000);
-  const [hotelSludgeDepthCm, setHotelSludgeDepthCm] = useState<number>(0.8);
-  const [hotelPh, setHotelPh] = useState<number>(2.8);
-
   // --- CURD SYNERESIS & CASEIN SHRINKAGE KINETICS ---
   const [syneresisStyle, setSyneresisStyle] = useState<CheeseStyleSyneresis>('GOUDA_EDAM');
   const [syneresisCutSizeMm, setSyneresisCutSizeMm] = useState<number>(8);
@@ -323,83 +192,12 @@ export default function CalculatorScreen() {
   const [syneresisStirMinutes, setSyneresisStirMinutes] = useState<number>(25);
   const [syneresisDrainPh, setSyneresisDrainPh] = useState<number>(6.40);
 
-  // --- BOTANICAL EXTRACTION & VEG CRISPNESS ENGINE ---
-  const [selectedBotanical, setSelectedBotanical] = useState<BotanicalSourceId>('OAK_LEAF');
-  const [botanicalGrams, setBotanicalGrams] = useState<number>(3);
-  const [garlicGramsInput, setGarlicGramsInput] = useState<number>(15);
-  const [garlicPrepInput, setGarlicPrepInput] = useState<GarlicPrepMethod>('BRUISED_CRUSHED');
-
-  // --- PASTEURIZATION UNITS (PU) & THERMAL STABILIZATION ---
-  const [puCategory, setPuCategory] = useState<PasteurizationTargetCategory>('KOMBUCHA_STABILIZATION');
-  const [puWaterBathTempC, setPuWaterBathTempC] = useState<number>(65);
-  const [puHoldMinutes, setPuHoldMinutes] = useState<number>(15);
-  const [puBottleVolumeMl, setPuBottleVolumeMl] = useState<number>(500);
-
-  // --- VINEGAR STANDARDIZATION & SURFACE AERATION ---
-  const [vinRawAcidity, setVinRawAcidity] = useState<number>(7.2);
-  const [vinRawVolumeL, setVinRawVolumeL] = useState<number>(5.0);
-  const [vinTargetAcidity, setVinTargetAcidity] = useState<number>(5.0);
-  const [vinVesselDiameterCm, setVinVesselDiameterCm] = useState<number>(24);
-  const [vinInitialAbv, setVinInitialAbv] = useState<number>(6.5);
-
   // --- BRINE DENSITOMETRY & HYDROMETER TEMP COMPENSATION ---
   const [brineDensityUnit, setBrineDensityUnit] = useState<'PERCENT_WT' | 'SALOMETER' | 'BAUME' | 'SPECIFIC_GRAVITY'>('PERCENT_WT');
   const [brineMeasuredValue, setBrineMeasuredValue] = useState<number>(20.0);
   const [brineSampleTempC, setBrineSampleTempC] = useState<number>(12.0);
   const [brineTargetProfile, setBrineTargetProfile] = useState<BrineTargetProfileKey>('HARD_CHEESE_HEAVY');
   const [brineVolumeLitersInput, setBrineVolumeLitersInput] = useState<number>(10.0);
-
-  // --- KOJI, SHIO KOJI & AMAZAKE ENZYMATIC HYDROLYSIS ---
-  const [kojiMode, setKojiMode] = useState<'SHIO_KOJI' | 'AMAZAKE' | 'MISO'>('SHIO_KOJI');
-  const [kojiMassGrams, setKojiMassGrams] = useState<number>(200);
-  const [kojiState, setKojiState] = useState<KojiMoistureState>('DRIED');
-  const [kojiSalinityTarget, setKojiSalinityTarget] = useState<number>(11.5);
-  const [kojiTempC, setKojiTempC] = useState<number>(22.0);
-  const [amazakeCookedRiceGrams, setAmazakeCookedRiceGrams] = useState<number>(200);
-  const [amazakeTempC, setAmazakeTempC] = useState<number>(58.0);
-  const [misoTypeInput, setMisoTypeInput] = useState<'SHIRO_MISO' | 'AKAMISO'>('SHIRO_MISO');
-  const [misoSoyGrams, setMisoSoyGrams] = useState<number>(500);
-
-  // --- KEFIR GRAINS & TIBICOS KINETICS (1F/2F) ---
-  const [kefirMedium, setKefirMedium] = useState<KefirMediumType>('MILK_KEFIR');
-  const [kefirLiquidVolumeMl, setKefirLiquidVolumeMl] = useState<number>(1000);
-  const [kefirGrainWeightGrams, setKefirGrainWeightGrams] = useState<number>(35);
-  const [kefir2FDurationHours, setKefir2FDurationHours] = useState<number>(18);
-  const [kefir2FFlavor, setKefir2FFlavor] = useState<'CITRUS_PEEL' | 'BERRIES' | 'VANILLA_CHAI' | 'NONE'>('CITRUS_PEEL');
-
-  // --- NUKAZUKE RICE BRAN BED (NUKADOKO) ---
-  const [nukadokoTab, setNukadokoTab] = useState<'SETUP' | 'MAINTENANCE' | 'VEG_TIME'>('SETUP');
-  const [nukaBranGrams, setNukaBranGrams] = useState<number>(1000);
-  const [nukaBedMassGrams, setNukaBedMassGrams] = useState<number>(2000);
-  const [nukaSalinityPct, setNukaSalinityPct] = useState<number>(12.0);
-  const [nukaMoistureStatus, setNukaMoistureStatus] = useState<'OPTIMAL_SAND' | 'SLIGHTLY_WET' | 'VERY_SLUSHY'>('OPTIMAL_SAND');
-  const [nukaSelectedVeg, setNukaSelectedVeg] = useState<NukazukeVegType>('CUCUMBER');
-
-  // --- TEMPEH MYCELIAL FERMENTATION KINETICS ---
-  const [tempehLegumeType, setTempehLegumeType] = useState<LegumeType>('SOYBEAN');
-  const [tempehDryGrams, setTempehDryGrams] = useState<number>(500);
-  const [tempehHours, setTempehHours] = useState<number>(16);
-  const [tempehCoreTempC, setTempehCoreTempC] = useState<number>(33.0);
-  const [tempehVinegarMl, setTempehVinegarMl] = useState<number>(15);
-
-  // --- TRADITIONAL POLISH MEAD (MIODOSYTNIK) ---
-  const [meadGrade, setMeadGrade] = useState<PolishMeadGrade>('TROJNIAK');
-  const [meadTargetVolumeL, setMeadTargetVolumeL] = useState<number>(15.0);
-  const [meadPrepType, setMeadPrepType] = useState<MeadPreparationType>('NIESYCONY');
-
-  // --- BLACK GARLIC & MAILLARD AGING ---
-  const [bgRawGrams, setBgRawGrams] = useState<number>(500);
-  const [bgCurrentDay, setBgCurrentDay] = useState<number>(18);
-  const [bgChamberTempC, setBgChamberTempC] = useState<number>(68.0);
-  const [bgChamberRhPct, setBgChamberRhPct] = useState<number>(75);
-
-  // --- GINGER BUG & WILD SODA CARBONATION ---
-  const [gbStarterDays, setGbStarterDays] = useState<number>(5);
-  const [gbDaysSinceFeed, setGbDaysSinceFeed] = useState<number>(1);
-  const [gbHasBubbles, setGbHasBubbles] = useState<boolean>(true);
-  const [gbBatchVolumeL, setGbBatchVolumeL] = useState<number>(2.0);
-  const [gbHoursInBottle, setGbHoursInBottle] = useState<number>(24);
-  const [gbBottleType, setGbBottleType] = useState<GingerBottleType>('SWING_TOP_HEAVY_GLASS');
 
   // Active Flocculation Timer (Background-resilient via absolute timestamp & AppState sync)
   const [timerStartMs, setTimerStartMs] = useState<number | null>(null);
@@ -495,8 +293,9 @@ export default function CalculatorScreen() {
         t('Wczytano Recepturę!'),
         `${decoded.name} (${decoded.code})\n${t('Pomyślnie zweryfikowano sumę kontrolną integralności.')}`
       );
-    } catch (err: any) {
-      Alert.alert(t('Błąd Importu'), err.message || t('Nieprawidłowe dane receptury.'));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : t('Nieprawidłowe dane receptury.');
+      Alert.alert(t('Błąd Importu'), message);
     }
   };
 
@@ -507,14 +306,6 @@ export default function CalculatorScreen() {
   const pressCalc = calculatePressPressure(pressWeightKg, moldDiamCm, leverRatio);
   const brineCalc = calculateBrineComposition(brineWaterLiters, brineSalinityPct);
   const cookingRampCalc = calculateCurdCookingMinTime(cookStartTemp, cookEndTemp, cookDurationMin);
-
-  const totalSalinityCalc = calculateTotalBatchSalinity(vegGrams, waterGrams, targetSalinity);
-  const botulinumSafety = verifyBotulinumSafety(measuredPh, fermentHours);
-  const kimchiPrep = calculateKimchiPrep(cabbageGrams);
-
-  const kombucha1F = calculateKombucha1F(kombuchaWaterLiters);
-  const kombucha2F = calculateKombucha2FPressure(residualSugar, daysIn2F);
-  const vinegarCalc = calculateVinegarConversion(vinegarBrix);
 
   const sweetWheyLiters = Math.max(1, milkLiters * 0.9);
   const ricottaCalc = calculateRicottaRecovery(sweetWheyLiters, wheyMilkBoostLiters);
@@ -544,22 +335,12 @@ export default function CalculatorScreen() {
     moldFittingCalc.expectedYieldKg,
     moldDiamCm
   );
-  const labKineticsCalc = evaluateLabFermentation(fermentHours, measuredPh);
-  const vinegarTitrationCalc = calculateVinegarTitration(vinegarSampleMl, naohTiterMl);
   const brineAcidCalc = calculateBrineAcidification({
     brineWaterLiters,
     initialWaterPh: brineWaterPh,
     targetPh: targetBrinePh,
     lacticAcidConcentrationPct: lacticAcidConc,
     targetSalinityPct: brineSalinityPct,
-  });
-  const kombuchaBlendingCalc = calculateKombucha2FBlending({
-    baseKombuchaLiters: kombuchaWaterLiters,
-    juiceProfileId: selectedJuiceId,
-    juiceVolumeMl,
-    bottleType: kombuchaBottleType,
-    temperatureC: kombuchaTemp,
-    daysAtRoomTemp: daysIn2F,
   });
 
   const curdWashCalc = (() => {
@@ -604,54 +385,6 @@ export default function CalculatorScreen() {
     }
   })();
 
-  const q10VegCalc = (() => {
-    try {
-      return calculateFermentationQ10({
-        cultureType: 'VEG_LAB',
-        ambientTempC,
-        nominalDaysAt20C: Math.max(1, Math.round(fermentHours / 24)),
-      });
-    } catch {
-      return null;
-    }
-  })();
-
-  const q10KombuchaCalc = (() => {
-    try {
-      return calculateFermentationQ10({
-        cultureType: 'KOMBUCHA_SCOBY',
-        ambientTempC,
-        nominalDaysAt20C: 10,
-      });
-    } catch {
-      return null;
-    }
-  })();
-
-  const crockHeadspaceCalc = (() => {
-    try {
-      return calculateCrockHeadspace({
-        jarCapacityMl,
-        vegetableWeightGrams: vegGrams,
-        brineWaterMl: waterGrams,
-        weightMassGrams: stoneWeightGrams,
-      });
-    } catch {
-      return null;
-    }
-  })();
-
-  const refractometerAlcoholCalc = (() => {
-    try {
-      return analyzeRefractometerBrix({
-        originalBrix: originalBrixInput,
-        currentBrix: currentBrixInput,
-        purpose: 'VINEGAR_CIDER',
-      });
-    } catch {
-      return null;
-    }
-  })();
 
   const cheeseCompositionCalc = (() => {
     try {
@@ -680,43 +413,7 @@ export default function CalculatorScreen() {
     }
   })();
 
-  const cultureHotelCalc = (() => {
-    try {
-      const now = Date.now();
-      return analyzeCultureHotel({
-        cultureType: hotelCultureType,
-        lastFedTimestamp: now - hotelDaysSinceFed * 24 * 60 * 60 * 1000,
-        nowTimestamp: now,
-        currentTempC: ambientTempC,
-        measuredPh: hotelPh,
-        currentLiquidVolumeMl: hotelVolumeMl,
-        yeastSludgeDepthCm: hotelSludgeDepthCm,
-      });
-    } catch {
-      return null;
-    }
-  })();
 
-  const continuousBrewPlan = (() => {
-    try {
-      return calculateContinuousBrewPlan({
-        system: {
-          id: 'cb_active',
-          name: 'Continuous Brew Vessel',
-          vesselCapacityLiters: cbVesselLiters,
-          currentVolumeLiters: cbVesselLiters,
-          ambientTempCelsius: cbTempCelsius,
-          teaBaseType: cbTeaBase,
-          totalCyclesCompleted: cbCyclesSincePurge + 4,
-          cyclesSinceLastPurge: cbCyclesSincePurge,
-        },
-        drawVolumeLiters: cbDrawLiters,
-        currentPreDrawPh: cbPreDrawPh,
-      });
-    } catch {
-      return null;
-    }
-  })();
 
   const wheyLevainCalc = (() => {
     try {
@@ -750,32 +447,7 @@ export default function CalculatorScreen() {
     }
   })();
 
-  const vegCrispnessCalc = (() => {
-    try {
-      return calculateVegCrispnessProtection({
-        vegetableWeightKg: Math.max(0.1, vegGrams / 1000),
-        brineVolumeLiters: Math.max(0.1, waterGrams / 1000),
-        botanicals: [{ botanicalId: selectedBotanical, weightGrams: botanicalGrams }],
-        garlicGrams: garlicGramsInput,
-        garlicPrep: garlicPrepInput,
-      });
-    } catch {
-      return null;
-    }
-  })();
 
-  const puPlanCalc = (() => {
-    try {
-      return calculatePasteurizationPlan({
-        category: puCategory,
-        waterBathTempCelsius: puWaterBathTempC,
-        holdTimeMinutes: puHoldMinutes,
-        bottleVolumeMl: puBottleVolumeMl,
-      });
-    } catch {
-      return null;
-    }
-  })();
 
   const milkSpeciesCalc = (() => {
     try {
@@ -790,41 +462,7 @@ export default function CalculatorScreen() {
     }
   })();
 
-  const vinegarStdCalc = (() => {
-    try {
-      return calculateVinegarStandardization({
-        rawAcidityPct: vinRawAcidity,
-        rawVolumeLiters: vinRawVolumeL,
-        targetAcidityPct: vinTargetAcidity,
-        dilutionLiquid: 'DISTILLED_WATER',
-      });
-    } catch {
-      return null;
-    }
-  })();
 
-  const vinegarStoichCalc = (() => {
-    try {
-      return calculateVinegarStoichiometry({
-        initialAbvPct: vinInitialAbv,
-        batchVolumeLiters: vinRawVolumeL,
-      });
-    } catch {
-      return null;
-    }
-  })();
-
-  const vinegarAerationCalc = (() => {
-    try {
-      return calculateVesselAeration({
-        vesselType: 'WIDE_CROCK',
-        surfaceDiameterCm: vinVesselDiameterCm,
-        liquidVolumeLiters: vinRawVolumeL,
-      });
-    } catch {
-      return null;
-    }
-  })();
 
   const brineDensitometryCalc = (() => {
     try {
@@ -841,173 +479,6 @@ export default function CalculatorScreen() {
       return null;
     }
   })();
-
-  const kojiCalc = (() => {
-    try {
-      if (kojiMode === 'SHIO_KOJI') {
-        return {
-          type: 'SHIO_KOJI' as const,
-          data: calculateShioKoji({
-            kojiMassGrams,
-            kojiState,
-            targetSalinityPercent: kojiSalinityTarget,
-            fermentationTempC: kojiTempC,
-          }),
-        };
-      } else if (kojiMode === 'AMAZAKE') {
-        return {
-          type: 'AMAZAKE' as const,
-          data: calculateAmazake({
-            kojiMassGrams,
-            cookedRiceMassGrams: amazakeCookedRiceGrams,
-            incubationTempC: amazakeTempC,
-          }),
-        };
-      } else {
-        return {
-          type: 'MISO' as const,
-          data: calculateMisoFormulation({
-            cookedSoybeansGrams: misoSoyGrams,
-            kojiGrams: kojiMassGrams,
-            misoType: misoTypeInput,
-          }),
-        };
-      }
-    } catch {
-      return null;
-    }
-  })();
-
-  const kefir1FCalc = (() => {
-    try {
-      return calculateKefir1F({
-        medium: kefirMedium,
-        liquidVolumeMl: kefirLiquidVolumeMl,
-        grainWeightGrams: kefirGrainWeightGrams,
-        ambientTempC,
-      });
-    } catch {
-      return null;
-    }
-  })();
-
-  const kefir2FCalc = (() => {
-    try {
-      return calculateKefir2F({
-        medium: kefirMedium,
-        ripenedLiquidVolumeMl: kefirLiquidVolumeMl,
-        flavorAddition: kefir2FFlavor,
-        temperatureC: ambientTempC,
-        durationHours: kefir2FDurationHours,
-        isHermeticVessel: true,
-      });
-    } catch {
-      return null;
-    }
-  })();
-
-  const nukadokoCalc = (() => {
-    try {
-      if (nukadokoTab === 'SETUP') {
-        return {
-          tab: 'SETUP' as const,
-          data: calculateNukadokoSetup({
-            riceBranGrams: nukaBranGrams,
-            targetSalinityPct: 13.0,
-          }),
-        };
-      } else if (nukadokoTab === 'MAINTENANCE') {
-        return {
-          tab: 'MAINTENANCE' as const,
-          data: calculateNukadokoMaintenance({
-            bedTotalMassGrams: nukaBedMassGrams,
-            currentEstimatedSalinityPct: nukaSalinityPct,
-            moistureExcessStatus: nukaMoistureStatus,
-            ambientTempC,
-          }),
-        };
-      } else {
-        return {
-          tab: 'VEG_TIME' as const,
-          data: getPicklingTimeForVeg(nukaSelectedVeg, ambientTempC),
-        };
-      }
-    } catch {
-      return null;
-    }
-  })();
-
-  const tempehCalc = (() => {
-    try {
-      return calculateTempehKinetics({
-        dryLegumeWeightGrams: tempehDryGrams,
-        legumeType: tempehLegumeType,
-        soakVinegarMl5Pct: tempehVinegarMl,
-        incubationHours: tempehHours,
-        currentCoreTempC: tempehCoreTempC,
-        ambientTempC,
-      });
-    } catch {
-      return null;
-    }
-  })();
-
-  const meadCalc = (() => {
-    try {
-      return calculateMeadBatch({
-        grade: meadGrade,
-        targetTotalVolumeLiters: meadTargetVolumeL,
-        preparation: meadPrepType,
-        ambientTempC,
-      });
-    } catch {
-      return null;
-    }
-  })();
-
-  const blackGarlicCalc = (() => {
-    try {
-      return calculateBlackGarlic({
-        rawWeightGrams: bgRawGrams,
-        currentDay: bgCurrentDay,
-        chamberTempC: bgChamberTempC,
-        chamberRhPct: bgChamberRhPct,
-      });
-    } catch {
-      return null;
-    }
-  })();
-
-  const gingerBugStarterCalc = (() => {
-    try {
-      return evaluateGingerBugStarter({
-        starterAgeDays: gbStarterDays,
-        daysSinceLastFeed: gbDaysSinceFeed,
-        temperatureC: ambientTempC,
-        hasBubbles: gbHasBubbles,
-        hasFizzOnStir: gbHasBubbles,
-        isRefrigerated: false,
-      });
-    } catch {
-      return null;
-    }
-  })();
-
-  const gingerBeerBatchCalc = (() => {
-    try {
-      return calculateGingerBeerBatch({
-        batchVolumeLiters: gbBatchVolumeL,
-        targetSugarGramsPerLiter: 70,
-        bottlingTempC: ambientTempC,
-        hoursInBottle: gbHoursInBottle,
-        bottleType: gbBottleType,
-      });
-    } catch {
-      return null;
-    }
-  })();
-
-
 
   const handleSaveBatch = () => {
     requireActionAccess(async () => {
@@ -1029,7 +500,7 @@ export default function CalculatorScreen() {
           if (['MILK', 'RENNET', 'CULTURE', 'SALT', 'MINERAL'].includes(ing.category)) {
             requirements.push({
               name: ing.name,
-              category: ing.category as any,
+              category: ing.category as RecipeRequirement['category'],
               quantity: Math.round(ing.quantityPerUnit * milkLiters * 100) / 100,
               unit: ing.unit,
             });
@@ -1167,8 +638,8 @@ export default function CalculatorScreen() {
                 paddingVertical: 8,
                 paddingHorizontal: 16,
                 borderRadius: 6,
-                minHeight: 44,
-                minWidth: 44,
+                minHeight: 48,
+                minWidth: 48,
                 justifyContent: 'center',
               }}
             >

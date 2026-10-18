@@ -1,10 +1,10 @@
-appId: com.apps4brew.ferment
+﻿appId: com.apps4brew.serowar
 ---
 - launchApp
 - tapOn: "Kalkulator"
 - tapOn: "Ser"
 - assertVisible: "Dojrzewalnia (Cave Log)"
 - tapOn: "Dojrzewalnia (Cave Log)"
-- assertVisible: "Temperatura (°C)"
-- assertVisible: "Wilgotność względna RH (%)"
-- assertVisible: "Pielęgnacja affinage"
+- assertVisible: "Temperatura (Â°C)"
+- assertVisible: "WilgotnoĹ›Ä‡ wzglÄ™dna RH (%)"
+- assertVisible: "PielÄ™gnacja affinage"

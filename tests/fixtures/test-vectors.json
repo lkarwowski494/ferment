@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SEROWAR Dairy Craft Test Vectors Fixture",
+  "description": "Deterministyczne wektory testowe dla reguł dziedzinowych RD-01 do RD-50 w projekcie SEROWAR",
+  "generated_at": "2026-10-17T22:30:00Z",
+  "standard": "Apps4Brew Tier 1 Math Specification",
+  "vectors": [
+    {
+      "rule_id": "RD-01",
+      "name": "Dawkowanie podpuszczki IMCU (Gouda 20L)",
+      "inputs": {
+        "milk_volume_liters": 20.0,
+        "target_imcu_per_liter": 35.0,
+        "rennet_strength_imcu_per_ml": 200.0
+      },
+      "formula": "(milk_volume_liters * target_imcu_per_liter) / rennet_strength_imcu_per_ml",
+      "expected": {
+        "rennet_volume_ml": 3.5,
+        "rennet_drops_20_per_ml": 70
+      }
+    },
+    {
+      "rule_id": "RD-01",
+      "name": "Dawkowanie podpuszczki IMCU (Cheddar 50L)",
+      "inputs": {
+        "milk_volume_liters": 50.0,
+        "target_imcu_per_liter": 40.0,
+        "rennet_strength_imcu_per_ml": 600.0
+      },
+      "formula": "(milk_volume_liters * target_imcu_per_liter) / rennet_strength_imcu_per_ml",
+      "expected": {
+        "rennet_volume_ml": 3.33,
+        "rennet_drops_20_per_ml": 67
+      }
+    },
+    {
+      "rule_id": "RD-02",
+      "name": "Konwersja skali 1:X na IMCU",
+      "inputs": {
+        "ratio": 15000.0
+      },
+      "formula": "(130.0 * ratio) / 10000.0",
+      "expected": {
+        "imcu_per_ml": 195.0
+      }
+    },
+    {
+      "rule_id": "RD-03",
+      "name": "Suplementacja chlorku wapnia CaCl2",
+      "inputs": {
+        "milk_volume_liters": 15.0,
+        "target_cacl2_dry_g_per_l": 0.2
+      },
+      "formula": "dry_g = milk_volume_liters * target_cacl2_dry_g_per_l; sol_33_ml = dry_g * 2.33",
+      "expected": {
+        "dry_cacl2_grams": 3.0,
+        "solution_33_pct_ml": 7.0
+      }
+    },
+    {
+      "rule_id": "RD-04",
+      "name": "Mnożnik flokulacji (Camembert 4.5x)",
+      "inputs": {
+        "flocculation_minutes": 12.0,
+        "multiplier": 4.5
+      },
+      "formula": "total_cut_minutes = flocculation_minutes * multiplier; wait_minutes = flocculation_minutes * (multiplier - 1.0)",
+      "expected": {
+        "total_cut_time_minutes": 54.0,
+        "wait_after_flocculation_minutes": 42.0
+      }
+    },
+    {
+      "rule_id": "RD-05",
+      "name": "Nacisk prasy serowarskiej (Średnica 16 cm, R=3.5, 10 kg)",
+      "inputs": {
+        "diameter_cm": 16.0,
+        "lever_ratio": 3.5,
+        "weight_kg": 10.0
+      },
+      "formula": "area = pi * (diameter_cm / 2)^2; pressure_kg_cm2 = (weight_kg * lever_ratio) / area; psi = pressure_kg_cm2 * 14.2233",
+      "expected": {
+        "area_cm2": 201.06,
+        "total_applied_weight_kg": 35.0,
+        "pressure_kg_cm2": 0.17,
+        "pressure_psi": 2.47
+      }
+    },
+    {
+      "rule_id": "RD-06",
+      "name": "Psychrometria jaskini (T=12C, RH=85%)",
+      "inputs": {
+        "temperature_c": 12.0,
+        "humidity_rh_pct": 85.0
+      },
+      "formula": "alpha = (17.27 * T) / (237.7 + T) + ln(RH / 100); T_dp = (237.7 * alpha) / (17.27 - alpha)",
+      "expected": {
+        "dew_point_c": 9.6,
+        "condensation_risk": false
+      }
+    },
+    {
+      "rule_id": "RD-26",
+      "name": "Punkt izoelektryczny kazeiny pH 4.60",
+      "inputs": {
+        "ph_measured": 4.6
+      },
+      "formula": "is_isoelectric = abs(ph_measured - 4.60) <= 0.05",
+      "expected": {
+        "status": "IDEAL_CURD_FORMATION",
+        "zeta_potential_mv": 0.0
+      }
+    },
+    {
+      "rule_id": "RD-27",
+      "name": "Wydajność zmaślania śmietanki (1500 g 36%)",
+      "inputs": {
+        "cream_mass_grams": 1500.0,
+        "cream_fat_pct": 36.0,
+        "butter_fat_pct": 82.5,
+        "recovery_rate": 0.98
+      },
+      "formula": "butter_grams = (cream_mass_grams * (cream_fat_pct / 100) * recovery_rate) / (butter_fat_pct / 100); buttermilk_grams = cream_mass_grams - butter_grams",
+      "expected": {
+        "butter_grams": 641.5,
+        "buttermilk_grams": 858.5
+      }
+    },
+    {
+      "rule_id": "RD-28",
+      "name": "Koagulacja termiczna Ricotty (20 litrów serwatki)",
+      "inputs": {
+        "whey_liters": 20.0,
+        "citric_acid_rate_g_per_l": 0.6,
+        "target_temperature_c": 88.0
+      },
+      "formula": "citric_acid_grams = whey_liters * citric_acid_rate_g_per_l; expected_yield_kg = whey_liters * 0.045",
+      "expected": {
+        "citric_acid_grams": 12.0,
+        "expected_ricotta_kg": 0.9
+      }
+    },
+    {
+      "rule_id": "RD-29",
+      "name": "Odparowanie serwatki na norweski Brunost (15 litrów)",
+      "inputs": {
+        "whey_liters": 15.0,
+        "initial_dry_matter_pct": 6.0,
+        "target_dry_matter_pct": 80.0,
+        "cream_added_grams": 300.0
+      },
+      "formula": "evaporated_water_liters = whey_liters * (1.0 - (initial_dry_matter_pct / target_dry_matter_pct))",
+      "expected": {
+        "evaporated_water_liters": 13.88,
+        "concentrated_base_kg": 1.12,
+        "final_brunost_block_kg": 1.42
+      }
+    },
+    {
+      "rule_id": "RD-30",
+      "name": "Symbioza termofilna jogurtu (43C)",
+      "inputs": {
+        "incubation_temperature_c": 43.0
+      },
+      "formula": "is_optimal = incubation_temperature_c >= 42.0 and incubation_temperature_c <= 44.0",
+      "expected": {
+        "status": "OPTIMAL_PROTO_COOPERATION",
+        "estimated_time_to_ph_4_5_hours": 5.0
+      }
+    },
+    {
+      "rule_id": "RD-31",
+      "name": "Wytapianie czystego Ghee (800 g masła 82.5%)",
+      "inputs": {
+        "butter_grams": 800.0,
+        "butter_fat_pct": 82.5
+      },
+      "formula": "ghee_grams = butter_grams * (butter_fat_pct / 100)",
+      "expected": {
+        "ghee_grams": 660.0,
+        "water_evaporated_grams": 128.0,
+        "curd_residue_grams": 12.0,
+        "smoke_point_c": 250.0
+      }
+    },
+    {
+      "rule_id": "RD-32",
+      "name": "Wydajność twarogu klinkowego (10 litrów mleka)",
+      "inputs": {
+        "milk_liters": 10.0,
+        "casein_pct": 2.6,
+        "casein_recovery": 0.95,
+        "moisture_pct": 70.0
+      },
+      "formula": "dry_casein_kg = milk_liters * 1.03 * (casein_pct / 100) * casein_recovery",
+      "expected": {
+        "dry_casein_recovered_kg": 0.254,
+        "estimated_traditional_twarog_kg": 1.7
+      }
+    }
+  ]
+}

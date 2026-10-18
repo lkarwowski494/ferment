@@ -46,11 +46,11 @@ describe('App Store Review Guidelines & Offline Privacy Compliance (GAP-LAW-01, 
   it('Apple Guideline 5.1.1: Official Privacy Manifests declares Zero Tracking & Data Not Collected', () => {
     const expo = appJson.expo;
     expect(expo).toBeDefined();
-    expect(expo.name).toBe('Ferment');
-    expect(expo.slug).toBe('ferment');
+    expect(expo.name).toBe('SEROWAR');
+    expect(expo.slug).toBe('serowar');
     expect(expo.version).toMatch(/^\d+\.\d+\.\d+/);
     expect(expo.ios).toBeDefined();
-    expect(expo.ios.bundleIdentifier).toBe('com.apps4brew.ferment');
+    expect(expo.ios.bundleIdentifier).toBe('com.apps4brew.serowar');
 
     // Apple Privacy Manifests (NSPrivacyTracking & NSPrivacyCollectedDataTypes)
     const manifests = expo.ios.privacyManifests;

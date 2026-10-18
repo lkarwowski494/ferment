@@ -30,8 +30,8 @@ for (const file of files) {
     continue;
   }
 
-  if (!content.includes('appId: com.apps4brew.ferment')) {
-    console.error(`❌ [${file}] Brak poprawnego appId: com.apps4brew.ferment`);
+  if (!content.includes('appId: com.apps4brew.serowar')) {
+    console.error(`❌ [${file}] Brak poprawnego appId: com.apps4brew.serowar`);
     errors++;
     continue;
   }

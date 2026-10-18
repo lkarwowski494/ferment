@@ -151,17 +151,28 @@ export function generatePantryCsv(items: PantryItem[]): string {
   return [headers.join(','), ...rows.map((r) => r.join(','))].join('\r\n');
 }
 
+interface FileSystemModuleLike {
+  documentDirectory?: string | null;
+  writeAsStringAsync?: (
+    fileUri: string,
+    contents: string,
+    options?: { encoding?: string }
+  ) => Promise<void>;
+  EncodingType?: { UTF8: string };
+}
+
 /**
  * Saves CSV content to temporary document and shares via native share sheet
  */
 export async function shareCsvExport(filename: string, csvContent: string): Promise<string> {
-  const dir = (FileSystem as any).documentDirectory || '';
+  const fs = FileSystem as unknown as FileSystemModuleLike;
+  const dir = fs.documentDirectory || '';
   const fileUri = `${dir}${filename.endsWith('.csv') ? filename : `${filename}.csv`}`;
 
   try {
-    if ((FileSystem as any).writeAsStringAsync) {
-      await (FileSystem as any).writeAsStringAsync(fileUri, csvContent, {
-        encoding: (FileSystem as any).EncodingType?.UTF8 || 'utf8',
+    if (fs.writeAsStringAsync) {
+      await fs.writeAsStringAsync(fileUri, csvContent, {
+        encoding: fs.EncodingType?.UTF8 || 'utf8',
       });
     }
 

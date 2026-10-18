@@ -74,21 +74,21 @@ export function processPantryDepletion(
   for (const req of requirements) {
     // Find matching pantry item by category or loose name
     const match = currentPantry.find(p => {
-      const pName = p.itemName || (p as any).name || '';
+      const pName = p.itemName || '';
       return p.category.toUpperCase() === req.category.toUpperCase() && (
         pName.toLowerCase().includes(req.name.toLowerCase()) ||
         req.name.toLowerCase().includes(pName.toLowerCase())
       );
     }) || currentPantry.find(p => p.category.toUpperCase() === req.category.toUpperCase());
 
-    const matchName = match ? (match.itemName || (match as any).name || '') : '';
+    const matchName = match ? match.itemName : '';
 
     if (!match) {
       deficitWarnings.push(`Brak w spiżarni składnika w kategorii "${req.category}" (${req.name}). Wymagane: ${req.quantity} ${req.unit}.`);
       continue;
     }
 
-    const matchQty = match.quantityAvailable ?? (match as any).quantity ?? 0;
+    const matchQty = match.quantityAvailable ?? 0;
     const reqBase = toBaseUnits(req.quantity, req.unit);
     const pantryBase = toBaseUnits(matchQty, match.unit);
 
@@ -119,7 +119,7 @@ export function processPantryDepletion(
     }
 
     const remainingQty = Math.max(0, Math.round((matchQty - deductedInPantryUnits) * 100) / 100);
-    const unitPrice = match.costPerUnitPln ?? (match as any).cost_per_unit ?? 0;
+    const unitPrice = match.costPerUnitPln ?? 0;
     const itemCost = Math.round(deductedInPantryUnits * unitPrice * 100) / 100;
     totalCost += itemCost;
 

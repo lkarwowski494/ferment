@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "Ferment",
-    "slug": "ferment",
+    "name": "SEROWAR",
+    "slug": "serowar",
     "version": "1.1.0",
-    "scheme": "ferment",
+    "scheme": "serowar",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": false,
       "requireFullScreen": true,
-      "bundleIdentifier": "com.apps4brew.ferment",
+      "bundleIdentifier": "com.apps4brew.serowar",
       "appleTeamId": "8NQ9GHY8GF",
       "buildNumber": "1",
       "infoPlist": {
@@ -25,7 +25,7 @@
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleAllowMixedLocalizations": true,
         "UIRequiresFullScreen": true,
-        "NSCameraUsageDescription": "Ferment wymaga dostępu do aparatu, aby natychmiast zeskanować kod QR receptury lub partii sera/kiszonki w 100% offline."
+        "NSCameraUsageDescription": "SEROWAR wymaga dostępu do aparatu, aby natychmiast zeskanować kod QR receptury lub partii sera w 100% offline."
       },
       "privacyManifests": {
         "NSPrivacyTracking": false,
@@ -55,7 +55,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1C1917"
       },
-      "package": "com.apps4brew.ferment",
+      "package": "com.apps4brew.serowar",
       "permissions": [
         "CAMERA"
       ]

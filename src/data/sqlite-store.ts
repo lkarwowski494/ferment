@@ -105,6 +105,7 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase | null> {
 export const FERMENT_SQL_DDL = `
   PRAGMA journal_mode = WAL;
   PRAGMA foreign_keys = ON;
+  PRAGMA busy_timeout = 5000;
 
   CREATE TABLE IF NOT EXISTS app_settings (
     key TEXT PRIMARY KEY NOT NULL,
@@ -462,19 +463,19 @@ export async function getBatches(): Promise<Batch[]> {
       const rows = await db.getAllAsync<{
         id: string;
         batch_number: string;
-        category: string;
+        category: Batch['category'];
         style_name: string;
         created_at: number;
-        status: string;
+        status: Batch['status'];
         notes: string | null;
       }>('SELECT * FROM batches ORDER BY created_at DESC');
       return rows.map((r) => ({
         id: r.id,
         batchNumber: r.batch_number,
-        category: r.category as any,
+        category: r.category,
         styleName: r.style_name,
         createdAt: r.created_at,
-        status: r.status as any,
+        status: r.status,
         notes: r.notes || undefined,
       }));
     } catch {
@@ -548,7 +549,7 @@ export async function getCaveWheels(): Promise<CaveCheeseWheel[]> {
         location_in_cave: string;
         initial_weight_grams: number;
         current_weight_grams: number;
-        rind_type: string;
+        rind_type: CaveCheeseWheel['rindType'];
         target_aging_days: number;
         last_turned_at: number | null;
         last_washed_at: number | null;
@@ -563,7 +564,7 @@ export async function getCaveWheels(): Promise<CaveCheeseWheel[]> {
         locationInCave: r.location_in_cave,
         initialWeightGrams: r.initial_weight_grams,
         currentWeightGrams: r.current_weight_grams,
-        rindType: r.rind_type as any,
+        rindType: r.rind_type,
         targetAgingDays: r.target_aging_days,
         lastTurnedAt: r.last_turned_at || undefined,
         lastWashedAt: r.last_washed_at || undefined,
@@ -619,7 +620,7 @@ export async function getPantry(): Promise<PantryItem[]> {
       const rows = await db.getAllAsync<{
         id: string;
         item_name: string;
-        category: string;
+        category: PantryItem['category'];
         quantity_available: number;
         unit: string;
         imcu_or_concentration: string | null;
@@ -629,7 +630,7 @@ export async function getPantry(): Promise<PantryItem[]> {
       return rows.map((r) => ({
         id: r.id,
         itemName: r.item_name,
-        category: r.category as any,
+        category: r.category,
         quantityAvailable: r.quantity_available,
         unit: r.unit,
         imcuOrConcentration: r.imcu_or_concentration || undefined,
@@ -727,7 +728,7 @@ export async function getCaveActions(wheelId: string): Promise<CaveActionLog[]> 
       const rows = await db.getAllAsync<{
         id: string;
         wheel_id: string;
-        action_type: string;
+        action_type: CaveActionLog['actionType'];
         logged_at: number;
         weight_grams: number | null;
         shrinkage_pct: number | null;
@@ -736,7 +737,7 @@ export async function getCaveActions(wheelId: string): Promise<CaveActionLog[]> 
       return rows.map((r) => ({
         id: r.id,
         wheelId: r.wheel_id,
-        actionType: r.action_type as any,
+        actionType: r.action_type,
         loggedAt: r.logged_at,
         weightGrams: r.weight_grams || undefined,
         shrinkagePct: r.shrinkage_pct || undefined,
@@ -883,7 +884,16 @@ export async function getCurdDetails(batchId: string): Promise<CurdBatchDetails 
   const db = await getDb();
   if (db) {
     try {
-      const row = await db.getFirstAsync<any>(
+      const row = await db.getFirstAsync<{
+        batch_id: string;
+        acidification_method: CurdBatchDetails['acidificationMethod'];
+        milk_volume_liters: number;
+        measured_ph: number | null;
+        heating_temp_c: number;
+        drain_duration_minutes: number;
+        pressed_weight_kg: number | null;
+        final_curd_weight_grams: number | null;
+      }>(
         'SELECT * FROM curd_batch_details WHERE batch_id = ?',
         [batchId]
       );
@@ -937,7 +947,18 @@ export async function getButterDetails(batchId: string): Promise<ButterChurnDeta
   const db = await getDb();
   if (db) {
     try {
-      const row = await db.getFirstAsync<any>(
+      const row = await db.getFirstAsync<{
+        batch_id: string;
+        cream_fat_pct: number;
+        cream_volume_liters: number;
+        cream_temperature_c: number;
+        cream_type: ButterChurnDetails['creamType'];
+        churn_duration_minutes: number | null;
+        wash_cycles_count: number;
+        butter_yield_grams: number | null;
+        buttermilk_yield_ml: number | null;
+        ghee_yield_grams: number | null;
+      }>(
         'SELECT * FROM butter_churn_details WHERE batch_id = ?',
         [batchId]
       );
@@ -995,7 +1016,14 @@ export async function getFermentedMilkDetails(batchId: string): Promise<Fermente
   const db = await getDb();
   if (db) {
     try {
-      const row = await db.getFirstAsync<any>(
+      const row = await db.getFirstAsync<{
+        batch_id: string;
+        culture_type: FermentedMilkDetails['cultureType'];
+        incubation_temp_c: number;
+        incubation_duration_hours: number;
+        target_ph: number;
+        strained_greek_yield_grams: number | null;
+      }>(
         'SELECT * FROM fermented_milk_details WHERE batch_id = ?',
         [batchId]
       );
@@ -1045,7 +1073,17 @@ export async function getWheyProductDetails(batchId: string): Promise<WheyProduc
   const db = await getDb();
   if (db) {
     try {
-      const row = await db.getFirstAsync<any>(
+      const row = await db.getFirstAsync<{
+        batch_id: string;
+        source_batch_id: string | null;
+        whey_type: WheyProductDetails['wheyType'];
+        whey_volume_liters: number;
+        whole_milk_added_liters: number;
+        cream_added_liters: number;
+        heating_temp_c: number;
+        product_type: WheyProductDetails['productType'];
+        final_yield_grams: number | null;
+      }>(
         'SELECT * FROM whey_product_details WHERE batch_id = ?',
         [batchId]
       );
@@ -1131,7 +1169,14 @@ export async function getWheelWeights(wheelId: string): Promise<WheelWeightLog[]
   const db = await getDb();
   if (db) {
     try {
-      const rows = await db.getAllAsync<any>(
+      const rows = await db.getAllAsync<{
+        id: string;
+        wheel_id: string;
+        weight_grams: number;
+        shrinkage_pct: number;
+        logged_at: number;
+        notes: string | null;
+      }>(
         'SELECT * FROM wheel_weight_logs WHERE wheel_id = ? ORDER BY logged_at ASC',
         [wheelId]
       );
@@ -1164,14 +1209,17 @@ export function getSqliteStore() {
   return {
     initialize: initDatabase,
     getBatches,
-    saveBatch: async (batch: any, details?: any) => {
+    saveBatch: async (
+      batch: Partial<Batch> & { id: string; code?: string; type?: string; started_at?: string; name?: string },
+      details?: CheeseBatchDetails
+    ) => {
       const normalizedBatch: Batch = {
         id: batch.id,
         batchNumber: batch.batchNumber || batch.code || `BATCH-${batch.id}`,
-        category: (batch.category || (batch.type ? batch.type.toUpperCase() : 'CHEESE')) as any,
+        category: (batch.category || (batch.type ? (batch.type.toUpperCase() as Batch['category']) : 'CHEESE')),
         styleName: batch.styleName || batch.name || 'Ser Zagrodowy',
         createdAt: batch.createdAt || (batch.started_at ? new Date(batch.started_at).getTime() : Date.now()),
-        status: (batch.status || 'PREPARING') as any,
+        status: (batch.status || 'PREPARING'),
         notes: batch.notes,
       };
       return saveBatch(normalizedBatch, details);

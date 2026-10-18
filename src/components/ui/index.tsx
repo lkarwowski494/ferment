@@ -479,8 +479,8 @@ export const Screen: React.FC<ScreenProps> = ({ children, style, contentContaine
 // ==========================================
 const styles = StyleSheet.create({
   headerButton: {
-    minWidth: 44,
-    minHeight: 44,
+    minWidth: 48,
+    minHeight: 48,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
     borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 8,
-    minHeight: 44,
+    minHeight: 48,
     paddingHorizontal: 12,
   },
   fieldInputError: {
@@ -528,8 +528,8 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   fieldClearButton: {
-    minWidth: 44,
-    minHeight: 44,
+    minWidth: 48,
+    minHeight: 48,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -543,8 +543,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   btnBase: {
-    minHeight: 44,
-    minWidth: 44,
+    minHeight: 48,
+    minWidth: 48,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -613,7 +613,7 @@ const styles = StyleSheet.create({
   },
   segmentedOption: {
     flex: 1,
-    minHeight: 44,
+    minHeight: 48,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 6,
@@ -632,8 +632,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   chipBase: {
-    minHeight: 44,
-    minWidth: 44,
+    minHeight: 48,
+    minWidth: 48,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
@@ -665,7 +665,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#334155',
-    minHeight: 44,
+    minHeight: 48,
     paddingHorizontal: 12,
     marginBottom: 12,
   },
@@ -744,8 +744,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   deletableRowButton: {
-    minWidth: 44,
-    minHeight: 44,
+    minWidth: 48,
+    minHeight: 48,
     backgroundColor: '#dc2626',
     borderRadius: 6,
     justifyContent: 'center',

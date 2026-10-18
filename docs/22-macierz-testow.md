@@ -8,8 +8,8 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | Kategoria | Łącznie | Pokryte | Pokrycie % | Status |
 | :--- | :---: | :---: | :---: | :---: |
 | **EKRAN** | 4 | 4 | **100.0%** | ✅ POKRYTE |
-| **UI** | 10 | 10 | **100.0%** | ✅ POKRYTE |
-| **TEKST** | 783 | 783 | **100.0%** | ✅ POKRYTE |
+| **UI** | 9 | 9 | **100.0%** | ✅ POKRYTE |
+| **TEKST** | 784 | 784 | **100.0%** | ✅ POKRYTE |
 | **LOGIKA** | 199 | 199 | **100.0%** | ✅ POKRYTE |
 | **WYMIAR** | 99 | 99 | **100.0%** | ✅ POKRYTE |
 
@@ -146,8 +146,8 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `W schowku nie znaleziono prawidłowego linku receptury ferment://` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Wczytano Recepturę!` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Pomyślnie zweryfikowano sumę kontrolną integralności.` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Nieprawidłowe dane receptury.` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `UI` | `Błąd Importu` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `UI` | `Nieprawidłowe dane receptury.` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Ser` | `app/(tabs)/index.tsx` | ✅ | tests/components/ui-components.test.tsx, tests/data/knowledge-base.test.ts |
 | `TEKST` | `Krowi` | `app/(tabs)/index.tsx` | ✅ | tests/core/deferred-backlog-engines.test.ts, tests/core/inventory.test.ts |
 | `TEKST` | `Kozi` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
@@ -156,7 +156,7 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Mleko Kozie` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Mleko Owcze` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Mleko Bawole` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Podpuszczka` | `app/(tabs)/index.tsx` | ✅ | tests/core/inventory.test.ts, tests/matrix-translations.test.ts |
+| `TEKST` | `Podpuszczka` | `app/(tabs)/index.tsx` | ✅ | tests/core/inventory.test.ts, tests/data/sqlite-migration.test.ts |
 | `TEKST` | `Chlorek Wapnia` | `app/(tabs)/index.tsx` | ✅ | tests/domain-coverage.test.ts, tests/lib/backup.test.ts |
 | `TEKST` | `Utworzono z kalkulatora głównego.` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Numer partii:` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |

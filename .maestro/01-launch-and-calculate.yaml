@@ -1,4 +1,4 @@
-appId: com.apps4brew.ferment
+﻿appId: com.apps4brew.serowar
 ---
 - launchApp
 - assertVisible: "FERMENT"
