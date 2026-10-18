@@ -9,22 +9,26 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | :--- | :---: | :---: | :---: | :---: |
 | **EKRAN** | 4 | 4 | **100.0%** | ✅ POKRYTE |
 | **UI** | 10 | 10 | **100.0%** | ✅ POKRYTE |
-| **TEKST** | 774 | 774 | **100.0%** | ✅ POKRYTE |
-| **LOGIKA** | 191 | 191 | **100.0%** | ✅ POKRYTE |
-| **WYMIAR** | 97 | 97 | **100.0%** | ✅ POKRYTE |
+| **TEKST** | 783 | 783 | **100.0%** | ✅ POKRYTE |
+| **LOGIKA** | 199 | 199 | **100.0%** | ✅ POKRYTE |
+| **WYMIAR** | 99 | 99 | **100.0%** | ✅ POKRYTE |
 
-Łącznie elementów: **1076** | Pokrytych: **1076** | Brakujących: **0**
+Łącznie elementów: **1095** | Pokrytych: **1095** | Brakujących: **0**
 
 ## Szczegółowa Lista Elementów
 
 | Kategoria | Nazwa elementu | Plik źródłowy | Status | Pliki testowe |
 | :--- | :--- | :--- | :---: | :--- |
-| `EKRAN` | `/(tabs)/cave` | `app/(tabs)/cave.tsx` | ✅ | tests/core/cave-environment.test.ts, tests/core/flavor-wheel-data.test.ts |
+| `EKRAN` | `/(tabs)/cave` | `app/(tabs)/cave.tsx` | ✅ | tests/core/cave-environment.test.ts, tests/core/deferred-backlog-engines.test.ts |
 | `EKRAN` | `/(tabs)/dairy` | `app/(tabs)/dairy.tsx` | ✅ | tests/core/fermentation-diagnostics.test.ts, tests/corpus.test.ts |
 | `EKRAN` | `/(tabs)/index` | `app/(tabs)/index.tsx` | ✅ | tests/audit-fixes.test.tsx, tests/matrix-routes.test.tsx |
 | `EKRAN` | `/(tabs)/pantry-knowledge` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-routes.test.tsx |
 | `UI` | `Błąd Dekodowania` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `UI` | `Nie rozpoznano formatu Ruuvi RAW v2, BTHome ani CSV logera.` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Wykryto czujnik BLE` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Połączono z:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Temperatura:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Wilgotność:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Dojrzewalnia` | `app/(tabs)/cave.tsx` | ✅ | tests/lib/pdf-sheet-generator.test.ts, tests/matrix-translations.test.ts |
 | `TEKST` | `Dozór mikroklimatu jaskini, affinage i kartoteka krążków` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Dodaj krążek sera` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
@@ -41,7 +45,9 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Smart Telemetria & Czujniki BLE` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `stabilności` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Wklej pakiet HEX RuuviTag RAW v2, Xiaomi Mijia BTHome lub dane CSV z logera:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Dekoduj & Synchronizuj` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Skanuj BLE (Auto-Discovery)` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Dekoduj HEX / CSV` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Tryb Nadgarstkowy & Widgety iOS` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `ALARM: Ryzyko Kondensacji i Pleśni! Wilgoć skrapla się na skórce. Obniż wilgotność lub przewietrz.` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Komora Ciepła: Sery z Oczkami (Propionowe)` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Emmentaler, Maasdam, Jarlsberg — kontrola CO2 i pęcznienia krążka` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
@@ -61,14 +67,14 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Wybierz próbkę barwy skórki krążka:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Pewność:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Zadania Pielęgnacyjne na Dziś` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `krążków` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `krążków` | `app/(tabs)/cave.tsx` | ✅ | tests/core/deferred-backlog-engines.test.ts, tests/matrix-translations.test.ts |
 | `TEKST` | `Obrócono krążek` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Cofnij` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Wszystkie krążki zostały dziś pomyślnie obrócone. Dojrzewalnia odpoczywa!` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Obróć krążek` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Obróć` | `app/(tabs)/cave.tsx` | ✅ | tests/concurrency/double-tap.test.tsx, tests/matrix-translations.test.ts |
 | `TEKST` | `Aktywne Krążki w Jaskini` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Wszystkie` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Wszystkie` | `app/(tabs)/cave.tsx` | ✅ | tests/core/deferred-backlog-engines.test.ts, tests/matrix-translations.test.ts |
 | `TEKST` | `Maziowe` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Pleśń Biała` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Naturalne` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
@@ -143,7 +149,7 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `UI` | `Błąd Importu` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `UI` | `Nieprawidłowe dane receptury.` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Ser` | `app/(tabs)/index.tsx` | ✅ | tests/components/ui-components.test.tsx, tests/data/knowledge-base.test.ts |
-| `TEKST` | `Krowi` | `app/(tabs)/index.tsx` | ✅ | tests/core/inventory.test.ts, tests/matrix-translations.test.ts |
+| `TEKST` | `Krowi` | `app/(tabs)/index.tsx` | ✅ | tests/core/deferred-backlog-engines.test.ts, tests/core/inventory.test.ts |
 | `TEKST` | `Kozi` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Owcza` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Mleko Krowie` | `app/(tabs)/index.tsx` | ✅ | tests/core/inventory.test.ts, tests/matrix-translations.test.ts |
@@ -170,6 +176,8 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Zapisz jako Nową Partię` | `app/(tabs)/index.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `UI` | `Druk Etykiet` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `UI` | `Arkusz PDF wygenerowany pomyślnie.` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Drukarka Termiczna ESC/POS` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Strumień poleceń ESC/POS (50×30 mm) został wygenerowany i skopiowany do schowka.` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `UI` | `Kopia Utworzona` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `UI` | `Nowy punkt przywracania został pomyślnie zapisany w pamięci urządzenia.` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Spiżarnia` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
@@ -199,6 +207,7 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Kod partii sera:` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Liczba naklejek na arkuszu:` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Drukuj Arkusz Etykiet PDF (AirPrint)` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Wydruk Rolkowy 50×30 mm (ESC/POS)` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Kalkulator Ekonomiczny & % Yield` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Koszt wsadu vs uzysk gotowego sera` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Objętość mleka (L):` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
@@ -310,14 +319,5 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Temperatura solanki (°C):` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Optymalny czas w solance:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `godz.` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Tempo pochłaniania soli:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `łącznie:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Odległość do rdzenia geometrycznego:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `współczynnik dyfuzji:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Czas wyrównania stężenia w rdzeniu:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Morfologia Gatunkowa Mleka & Kazeina` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Frakcje kazeiny, średnica kuleczek tłuszczu, dynamika enzymatyczna i szacowany uzysk sera` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Dominująca frakcja kazeiny:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Średnia kuleczek tłuszczowych:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
 
-*(... i 776 kolejnych elementów w pełnym wykazie)*
+*(... i 795 kolejnych elementów w pełnym wykazie)*

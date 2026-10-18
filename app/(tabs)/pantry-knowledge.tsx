@@ -38,6 +38,8 @@ import {
   recommendCultureRotation,
   PHAGE_GROUPS,
 } from '../../src/core/phage-rotation-engine';
+import * as Clipboard from 'expo-clipboard';
+import { generateThermalLabel50x30 } from '../../src/core/thermal-printer-engine';
 
 export default function PantryKnowledgeScreen() {
   const {
@@ -111,6 +113,24 @@ export default function PantryKnowledgeScreen() {
     } catch {
       Alert.alert(t('Druk Etykiet'), t('Arkusz PDF wygenerowany pomyślnie.'));
     }
+  };
+
+  const handlePrintThermalLabel = async () => {
+    triggerHapticFeedback();
+    const thermal = generateThermalLabel50x30({
+      batchCode: labelBatchCode,
+      cheeseStyle: labelCheeseStyle,
+      productionDate: new Date().toISOString().slice(0, 10),
+      bestBeforeDate: new Date(Date.now() + 120 * 86400000).toISOString().slice(0, 10),
+      milkSource: 'Krowie',
+      weightGrams: Math.round(expectedYieldKg * 1000),
+      isRawMilk: false,
+    });
+    await Clipboard.setStringAsync(thermal.escPosCommandHex);
+    Alert.alert(
+      t('Drukarka Termiczna ESC/POS'),
+      `${thermal.displaySummary}\n\n${t('Strumień poleceń ESC/POS (50×30 mm) został wygenerowany i skopiowany do schowka.')}`
+    );
   };
 
   const handleCreateBackup = async () => {
@@ -357,6 +377,13 @@ export default function PantryKnowledgeScreen() {
                 title={`🖨️ ${t('Drukuj Arkusz Etykiet PDF (AirPrint)')}`}
                 variant="primary"
                 onPress={handlePrintLabels}
+                style={{ marginTop: 8 }}
+              />
+
+              <Btn
+                title={`🏷️ ${t('Wydruk Rolkowy 50×30 mm (ESC/POS)')}`}
+                variant="secondary"
+                onPress={handlePrintThermalLabel}
                 style={{ marginTop: 8 }}
               />
             </View>

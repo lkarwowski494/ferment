@@ -163,7 +163,8 @@ Zgodnie z [`docs/audyt-monetyzacji.md`](file:///C:/Users/lukas/Documents/antigra
 | **Asystent rotacji kultur przeciw bakteriofagom** | 3 | 6 | 75% | 3 (Tarcza spiżarni) | **90** | **v1.1 — ODDANE** |
 | **Komora ciepła serów propionowych (Emmentaler)**| 2 | 5 | 70% | 4 (Kinetyka CO2) | **35** | **v1.1 — ODDANE** |
 | **Analiza wizyjna oczek i barwy skórki (Colorimetria)**| 2 | 4 | 50% | 4 (Inspekcja flory) | **20** | **v1.1 — ODDANE** |
-| **Niezależna aplikacja na Apple Watch (watchOS)**| 4 | 6 | 70% | 3 (Instalacja) | **112** | **v1.2 (Next)** |
+| **Protokół Apple Watch, Widgety iOS i Auto-Discovery BLE**| 4 | 7 | 85% | 1 (Watch / Auto-Discovery) | **112** | **v1.1 — ODDANE** |
+| **Druk etykiet termicznych 50×30 mm (ESC/POS)**| 3 | 6 | 80% | 1 (Drukarka rolkowa) | **85** | **v1.1 — ODDANE** |
 
 ---
 

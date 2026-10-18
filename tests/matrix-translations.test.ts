@@ -1033,6 +1033,18 @@ describe('AST Matrix UI & TEKST Coverage (BR-TEST-028)', () => {
     "Zidentyfikowana grupa fagowa:",
     "Sugerowana bezpieczna rotacja (inna grupa fagowa):",
     "Protokół sanityzacji kotła:",
+
+    // Final Backlog: BLE Auto-Discovery, Watch Sync & Thermal Printer
+    "Wykryto czujnik BLE",
+    "Połączono z:",
+    "Temperatura:",
+    "Wilgotność:",
+    "Skanuj BLE (Auto-Discovery)",
+    "Dekoduj HEX / CSV",
+    "Tryb Nadgarstkowy & Widgety iOS",
+    "Drukarka Termiczna ESC/POS",
+    "Strumień poleceń ESC/POS (50×30 mm) został wygenerowany i skopiowany do schowka.",
+    "Wydruk Rolkowy 50×30 mm (ESC/POS)",
   ];
 
   it('translates all UI & TEKST keys to non-empty string in active locale (100% matrix coverage)', () => {

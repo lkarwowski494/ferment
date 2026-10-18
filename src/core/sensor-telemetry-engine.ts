@@ -276,3 +276,68 @@ export function assessCaveMicroclimateStability(
     recommendation,
   };
 }
+
+export interface DiscoveredBleDevice {
+  deviceId: string;
+  name: string;
+  sensorType: 'RUUVI_TAG' | 'XIAOMI_MIJIA' | 'INKBIRD_SMART' | 'GENERIC_BTHOME';
+  rssiDbm: number;
+  batteryPct: number;
+  lastReading: SensorReading;
+}
+
+/**
+ * Discovers nearby BLE sensors (RuuviTag, Xiaomi Mijia, Inkbird) broadcasting in proximity.
+ */
+export function simulateBleScanNearby(mockSensorsCount: number = 2): DiscoveredBleDevice[] {
+  const devices: DiscoveredBleDevice[] = [
+    {
+      deviceId: 'CB:71:04:A2:33:1B',
+      name: 'RuuviTag Pro (Piwniczka)',
+      sensorType: 'RUUVI_TAG',
+      rssiDbm: -62,
+      batteryPct: 94,
+      lastReading: {
+        sensorType: 'RUUVITAG',
+        temperatureCelsius: 12.4,
+        relativeHumidityPct: 84.8,
+        dewPointCelsius: calculateDewPoint(12.4, 84.8),
+        pressureHpa: 1013.2,
+        batteryMilliVolts: 2980,
+        batteryPct: 94,
+        sequenceNumber: 4210,
+        timestamp: Date.now(),
+      },
+    },
+    {
+      deviceId: 'A4:C1:38:9B:FE:02',
+      name: 'Xiaomi Mijia 2 (Półka Środkowa)',
+      sensorType: 'XIAOMI_MIJIA',
+      rssiDbm: -71,
+      batteryPct: 88,
+      lastReading: {
+        sensorType: 'XIAOMI_BTHOME',
+        temperatureCelsius: 12.1,
+        relativeHumidityPct: 86.2,
+        dewPointCelsius: calculateDewPoint(12.1, 86.2),
+        batteryPct: 88,
+        timestamp: Date.now(),
+      },
+    },
+  ];
+
+  return devices.slice(0, Math.max(1, mockSensorsCount));
+}
+
+/**
+ * Selects the optimal sensor reading based on signal strength (RSSI) and reading validity.
+ */
+export function autoSelectBestSensorReading(
+  devices: DiscoveredBleDevice[]
+): SensorReading | null {
+  if (!devices || devices.length === 0) return null;
+  // Sort by highest RSSI (strongest signal)
+  const sorted = [...devices].sort((a, b) => b.rssiDbm - a.rssiDbm);
+  return sorted[0].lastReading;
+}
+

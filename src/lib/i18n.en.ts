@@ -1159,6 +1159,18 @@ export const EN: Record<string, string> = {
   'Zidentyfikowana grupa fagowa:': 'Identified phage group:',
   'Sugerowana bezpieczna rotacja (inna grupa fagowa):': 'Recommended safe rotation (different phage group):',
   'Protokół sanityzacji kotła:': 'Vat sanitation protocol:',
+
+  // Final Backlog: BLE Auto-Discovery, Watch Sync & Thermal Printer
+  'Wykryto czujnik BLE': 'BLE Sensor Discovered',
+  'Połączono z:': 'Connected to:',
+  'Temperatura:': 'Temperature:',
+  'Wilgotność:': 'Humidity:',
+  'Skanuj BLE (Auto-Discovery)': 'Scan BLE (Auto-Discovery)',
+  'Dekoduj HEX / CSV': 'Decode HEX / CSV',
+  'Tryb Nadgarstkowy & Widgety iOS': 'Wrist Mode & iOS Widgets',
+  'Drukarka Termiczna ESC/POS': 'ESC/POS Thermal Printer',
+  'Strumień poleceń ESC/POS (50×30 mm) został wygenerowany i skopiowany do schowka.': 'ESC/POS command stream (50x30 mm) generated and copied to clipboard.',
+  'Wydruk Rolkowy 50×30 mm (ESC/POS)': 'Roll Print 50x30 mm (ESC/POS)',
 };
 
 

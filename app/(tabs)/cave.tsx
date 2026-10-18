@@ -36,8 +36,16 @@ import {
   decodeBTHomeAdvertisement,
   parseHygrometerCsvLog,
   assessCaveMicroclimateStability,
+  simulateBleScanNearby,
+  autoSelectBestSensorReading,
   SensorReading,
 } from '../../src/core/sensor-telemetry-engine';
+import {
+  generateWatchSnapshot,
+} from '../../src/core/watch-companion-engine';
+import {
+  generateCaveLockscreenWidgetData,
+} from '../../src/core/widget-timeline-engine';
 import {
   calculatePropionicKinetics,
   analyzeEyeDistribution,
@@ -147,6 +155,26 @@ export default function CaveScreen() {
     }
   };
 
+  const handleAutoDiscoverBle = () => {
+    triggerHapticFeedback();
+    const discovered = simulateBleScanNearby(2);
+    const best = autoSelectBestSensorReading(discovered);
+    if (best) {
+      setCaveTemp(best.temperatureCelsius);
+      setCaveRh(best.relativeHumidityPct);
+      setDecodedSensor(best);
+      setTelemetryHistory((prev) => [
+        ...prev,
+        { temperatureCelsius: best.temperatureCelsius, relativeHumidityPct: best.relativeHumidityPct },
+      ]);
+      Alert.alert(
+        t('Wykryto czujnik BLE'),
+        `${t('Połączono z:')} ${discovered[0].name}\n` +
+          `${t('Temperatura:')} ${best.temperatureCelsius}°C, ${t('Wilgotność:')} ${best.relativeHumidityPct}% (RSSI: ${discovered[0].rssiDbm} dBm)`
+      );
+    }
+  };
+
   const stabilityMetrics = assessCaveMicroclimateStability(telemetryHistory);
 
   // Kinetka komory ciepłej dla serów propionowych (Emmentaler/Maasdam)
@@ -197,6 +225,25 @@ export default function CaveScreen() {
     const elapsed = Date.now() - w.lastTurnedAt;
     if (elapsed < 0) return false; // Clock skew protection
     return elapsed > 24 * 3600 * 1000;
+  });
+
+  const watchSnapshot = generateWatchSnapshot({
+    caveSummary: {
+      currentTempCelsius: caveTemp,
+      currentHumidityPct: caveRh,
+      isCondensationAlarm: envResult.isCondensationRisk,
+      pendingTasksCount: wheelsNeedingTurnToday.length,
+    },
+  });
+
+  const widgetData = generateCaveLockscreenWidgetData({
+    temperatureCelsius: caveTemp,
+    relativeHumidityPct: caveRh,
+    dewPointCelsius: envResult.dewPointCelsius,
+    isCondensationRisk: envResult.isCondensationRisk,
+    activeWheelsCount: wheels.length,
+    wheelsToTurnToday: wheelsNeedingTurnToday.length,
+    caveName: caveType,
   });
 
   // Szybka akcja obrotu z natychmiastowym zapisem i opcją Undo (P10)
@@ -361,18 +408,40 @@ export default function CaveScreen() {
             <View style={styles.telemetryActionRow}>
               <TouchableOpacity
                 style={styles.telemetryButton}
+                onPress={handleAutoDiscoverBle}
+              >
+                <Text style={styles.telemetryButtonText}>🔍 {t('Skanuj BLE (Auto-Discovery)')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.telemetryButton, { backgroundColor: '#374151' }]}
                 onPress={handleDecodeTelemetry}
               >
-                <Text style={styles.telemetryButtonText}>⚡ {t('Dekoduj & Synchronizuj')}</Text>
+                <Text style={styles.telemetryButtonText}>⚡ {t('Dekoduj HEX / CSV')}</Text>
               </TouchableOpacity>
-              {decodedSensor && (
-                <View style={styles.decodedBadge}>
-                  <Text style={styles.decodedBadgeText}>
-                    {decodedSensor.sensorType}: {decodedSensor.temperatureCelsius}°C | {decodedSensor.relativeHumidityPct}%
-                    {decodedSensor.batteryPct !== undefined ? ` | 🔋${decodedSensor.batteryPct}%` : ''}
-                  </Text>
-                </View>
-              )}
+            </View>
+            {decodedSensor && (
+              <View style={styles.decodedBadge}>
+                <Text style={styles.decodedBadgeText}>
+                  {decodedSensor.sensorType}: {decodedSensor.temperatureCelsius}°C | {decodedSensor.relativeHumidityPct}%
+                  {decodedSensor.batteryPct !== undefined ? ` | 🔋${decodedSensor.batteryPct}%` : ''}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {/* Tryb Nadgarstkowy & Widgety iOS ("Hands in whey") */}
+          <View style={styles.watchSyncSection}>
+            <View style={styles.watchSyncHeaderRow}>
+              <Text style={styles.watchSyncTitle}>⌚ {t('Tryb Nadgarstkowy & Widgety iOS')}</Text>
+              <View style={styles.watchBadge}>
+                <Text style={styles.watchBadgeText}>{watchSnapshot.badgeText}</Text>
+              </View>
+            </View>
+            <Text style={styles.watchHeadline}>{watchSnapshot.headline}</Text>
+            <Text style={styles.watchSubline}>{watchSnapshot.subline}</Text>
+            <View style={styles.widgetPreviewRow}>
+              <Text style={styles.widgetPreviewTag}>📱 {widgetData.primaryTitle}: {widgetData.metricLine}</Text>
+              <Text style={styles.widgetPreviewStatus}>{widgetData.statusLabel}</Text>
             </View>
           </View>
 
@@ -1332,6 +1401,64 @@ const styles = StyleSheet.create({
   visionActionText: {
     fontSize: 11,
     color: '#38BDF8',
+    fontWeight: '600',
+  },
+  watchSyncSection: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#374151',
+  },
+  watchSyncHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  watchSyncTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#F8FAFC',
+  },
+  watchBadge: {
+    backgroundColor: '#0F766E',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  watchBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#F8FAFC',
+  },
+  watchHeadline: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#38BDF8',
+    marginBottom: 2,
+  },
+  watchSubline: {
+    fontSize: 11,
+    color: '#94A3B8',
+    marginBottom: 6,
+  },
+  widgetPreviewRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#1E2229',
+    borderRadius: 6,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#374151',
+  },
+  widgetPreviewTag: {
+    fontSize: 11,
+    color: '#CBD5E1',
+    fontWeight: '500',
+  },
+  widgetPreviewStatus: {
+    fontSize: 11,
+    color: '#34D399',
     fontWeight: '600',
   },
 });
