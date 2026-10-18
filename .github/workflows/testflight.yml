@@ -21,9 +21,9 @@ permissions:
 env:
   NODE_OPTIONS: --max-old-space-size=3072
   FORCE_COLOR: '1'
-  APP_SCHEME: 'Ferment'
-  APP_DIR: 'Ferment'
-  BUNDLE_ID: 'com.apps4brew.ferment'
+  APP_SCHEME: 'SEROWAR'
+  APP_DIR: 'SEROWAR'
+  BUNDLE_ID: 'com.apps4brew.serowar'
   BUILD_BASE: '1000'
 
 jobs:
