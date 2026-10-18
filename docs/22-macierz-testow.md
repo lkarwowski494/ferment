@@ -8,12 +8,12 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | Kategoria | Łącznie | Pokryte | Pokrycie % | Status |
 | :--- | :---: | :---: | :---: | :---: |
 | **EKRAN** | 4 | 4 | **100.0%** | ✅ POKRYTE |
-| **UI** | 8 | 8 | **100.0%** | ✅ POKRYTE |
-| **TEKST** | 743 | 743 | **100.0%** | ✅ POKRYTE |
-| **LOGIKA** | 179 | 179 | **100.0%** | ✅ POKRYTE |
-| **WYMIAR** | 92 | 92 | **100.0%** | ✅ POKRYTE |
+| **UI** | 10 | 10 | **100.0%** | ✅ POKRYTE |
+| **TEKST** | 774 | 774 | **100.0%** | ✅ POKRYTE |
+| **LOGIKA** | 191 | 191 | **100.0%** | ✅ POKRYTE |
+| **WYMIAR** | 97 | 97 | **100.0%** | ✅ POKRYTE |
 
-Łącznie elementów: **1026** | Pokrytych: **1026** | Brakujących: **0**
+Łącznie elementów: **1076** | Pokrytych: **1076** | Brakujących: **0**
 
 ## Szczegółowa Lista Elementów
 
@@ -23,6 +23,8 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `EKRAN` | `/(tabs)/dairy` | `app/(tabs)/dairy.tsx` | ✅ | tests/core/fermentation-diagnostics.test.ts, tests/corpus.test.ts |
 | `EKRAN` | `/(tabs)/index` | `app/(tabs)/index.tsx` | ✅ | tests/audit-fixes.test.tsx, tests/matrix-routes.test.tsx |
 | `EKRAN` | `/(tabs)/pantry-knowledge` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-routes.test.tsx |
+| `UI` | `Błąd Dekodowania` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `UI` | `Nie rozpoznano formatu Ruuvi RAW v2, BTHome ani CSV logera.` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Dojrzewalnia` | `app/(tabs)/cave.tsx` | ✅ | tests/lib/pdf-sheet-generator.test.ts, tests/matrix-translations.test.ts |
 | `TEKST` | `Dozór mikroklimatu jaskini, affinage i kartoteka krążków` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Dodaj krążek sera` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
@@ -36,7 +38,28 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Status:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Kondensacja!` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `BEZPIECZNY` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Smart Telemetria & Czujniki BLE` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `stabilności` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Wklej pakiet HEX RuuviTag RAW v2, Xiaomi Mijia BTHome lub dane CSV z logera:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Dekoduj & Synchronizuj` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `ALARM: Ryzyko Kondensacji i Pleśni! Wilgoć skrapla się na skórce. Obniż wilgotność lub przewietrz.` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Komora Ciepła: Sery z Oczkami (Propionowe)` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Emmentaler, Maasdam, Jarlsberg — kontrola CO2 i pęcznienia krążka` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Styl sera propionowego:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Dzień w komorze ciepłej (20-24°C):` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Dzień w komorze ciepłej:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Zmierzone wybrzuszenie krążka (kopuła):` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Wybrzuszenie krążka (mm):` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Wydzielony CO2:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Średnica oczek:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Bezpieczeństwo:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Równomierność Oczek & Porowatość (Miąższ):` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `jednolitości` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Porowatość:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Wizualna Inspekcja Skórki & Oczkowania` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Analiza kolorymetryczna flory (P. camemberti, B. linens) i defektów` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Wybierz próbkę barwy skórki krążka:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Pewność:` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Zadania Pielęgnacyjne na Dziś` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `krążków` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Obrócono krążek` | `app/(tabs)/cave.tsx` | ✅ | tests/matrix-translations.test.ts |
@@ -161,6 +184,16 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Stan magazynowy jest synchronizowany automatycznie po każdej partii.` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Brak składników w spiżarni` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Dodaj mleko, enzymy, kultury lub sól, aby zarządzać zapasami i kosztami.` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Tarcza Przeciwfagowa Starterów` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Rotacja grup biologicznych i prewencja martwych wsadów` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `KRYTYCZNE` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/core/ferment-engine.test.ts, tests/core/ginger-bug.test.ts |
+| `TEKST` | `UMIARKOWANE` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `BEZPIECZNIE` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Aktualna kultura starterowa:` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Wsady z rzędu tą samą grupą:` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Zidentyfikowana grupa fagowa:` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Sugerowana bezpieczna rotacja (inna grupa fagowa):` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
+| `TEKST` | `Protokół sanityzacji kotła:` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Generator Etykiet QR PDF` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Drukuj arkusze samoprzylepne A4 z kodem QR partii` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Kod partii sera:` | `app/(tabs)/pantry-knowledge.tsx` | ✅ | tests/matrix-translations.test.ts |
@@ -286,38 +319,5 @@ Zasada dowodu: wyłącznie wykonywalny kod testu (wycięte komentarze, importy i
 | `TEKST` | `Frakcje kazeiny, średnica kuleczek tłuszczu, dynamika enzymatyczna i szacowany uzysk sera` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Dominująca frakcja kazeiny:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
 | `TEKST` | `Średnia kuleczek tłuszczowych:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Wapń:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Doza podpuszczki:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `na` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/audit-fixes.test.tsx, tests/brands.contract.test.ts |
-| `TEKST` | `Skorygowany mnożnik flokulacji:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Oczekiwany uzysk sera:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Odzysk Ricotty z serwatki:` | `src/components/calculator/CheeseBiochemAndCoatingCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Zbuforowana Solanka Serowarska` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Woda:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Stężenie:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `pH wody kranowej:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Ilość soli:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Wymagany CaCl2 (2 g/L):` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `zapobiega mięknięciu skórki` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Kwas mlekowy 80% (do pH 5.20):` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `ml kwasu` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Regeneracja i Wzmocnienie Stężenia Solanki` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Aktualne stężenie solanki (%):` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Docelowe stężenie solanki (%):` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Sól do dosypania w celu przywrócenia stężenia:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Rozpuść sól bezpośrednio w solance bez wylewania roztworu.` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Areometria Solanki & Kompensacja Temperatury` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Przeliczanie stopni Salometru (°Sal), Baumé (°Bé), gęstości SG i % NaCl z korektą termiczną` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Jednostka pomiaru:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Odczyt areometru:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Objętość solanki (L):` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Profil docelowy solanki:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Status roztworu:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Gęstość skorygowana SG:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Korekta termiczna SG:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Zasolenie NaCl:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Stopnie Salometru:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `Stopnie Baumé:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
-| `TEKST` | `NaCl na litr solanki:` | `src/components/calculator/CheeseBrineAndRegenCard.tsx` | ✅ | tests/matrix-translations.test.ts |
 
-*(... i 726 kolejnych elementów w pełnym wykazie)*
+*(... i 776 kolejnych elementów w pełnym wykazie)*

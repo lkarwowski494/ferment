@@ -157,13 +157,13 @@ Zgodnie z [`docs/audyt-monetyzacji.md`](file:///C:/Users/lukas/Documents/antigra
 | **Kalkulator Solanki Nasyconej i Solenia** | 9 | 9 | 95% | 1 (Szybki suwak) | **855** | **v1.0 (MVP)** |
 | **Twaróg klinkowy i sery świeże (Labneh/Paneer)**| 8 | 8 | 90% | 2 (Wybór stylu) | **576** | **v1.0 (MVP)** |
 | **Masielnictwo, Ghee i Zamknięty Obieg Serwatki**| 8 | 8 | 90% | 2 (Asystent faz) | **576** | **v1.0 (MVP)** |
-| **Cave Log (do 3 krążków Free / Unlimited PRO)** | 7 | 9 | 90% | 2 (Karta krążka) | **567** | **v1.0 (MVP)** |
-| **Paszporty partii i generator etykiet PDF z QR**| 6 | 8 | 85% | 2 (Podgląd PDF) | **408** | **v1.0 (MVP)** |
-| **Automatyczny odczyt z czujników BLE (Ruuvi/Mijia)**| 4 | 7 | 80% | 3 (Parowanie BLE) | **149** | **v1.1 (PRO)** |
-| **Asystent rotacji kultur przeciw bakteriofagom** | 3 | 6 | 75% | 3 (Konfiguracja) | **90** | **v1.1 (PRO)** |
-| **Niezależna aplikacja na Apple Watch (watchOS)**| 4 | 6 | 70% | 3 (Instalacja) | **112** | **v1.2** |
-| **Komora ciepła serów propionowych (Emmentaler)**| 2 | 5 | 70% | 4 (Specjalistyczne) | **35** | **v1.2** |
-| **Analiza wizyjna oczek i barwy skórki (AI Vision)**| 2 | 4 | 50% | 4 (Foto inspekcja) | **20** | **v2.0** |
+| **Cave Log (do 3 krążków Free / Unlimited PRO)** | 7 | 9 | 90% | 2 (Karta krążka) | **567** | **v1.0 (MVP) — ODDANE** |
+| **Paszporty partii i generator etykiet PDF z QR**| 6 | 8 | 85% | 2 (Podgląd PDF) | **408** | **v1.0 (MVP) — ODDANE** |
+| **Telemetria BLE i dekoder logerów (Ruuvi/BTHome/CSV)**| 4 | 7 | 80% | 3 (Wklejanie/odczyt) | **149** | **v1.1 — ODDANE** |
+| **Asystent rotacji kultur przeciw bakteriofagom** | 3 | 6 | 75% | 3 (Tarcza spiżarni) | **90** | **v1.1 — ODDANE** |
+| **Komora ciepła serów propionowych (Emmentaler)**| 2 | 5 | 70% | 4 (Kinetyka CO2) | **35** | **v1.1 — ODDANE** |
+| **Analiza wizyjna oczek i barwy skórki (Colorimetria)**| 2 | 4 | 50% | 4 (Inspekcja flory) | **20** | **v1.1 — ODDANE** |
+| **Niezależna aplikacja na Apple Watch (watchOS)**| 4 | 6 | 70% | 3 (Instalacja) | **112** | **v1.2 (Next)** |
 
 ---
 

@@ -1122,6 +1122,43 @@ export const EN: Record<string, string> = {
   'Krążek czeka w Zakładce 3 (Dojrzewalnia).': 'Wheel awaits in Tab 3 (Cave).',
   'Dodaj do spiżarni': 'Add to pantry',
   'Stan magazynowy jest synchronizowany automatycznie po każdej partii.': 'Pantry stock is synchronized automatically after each batch.',
+
+  // v1.1 Extended Features (Cave & Telemetry)
+  'Błąd Dekodowania': 'Decoding Error',
+  'Nie rozpoznano formatu Ruuvi RAW v2, BTHome ani CSV logera.': 'Unrecognized Ruuvi RAW v2, BTHome, or logger CSV format.',
+  'Smart Telemetria & Czujniki BLE': 'Smart Telemetry & BLE Sensors',
+  'stabilności': 'stability',
+  'Wklej pakiet HEX RuuviTag RAW v2, Xiaomi Mijia BTHome lub dane CSV z logera:': 'Paste RuuviTag RAW v2 HEX packet, Xiaomi Mijia BTHome, or logger CSV data:',
+  'Dekoduj & Synchronizuj': 'Decode & Sync',
+  'Komora Ciepła: Sery z Oczkami (Propionowe)': 'Warm Room: Eye-Formation Cheeses (Propionic)',
+  'Emmentaler, Maasdam, Jarlsberg — kontrola CO2 i pęcznienia krążka': 'Emmental, Maasdam, Jarlsberg — CO2 kinetics and wheel doming control',
+  'Styl sera propionowego:': 'Propionic cheese style:',
+  'Dzień w komorze ciepłej (20-24°C):': 'Day in warm room (20-24°C):',
+  'Dzień w komorze ciepłej:': 'Day in warm room:',
+  'Zmierzone wybrzuszenie krążka (kopuła):': 'Measured wheel doming (height):',
+  'Wybrzuszenie krążka (mm):': 'Wheel doming (mm):',
+  'Wydzielony CO2:': 'CO2 released:',
+  'Średnica oczek:': 'Eye diameter:',
+  'Bezpieczeństwo:': 'Safety:',
+  'Równomierność Oczek & Porowatość (Miąższ):': 'Eye Uniformity & Porosity (Paste):',
+  'jednolitości': 'uniformity',
+  'Porowatość:': 'Porosity:',
+  'Wizualna Inspekcja Skórki & Oczkowania': 'Visual Rind & Eye Inspection',
+  'Analiza kolorymetryczna flory (P. camemberti, B. linens) i defektów': 'Colorimetric flora analysis (P. camemberti, B. linens) and defects',
+  'Wybierz próbkę barwy skórki krążka:': 'Select wheel rind color sample:',
+  'Pewność:': 'Confidence:',
+
+  // v1.1 Anti-Phage Shield (Pantry)
+  'Tarcza Przeciwfagowa Starterów': 'Starter Culture Anti-Phage Shield',
+  'Rotacja grup biologicznych i prewencja martwych wsadów': 'Biological group rotation and dead vat prevention',
+  'KRYTYCZNE': 'CRITICAL',
+  'UMIARKOWANE': 'MODERATE',
+  'BEZPIECZNIE': 'SAFE',
+  'Aktualna kultura starterowa:': 'Current starter culture:',
+  'Wsady z rzędu tą samą grupą:': 'Consecutive batches with same group:',
+  'Zidentyfikowana grupa fagowa:': 'Identified phage group:',
+  'Sugerowana bezpieczna rotacja (inna grupa fagowa):': 'Recommended safe rotation (different phage group):',
+  'Protokół sanityzacji kotła:': 'Vat sanitation protocol:',
 };
 
 

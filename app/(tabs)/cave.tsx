@@ -31,6 +31,25 @@ import {
   CheeseCaveType,
 } from '../../src/core/cave-environment';
 import { recordAffinageAction } from '../../src/core/cave-log-actions';
+import {
+  decodeRuuviRawV2,
+  decodeBTHomeAdvertisement,
+  parseHygrometerCsvLog,
+  assessCaveMicroclimateStability,
+  SensorReading,
+} from '../../src/core/sensor-telemetry-engine';
+import {
+  calculatePropionicKinetics,
+  analyzeEyeDistribution,
+  PropionicCheeseStyle,
+} from '../../src/core/propionic-chamber-engine';
+import {
+  analyzeRindChromatics,
+  assessRindCoverage,
+  analyzeCrossSectionEyes,
+  RindFloraType,
+  RgbColor,
+} from '../../src/core/rind-vision-engine';
 
 export default function CaveScreen() {
   const [wheels, setWheels] = useState<CaveCheeseWheel[]>([]);
@@ -39,6 +58,29 @@ export default function CaveScreen() {
   const [caveType, setCaveType] = useState<CheeseCaveType>('HARD_GOUDA_CHEDDAR');
   const [selectedFilter, setSelectedFilter] = useState<string>('ALL');
   const [undoAction, setUndoAction] = useState<{ wheel: CaveCheeseWheel; prevTime?: number } | null>(null);
+
+  // Telemetria BLE & Datalogger
+  const [telemetryInput, setTelemetryInput] = useState<string>('');
+  const [decodedSensor, setDecodedSensor] = useState<SensorReading | null>(null);
+  const [telemetryHistory, setTelemetryHistory] = useState<Array<{ temperatureCelsius: number; relativeHumidityPct: number }>>([
+    { temperatureCelsius: 12.0, relativeHumidityPct: 85.0 },
+    { temperatureCelsius: 12.2, relativeHumidityPct: 84.8 },
+    { temperatureCelsius: 12.1, relativeHumidityPct: 85.2 },
+  ]);
+
+  // Komora Ciepła Propionowa
+  const [isWarmRoomSectionOpen, setIsWarmRoomSectionOpen] = useState<boolean>(false);
+  const [propionicStyle, setPropionicStyle] = useState<PropionicCheeseStyle>('EMMENTALER');
+  const [warmRoomDays, setWarmRoomDays] = useState<number>(14);
+  const [domeExpansionMm, setDomeExpansionMm] = useState<number>(8);
+  const [propionicWeightKg, setPropionicWeightKg] = useState<number>(10);
+  const [eyeMeasurementsInput, setEyeMeasurementsInput] = useState<string>('18, 22, 20, 24');
+
+  // Wizualna Inspekcja Skórki
+  const [isRindVisionOpen, setIsRindVisionOpen] = useState<boolean>(false);
+  const [selectedRindRgb, setSelectedRindRgb] = useState<RgbColor>({ r: 245, g: 245, b: 240 });
+  const [rindCoverageDay, setRindCoverageDay] = useState<number>(7);
+  const [observedCoveragePct, setObservedCoveragePct] = useState<number>(70);
 
   // Modal Dodawania Krążka
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
@@ -61,6 +103,80 @@ export default function CaveScreen() {
     tempCelsius: caveTemp,
     relativeHumidityPct: caveRh,
     caveType,
+  });
+
+  // Dekodowanie telemetrii z czujników bezprzewodowych i logerów
+  const handleDecodeTelemetry = () => {
+    triggerHapticFeedback();
+    const trimmed = telemetryInput.trim();
+    if (!trimmed) {
+      // Domyślny pakiet demonstracyjny RuuviTag RAW v2 (24.3°C, 53.5% RH)
+      const sample = '0512fc5394c37c0004ffcc0418a6366500010203040506';
+      const res = decodeRuuviRawV2(sample);
+      if (res) {
+        setDecodedSensor(res);
+        setCaveTemp(Math.round(res.temperatureCelsius));
+        setCaveRh(Math.round(res.relativeHumidityPct));
+        setTelemetryHistory((prev) => [
+          ...prev,
+          { temperatureCelsius: res.temperatureCelsius, relativeHumidityPct: res.relativeHumidityPct },
+        ]);
+      }
+      return;
+    }
+
+    let reading = decodeRuuviRawV2(trimmed);
+    if (!reading) {
+      reading = decodeBTHomeAdvertisement(trimmed);
+    }
+    if (!reading && trimmed.includes(',')) {
+      const csvs = parseHygrometerCsvLog(trimmed);
+      if (csvs.length > 0) reading = csvs[csvs.length - 1];
+    }
+
+    if (reading) {
+      setDecodedSensor(reading);
+      setCaveTemp(Math.round(reading.temperatureCelsius));
+      setCaveRh(Math.round(reading.relativeHumidityPct));
+      setTelemetryHistory((prev) => [
+        ...prev,
+        { temperatureCelsius: reading!.temperatureCelsius, relativeHumidityPct: reading!.relativeHumidityPct },
+      ]);
+    } else {
+      Alert.alert(t('Błąd Dekodowania'), t('Nie rozpoznano formatu Ruuvi RAW v2, BTHome ani CSV logera.'));
+    }
+  };
+
+  const stabilityMetrics = assessCaveMicroclimateStability(telemetryHistory);
+
+  // Kinetka komory ciepłej dla serów propionowych (Emmentaler/Maasdam)
+  const propionicKinetics = calculatePropionicKinetics({
+    cheeseStyle: propionicStyle,
+    initialWeightKg: propionicWeightKg,
+    currentDayInWarmRoom: warmRoomDays,
+    tempCelsius: caveTemp,
+    relativeHumidityPct: caveRh,
+    measuredDomeExpansionMm: domeExpansionMm,
+  });
+
+  const parsedEyeDiameters = eyeMeasurementsInput
+    .split(',')
+    .map((s) => parseFloat(s.trim()))
+    .filter((n) => !isNaN(n) && n > 0);
+  const eyeAnalysis = analyzeEyeDistribution(
+    parsedEyeDiameters.length > 0 ? parsedEyeDiameters : [18, 22, 20, 24],
+    propionicStyle
+  );
+  const crossSectionAnalysis = analyzeCrossSectionEyes(
+    parsedEyeDiameters.length > 0 ? parsedEyeDiameters : [18, 22, 20, 24]
+  );
+
+  // Wizualna ocena skórki i porostu
+  const rindAnalysis = analyzeRindChromatics([selectedRindRgb]);
+  const coverageAnalysis = assessRindCoverage({
+    currentCoveragePct: observedCoveragePct,
+    dayInCave: rindCoverageDay,
+    targetFlora: rindAnalysis.dominantFlora,
   });
 
   // Filtrowanie krążków
@@ -231,11 +347,196 @@ export default function CaveScreen() {
             </View>
           </View>
 
+          {/* Smart Telemetria & Dekoder Sensorów */}
+          <View style={styles.telemetrySection}>
+            <View style={styles.telemetryHeaderRow}>
+              <Text style={styles.telemetryTitle}>📡 {t('Smart Telemetria & Czujniki BLE')}</Text>
+              <Text style={styles.stabilityBadge}>
+                {stabilityMetrics.stabilityScorePct}% {t('stabilności')}
+              </Text>
+            </View>
+            <Text style={styles.telemetryHint}>
+              {t('Wklej pakiet HEX RuuviTag RAW v2, Xiaomi Mijia BTHome lub dane CSV z logera:')}
+            </Text>
+            <View style={styles.telemetryActionRow}>
+              <TouchableOpacity
+                style={styles.telemetryButton}
+                onPress={handleDecodeTelemetry}
+              >
+                <Text style={styles.telemetryButtonText}>⚡ {t('Dekoduj & Synchronizuj')}</Text>
+              </TouchableOpacity>
+              {decodedSensor && (
+                <View style={styles.decodedBadge}>
+                  <Text style={styles.decodedBadgeText}>
+                    {decodedSensor.sensorType}: {decodedSensor.temperatureCelsius}°C | {decodedSensor.relativeHumidityPct}%
+                    {decodedSensor.batteryPct !== undefined ? ` | 🔋${decodedSensor.batteryPct}%` : ''}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+
           {envResult.isCondensationRisk && (
             <View style={styles.alertDanger}>
               <Text style={styles.alertDangerText}>
                 ⚠️ {t('ALARM: Ryzyko Kondensacji i Pleśni! Wilgoć skrapla się na skórce. Obniż wilgotność lub przewietrz.')}
               </Text>
+            </View>
+          )}
+        </View>
+
+        {/* ============================================================== */}
+        {/* KOMORA CIEPŁA SERÓW PROPIONOWYCH (Warm Room Affinage)          */}
+        {/* ============================================================== */}
+        <View style={styles.propionicCard}>
+          <TouchableOpacity
+            style={styles.propionicHeaderRow}
+            onPress={() => {
+              triggerHapticFeedback();
+              setIsWarmRoomSectionOpen(!isWarmRoomSectionOpen);
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.propionicTitle}>🧀 {t('Komora Ciepła: Sery z Oczkami (Propionowe)')}</Text>
+              <Text style={styles.propionicSubtitle}>
+                {t('Emmentaler, Maasdam, Jarlsberg — kontrola CO2 i pęcznienia krążka')}
+              </Text>
+            </View>
+            <Text style={styles.propionicToggleText}>{isWarmRoomSectionOpen ? '▲' : '▼'}</Text>
+          </TouchableOpacity>
+
+          {isWarmRoomSectionOpen && (
+            <View style={styles.propionicBody}>
+              <View style={styles.row}>
+                <Text style={styles.label}>{t('Styl sera propionowego:')}</Text>
+                <Segmented
+                  options={[
+                    { label: 'Emmentaler', value: 'EMMENTALER' },
+                    { label: 'Maasdam', value: 'MAASDAM' },
+                    { label: 'Jarlsberg', value: 'JARLSBERG' },
+                  ]}
+                  selectedValue={propionicStyle}
+                  onSelect={(val: string) => setPropionicStyle(val as PropionicCheeseStyle)}
+                  accessibilityLabel={t('Styl sera propionowego:')}
+                />
+              </View>
+
+              <View style={styles.row}>
+                <Text style={styles.label}>{t('Dzień w komorze ciepłej (20-24°C):')}</Text>
+                <NumInput
+                  value={warmRoomDays}
+                  onChangeValue={setWarmRoomDays}
+                  step={1}
+                  min={0}
+                  max={60}
+                  accessibilityLabel={t('Dzień w komorze ciepłej:')}
+                />
+              </View>
+
+              <View style={styles.row}>
+                <Text style={styles.label}>{t('Zmierzone wybrzuszenie krążka (kopuła):')}</Text>
+                <NumInput
+                  value={domeExpansionMm}
+                  onChangeValue={setDomeExpansionMm}
+                  step={1}
+                  min={0}
+                  max={30}
+                  accessibilityLabel={t('Wybrzuszenie krążka (mm):')}
+                />
+              </View>
+
+              <View style={styles.propionicStatsRow}>
+                <View style={styles.propionicStat}>
+                  <Text style={styles.propionicStatLabel}>{t('Wydzielony CO2:')}</Text>
+                  <Text style={styles.propionicStatValue}>{propionicKinetics.estimatedCo2LitersProduced} l</Text>
+                </View>
+                <View style={styles.propionicStat}>
+                  <Text style={styles.propionicStatLabel}>{t('Średnica oczek:')}</Text>
+                  <Text style={styles.propionicStatValue}>{propionicKinetics.estimatedAverageEyeDiameterMm} mm</Text>
+                </View>
+                <View style={styles.propionicStat}>
+                  <Text style={styles.propionicStatLabel}>{t('Bezpieczeństwo:')}</Text>
+                  <Text style={[styles.propionicStatValue, { color: propionicKinetics.swellingSafetyStatus === 'BLOWOUT_CRITICAL' ? '#EF4444' : '#10B981' }]}>
+                    {propionicKinetics.swellingSafetyStatus}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={styles.propionicDirectiveText}>💡 {propionicKinetics.thermalActionRecommendation}</Text>
+              <Text style={styles.propionicCareText}>ℹ️ {propionicKinetics.careInstructions}</Text>
+
+              {/* Badanie rozkładu oczek */}
+              <View style={styles.eyeAuditBox}>
+                <Text style={styles.eyeAuditTitle}>{t('Równomierność Oczek & Porowatość (Miąższ):')}</Text>
+                <Text style={styles.eyeAuditValue}>
+                  {eyeAnalysis.uniformityIndexPct}% {t('jednolitości')} · {t('Porowatość:')} {crossSectionAnalysis.porosityPct}% ({crossSectionAnalysis.commercialGrade})
+                </Text>
+                <Text style={styles.eyeAuditNotes}>{eyeAnalysis.feedback}</Text>
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* ============================================================== */}
+        {/* FOTO-INSPEKCJA & KOLORYMETRIA SKÓRKI (Rind Vision)             */}
+        {/* ============================================================== */}
+        <View style={styles.visionCard}>
+          <TouchableOpacity
+            style={styles.propionicHeaderRow}
+            onPress={() => {
+              triggerHapticFeedback();
+              setIsRindVisionOpen(!isRindVisionOpen);
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.propionicTitle}>📷 {t('Wizualna Inspekcja Skórki & Oczkowania')}</Text>
+              <Text style={styles.propionicSubtitle}>
+                {t('Analiza kolorymetryczna flory (P. camemberti, B. linens) i defektów')}
+              </Text>
+            </View>
+            <Text style={styles.propionicToggleText}>{isRindVisionOpen ? '▲' : '▼'}</Text>
+          </TouchableOpacity>
+
+          {isRindVisionOpen && (
+            <View style={styles.propionicBody}>
+              <Text style={styles.label}>{t('Wybierz próbkę barwy skórki krążka:')}</Text>
+              <View style={styles.swatchRow}>
+                <TouchableOpacity
+                  style={[styles.swatchBtn, { backgroundColor: '#F5F5F0' }]}
+                  onPress={() => setSelectedRindRgb({ r: 245, g: 245, b: 240 })}
+                >
+                  <Text style={styles.swatchText}>Biała</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.swatchBtn, { backgroundColor: '#D77D2D' }]}
+                  onPress={() => setSelectedRindRgb({ r: 215, g: 125, b: 45 })}
+                >
+                  <Text style={[styles.swatchText, { color: '#FFF' }]}>Maź B.</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.swatchBtn, { backgroundColor: '#EBE4CD' }]}
+                  onPress={() => setSelectedRindRgb({ r: 235, g: 228, b: 205 })}
+                >
+                  <Text style={styles.swatchText}>Geo</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.swatchBtn, { backgroundColor: '#2D2D2D' }]}
+                  onPress={() => setSelectedRindRgb({ r: 45, g: 45, b: 45 })}
+                >
+                  <Text style={[styles.swatchText, { color: '#EF4444' }]}>Mucor</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.visionResultBox}>
+                <Text style={styles.visionFloraName}>{rindAnalysis.colorName}</Text>
+                <Text style={styles.visionConfidence}>
+                  {t('Pewność:')} {rindAnalysis.floraConfidencePct}% · {coverageAnalysis.status}
+                </Text>
+                {rindAnalysis.isContaminationSuspected && (
+                  <Text style={styles.visionAlertText}>⚠️ {rindAnalysis.contaminationDetails}</Text>
+                )}
+                <Text style={styles.visionActionText}>👉 {rindAnalysis.recommendedAction}</Text>
+              </View>
             </View>
           )}
         </View>
@@ -818,5 +1119,219 @@ const styles = StyleSheet.create({
   modalBtnRow: {
     flexDirection: 'row',
     marginTop: 10,
+  },
+  telemetrySection: {
+    marginTop: 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#374151',
+  },
+  telemetryHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  telemetryTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#F8FAFC',
+  },
+  stabilityBadge: {
+    fontSize: 11,
+    color: '#10B981',
+    fontWeight: '700',
+    backgroundColor: '#064E3B',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  telemetryHint: {
+    fontSize: 11,
+    color: '#94A3B8',
+    marginBottom: 8,
+  },
+  telemetryActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  telemetryButton: {
+    backgroundColor: '#374151',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#4B5563',
+  },
+  telemetryButtonText: {
+    fontSize: 12,
+    color: '#F8FAFC',
+    fontWeight: '600',
+  },
+  decodedBadge: {
+    backgroundColor: '#1E2229',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#10B981',
+  },
+  decodedBadgeText: {
+    fontSize: 11,
+    color: '#10B981',
+    fontVariant: ['tabular-nums'],
+  },
+  propionicCard: {
+    backgroundColor: '#262B34',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D97706',
+    padding: 14,
+    marginBottom: 14,
+  },
+  propionicHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  propionicTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#F8FAFC',
+    marginBottom: 2,
+  },
+  propionicSubtitle: {
+    fontSize: 11,
+    color: '#94A3B8',
+  },
+  propionicToggleText: {
+    fontSize: 14,
+    color: '#F59E0B',
+    paddingHorizontal: 8,
+  },
+  propionicBody: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#374151',
+  },
+  propionicStatsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#1E2229',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#374151',
+    padding: 10,
+    marginVertical: 10,
+  },
+  propionicStat: {
+    alignItems: 'center',
+  },
+  propionicStatLabel: {
+    fontSize: 10,
+    color: '#94A3B8',
+    marginBottom: 2,
+  },
+  propionicStatValue: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#F8FAFC',
+    fontVariant: ['tabular-nums'],
+  },
+  propionicDirectiveText: {
+    fontSize: 12,
+    color: '#FBBF24',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  propionicCareText: {
+    fontSize: 11,
+    color: '#CBD5E1',
+    marginBottom: 8,
+  },
+  eyeAuditBox: {
+    backgroundColor: '#1E2229',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#4B5563',
+    padding: 8,
+    marginTop: 6,
+  },
+  eyeAuditTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#CBD5E1',
+    marginBottom: 2,
+  },
+  eyeAuditValue: {
+    fontSize: 11,
+    color: '#10B981',
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  eyeAuditNotes: {
+    fontSize: 11,
+    color: '#94A3B8',
+    fontStyle: 'italic',
+  },
+  visionCard: {
+    backgroundColor: '#262B34',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#3B82F6',
+    padding: 14,
+    marginBottom: 14,
+  },
+  swatchRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginVertical: 8,
+  },
+  swatchBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#64748B',
+  },
+  swatchText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  visionResultBox: {
+    backgroundColor: '#1E2229',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#374151',
+    padding: 10,
+    marginTop: 6,
+  },
+  visionFloraName: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#F8FAFC',
+    marginBottom: 2,
+  },
+  visionConfidence: {
+    fontSize: 11,
+    color: '#94A3B8',
+    marginBottom: 4,
+  },
+  visionAlertText: {
+    fontSize: 11,
+    color: '#EF4444',
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  visionActionText: {
+    fontSize: 11,
+    color: '#38BDF8',
+    fontWeight: '600',
   },
 });

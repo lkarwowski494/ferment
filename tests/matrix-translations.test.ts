@@ -996,6 +996,43 @@ describe('AST Matrix UI & TEKST Coverage (BR-TEST-028)', () => {
     "Krążek czeka w Zakładce 3 (Dojrzewalnia).",
     "Dodaj do spiżarni",
     "Stan magazynowy jest synchronizowany automatycznie po każdej partii.",
+
+    // Extended v1.1 Cave & Telemetry
+    "Błąd Dekodowania",
+    "Nie rozpoznano formatu Ruuvi RAW v2, BTHome ani CSV logera.",
+    "Smart Telemetria & Czujniki BLE",
+    "stabilności",
+    "Wklej pakiet HEX RuuviTag RAW v2, Xiaomi Mijia BTHome lub dane CSV z logera:",
+    "Dekoduj & Synchronizuj",
+    "Komora Ciepła: Sery z Oczkami (Propionowe)",
+    "Emmentaler, Maasdam, Jarlsberg — kontrola CO2 i pęcznienia krążka",
+    "Styl sera propionowego:",
+    "Dzień w komorze ciepłej (20-24°C):",
+    "Dzień w komorze ciepłej:",
+    "Zmierzone wybrzuszenie krążka (kopuła):",
+    "Wybrzuszenie krążka (mm):",
+    "Wydzielony CO2:",
+    "Średnica oczek:",
+    "Bezpieczeństwo:",
+    "Równomierność Oczek & Porowatość (Miąższ):",
+    "jednolitości",
+    "Porowatość:",
+    "Wizualna Inspekcja Skórki & Oczkowania",
+    "Analiza kolorymetryczna flory (P. camemberti, B. linens) i defektów",
+    "Wybierz próbkę barwy skórki krążka:",
+    "Pewność:",
+
+    // Extended v1.1 Anti-Phage Shield
+    "Tarcza Przeciwfagowa Starterów",
+    "Rotacja grup biologicznych i prewencja martwych wsadów",
+    "KRYTYCZNE",
+    "UMIARKOWANE",
+    "BEZPIECZNIE",
+    "Aktualna kultura starterowa:",
+    "Wsady z rzędu tą samą grupą:",
+    "Zidentyfikowana grupa fagowa:",
+    "Sugerowana bezpieczna rotacja (inna grupa fagowa):",
+    "Protokół sanityzacji kotła:",
   ];
 
   it('translates all UI & TEKST keys to non-empty string in active locale (100% matrix coverage)', () => {

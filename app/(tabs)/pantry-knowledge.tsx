@@ -32,6 +32,12 @@ import {
   BackupFileInfo,
 } from '../../src/lib/backup';
 import { printLabelSheet, LabelItem } from '../../src/lib/pdf-sheet-generator';
+import {
+  identifyPhageGroup,
+  evaluatePhageRisk,
+  recommendCultureRotation,
+  PHAGE_GROUPS,
+} from '../../src/core/phage-rotation-engine';
 
 export default function PantryKnowledgeScreen() {
   const {
@@ -46,6 +52,8 @@ export default function PantryKnowledgeScreen() {
 
   // Spiżarnia State
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
+  const [selectedPhageCulture, setSelectedPhageCulture] = useState<string>('CHN-19');
+  const [consecutiveBatches, setConsecutiveBatches] = useState<number>(3);
 
   // Etykiety & Koszty State
   const [labelCopies, setLabelCopies] = useState<number>(8);
@@ -112,6 +120,17 @@ export default function PantryKnowledgeScreen() {
     setBackups(bList);
     Alert.alert(t('Kopia Utworzona'), t('Nowy punkt przywracania został pomyślnie zapisany w pamięci urządzenia.'));
   };
+
+  const phageHistory = Array(Math.max(1, consecutiveBatches)).fill(selectedPhageCulture);
+  const phageRisk = evaluatePhageRisk(phageHistory);
+  const pantryCultureNames = pantryItems
+    .filter(
+      (it) =>
+        it.category?.toLowerCase().includes('kultur') ||
+        it.category?.toLowerCase().includes('starter')
+    )
+    .map((it) => it.itemName);
+  const rotationAdvice = recommendCultureRotation(selectedPhageCulture, pantryCultureNames);
 
   const modeOptions: { label: string; value: 'pantry' | 'labels' | 'school' | 'settings' }[] = [
     { label: t('Spiżarnia'), value: 'pantry' },
@@ -189,6 +208,116 @@ export default function PantryKnowledgeScreen() {
                   </View>
                 ))
               )}
+            </View>
+
+            {/* Tarcza Przeciwfagowa Starterów */}
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardIcon}>🛡️</Text>
+                <View style={styles.cardTitleCol}>
+                  <Text style={styles.cardTitle}>{t('Tarcza Przeciwfagowa Starterów')}</Text>
+                  <Text style={styles.cardSubtitle}>
+                    {t('Rotacja grup biologicznych i prewencja martwych wsadów')}
+                  </Text>
+                </View>
+                <View
+                  style={[
+                    styles.phageRiskBadge,
+                    phageRisk.riskLevel === 'CRITICAL'
+                      ? styles.phageBadgeCritical
+                      : phageRisk.riskLevel === 'MODERATE'
+                      ? styles.phageBadgeModerate
+                      : styles.phageBadgeLow,
+                  ]}
+                >
+                  <Text style={styles.phageBadgeText}>
+                    {phageRisk.riskLevel === 'CRITICAL'
+                      ? t('KRYTYCZNE')
+                      : phageRisk.riskLevel === 'MODERATE'
+                      ? t('UMIARKOWANE')
+                      : t('BEZPIECZNIE')}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.row}>
+                <Text style={styles.label}>{t('Aktualna kultura starterowa:')}</Text>
+              </View>
+              <View style={styles.chipRow}>
+                {['CHN-19', 'Flora Danica', 'MA 11', 'KAZU 100', 'STI-12', 'Probat 222'].map(
+                  (cName) => (
+                    <TouchableOpacity
+                      key={cName}
+                      style={[
+                        styles.phageChip,
+                        selectedPhageCulture === cName && styles.phageChipActive,
+                      ]}
+                      onPress={() => {
+                        triggerHapticFeedback();
+                        setSelectedPhageCulture(cName);
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.phageChipText,
+                          selectedPhageCulture === cName && styles.phageChipTextActive,
+                        ]}
+                      >
+                        {cName}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                )}
+              </View>
+
+              <View style={styles.row}>
+                <Text style={styles.label}>{t('Wsady z rzędu tą samą grupą:')}</Text>
+                <NumInput
+                  value={consecutiveBatches}
+                  onChangeValue={setConsecutiveBatches}
+                  step={1}
+                  min={1}
+                  max={8}
+                  accessibilityLabel={t('Wsady z rzędu tą samą grupą:')}
+                />
+              </View>
+
+              <View style={styles.phageGroupInfo}>
+                <Text style={styles.phageGroupLabel}>{t('Zidentyfikowana grupa fagowa:')}</Text>
+                <Text style={styles.phageGroupVal}>{phageRisk.groupName}</Text>
+              </View>
+
+              <View
+                style={[
+                  styles.phageWarningBox,
+                  phageRisk.riskLevel === 'CRITICAL'
+                    ? styles.phageBoxCritical
+                    : phageRisk.riskLevel === 'MODERATE'
+                    ? styles.phageBoxModerate
+                    : styles.phageBoxLow,
+                ]}
+              >
+                <Text style={styles.phageWarningText}>{phageRisk.warningMessage}</Text>
+              </View>
+
+              <View style={{ marginTop: 10 }}>
+                <Text style={styles.phageSectionTitle}>
+                  {t('Sugerowana bezpieczna rotacja (inna grupa fagowa):')}
+                </Text>
+                <View style={styles.rotationList}>
+                  {rotationAdvice.nextRecommendedCultures.map((rec) => (
+                    <View key={rec} style={styles.rotationBadge}>
+                      <Text style={styles.rotationBadgeText}>🔄 {rec}</Text>
+                    </View>
+                  ))}
+                </View>
+                <Text style={styles.rotationRationale}>{rotationAdvice.rationale}</Text>
+              </View>
+
+              <View style={styles.sanitationBox}>
+                <Text style={styles.sanitationTitle}>🧼 {t('Protokół sanityzacji kotła:')}</Text>
+                <Text style={styles.sanitationText}>{phageRisk.sanitationProtocol}</Text>
+              </View>
             </View>
           </View>
         )}
@@ -724,5 +853,149 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
     fontVariant: ['tabular-nums'],
     marginBottom: 4,
+  },
+  phageRiskBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  phageBadgeCritical: {
+    backgroundColor: '#7F1D1D',
+  },
+  phageBadgeModerate: {
+    backgroundColor: '#78350F',
+  },
+  phageBadgeLow: {
+    backgroundColor: '#064E3B',
+  },
+  phageBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#F8FAFC',
+    letterSpacing: 0.5,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  },
+  phageChip: {
+    backgroundColor: '#1E2229',
+    borderWidth: 1,
+    borderColor: '#374151',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  phageChipActive: {
+    backgroundColor: '#B86D3B',
+    borderColor: '#C68A4C',
+  },
+  phageChipText: {
+    fontSize: 13,
+    color: '#94A3B8',
+    fontWeight: '600',
+  },
+  phageChipTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  phageGroupInfo: {
+    backgroundColor: '#1E2229',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#374151',
+    padding: 10,
+    marginBottom: 10,
+  },
+  phageGroupLabel: {
+    fontSize: 11,
+    color: '#94A3B8',
+    marginBottom: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  phageGroupVal: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#E2E8F0',
+  },
+  phageWarningBox: {
+    borderRadius: 8,
+    borderWidth: 1,
+    padding: 12,
+    marginBottom: 12,
+  },
+  phageBoxCritical: {
+    backgroundColor: '#450A0A',
+    borderColor: '#DC2626',
+  },
+  phageBoxModerate: {
+    backgroundColor: '#451A03',
+    borderColor: '#D97706',
+  },
+  phageBoxLow: {
+    backgroundColor: '#064E3B',
+    borderColor: '#059669',
+  },
+  phageWarningText: {
+    fontSize: 12,
+    color: '#F1F5F9',
+    lineHeight: 18,
+    fontWeight: '500',
+  },
+  phageSectionTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#CBD5E1',
+    marginBottom: 8,
+  },
+  rotationList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 8,
+  },
+  rotationBadge: {
+    backgroundColor: '#1E2229',
+    borderColor: '#059669',
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  rotationBadgeText: {
+    fontSize: 12,
+    color: '#34D399',
+    fontWeight: '600',
+  },
+  rotationRationale: {
+    fontSize: 11,
+    color: '#94A3B8',
+    fontStyle: 'italic',
+    lineHeight: 16,
+  },
+  sanitationBox: {
+    backgroundColor: '#1E2229',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#374151',
+    padding: 12,
+    marginTop: 12,
+  },
+  sanitationTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#38BDF8',
+    marginBottom: 4,
+  },
+  sanitationText: {
+    fontSize: 11,
+    color: '#94A3B8',
+    lineHeight: 16,
   },
 });
